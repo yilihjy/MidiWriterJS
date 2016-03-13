@@ -18,32 +18,37 @@ MIDI.constants = {
 	META_LYRIC_ID			: "\x05",
 	META_MARKER_ID			: "\x06",
 	META_CUE_POINT			: "\x07",
-	META_END_OF_TRACK_ID	: "\x2F",
 	META_TEMPO_ID			: "\x51",
 	META_SMTPE_OFFSET		: "\x54",
 	META_TIME_SIGNATURE_ID	: "\x58",
-	META_KEY_SIGNATURE_ID	: "\x59"
+	META_KEY_SIGNATURE_ID	: "\x59",
+	META_END_OF_TRACK_ID	: "\x2F",
+	NOTE_ON_STATUS			: "\x90"
 };
 
 MIDI.Chunk = function(fields) {
 	this.type = fields.type;
 	this.size = MIDI.numberToBytes(fields.data.length, 4);
 	this.data = fields.data;
-
-	return this;
 };
 
-MIDI.NoteOnEvent = function() {
-	// note, octave, duration
-	return ["\x90", "\x3C"/*note*/, "\x40"];
+MIDI.Chunk.prototype.addEvent = function(event) {
+	this.data = this.data.concat(event.data);
+	this.size = MIDI.numberToBytes(this.size.charCodeAt(0) + this.data.length, 4);
+};
+
+MIDI.NoteOnEvent = function(fields) {
+	this.data = ["\x00"].concat(fields.data); // 0 Delta time for now
 };
 
 MIDI.NoteOffEvent = function() {
-	return ["\x80", "\x3C", "\x40"];
+	//return ["\x80", "\x3C", "\x40"];
 };
 
 MIDI.MetaEvent = function(fields) {
-	this.data = [MIDI.constants.META_EVENT_ID];
+	this.type = fields.type;
+	this.data = [MIDI.constants.META_EVENT_ID].concat(fields.data); 
+	this.size = MIDI.numberToBytes(fields.data.length);
 };
 
 MIDI.SysexEvent = function() {
@@ -61,8 +66,16 @@ MIDI.Writer = function(events) {
 	// Track chunks
 	var track = new MIDI.Chunk({
 		type: MIDI.constants.TRACK_CHUNK_TYPE,
-		data: ["\x90", "\x3C"/*note*/, "\x40"]
+		data: []
 	});
+
+	//["\x80","\x90", "\x3C"/*note*/, "\x40"].concat(MIDI.constants.META_END_OF_TRACK_ID)
+
+	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x3C", "\x40"]}));
+	track.addEvent(new MIDI.MetaEvent({data: [MIDI.constants.META_END_OF_TRACK_ID, "\x00"]}));
+
+	//track.data.push();
+	console.log(new MIDI.MetaEvent({type: MIDI.constants.META_END_OF_TRACK_ID, data: ["\x00"]}));
 
 	this.data.push(track);
 
