@@ -1,4 +1,5 @@
-//https://www.csie.ntu.edu.tw/~r92092/ref/midi/
+// https://github.com/grimmdude/MidiWriterJS
+// MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
 
 var MidiWriter = {
 };
@@ -51,18 +52,29 @@ MidiWriter.Chunk = function(fields) {
 	this.size = [0, 0, 0, fields.data.length];
 };
 
+
+MidiWriter.Track = function() {
+	this.type = MidiWriter.constants.TRACK_CHUNK_TYPE;
+	this.data = [];
+	this.size = [];
+};
+
+MidiWriter.Track.prototype.addEvent = function(event) {
+	this.data = this.data.concat(MidiWriter.numberToVariableLength(128)); // Start all events with 128 Delta ticks time for now - quarter note
+	this.data = this.data.concat(event.data);
+	this.size = [0, 0, 0, this.data.length];
+};
+
 MidiWriter.Chunk.prototype.addEvent = function(event) {
 	this.data = this.data.concat(MidiWriter.numberToVariableLength(128)); // Start all events with 128 Delta ticks time for now - quarter note
 	this.data = this.data.concat(event.data);
-	//console.log(this.data.length);
 	this.size = [0, 0, 0, this.data.length];
 };
 
 MidiWriter.Chunk.prototype.setTempo = function(tempo) {
 	var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
 	event.data.push(0x03); // Size
-	event.data.concat([0, 0, tempo]); // bytes
-	//console.log(event);
+	event.data.concat([0, 0, tempo]); // 3 bytes
 	this.addEvent(event);
 };
 
@@ -71,7 +83,6 @@ MidiWriter.Chunk.prototype.addLyric = function(lyric) {
 	event.data.concat(MidiWriter.numberToVariableLength(MidiWriter.stringByteCount(lyric))); // Size
 	event.data.push(lyric);
 	this.addEvent(event);
-	//console.log(MidiWriter.numberToVariableLength(MidiWriter.stringByteCount(lyric)));
 };
 
 MidiWriter.NoteOnEvent = function(fields) {
@@ -90,7 +101,7 @@ MidiWriter.SysexEvent = function() {
 
 };
 
-MidiWriter.Writer = function(events) {
+MidiWriter.Writer = function(track) {
 	this.data = [];
 
 	// Header chunk
@@ -100,33 +111,8 @@ MidiWriter.Writer = function(events) {
 
 
 	// Track chunks
-	var track = new MidiWriter.Chunk({
-		type: MidiWriter.constants.TRACK_CHUNK_TYPE,
-		data: []
-	});
-
-	//track.setTempo(100000);
-	//track.addLyric('test this mofo out');
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x3C, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x3C, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
-	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
 	track.addEvent(new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_END_OF_TRACK_ID, 0x00]}));
-
 	this.data.push(track);
-
-	console.log('data:audio/midi;base64,' + btoa(String.fromCharCode.apply(null, this.buildFile(this.data))));
-
 	document.getElementById('midi-play').href = "javascript:void(play('data:audio/midi;base64," + btoa(this.buildFile(this.data)) + "'));";
 };
 
@@ -134,22 +120,18 @@ MidiWriter.Writer.prototype.buildFile = function(data) {
 	var build = [];
 
 	// Data consists of chunks which consists of data
-	for (var i in data) {
-		/*
-		console.log(data[i].data.length);
-		var myArray = new ArrayBuffer(data[i].data.length);
-		var longInt8View = new Uint8Array(myArray);
-
-		console.log(longInt8View);
-		*/
-
-		build = build.concat(data[i].type);
-		build = build.concat(data[i].size);
-		build = build.concat(data[i].data);
+	for (var i in this.data) {
+		build = build.concat(this.data[i].type);
+		build = build.concat(this.data[i].size);
+		build = build.concat(this.data[i].data);
 	}
 
 	return build;
 };
+
+MidiWriter.Writer.prototype.base64 = function() {
+	return btoa(String.fromCharCode.apply(null, this.buildFile()));
+}
 
 
 /**
@@ -185,5 +167,15 @@ MidiWriter.stringByteCount = function (s) {
 };
 
 
-new MidiWriter.Writer();
+/* Example */
+var track = new MidiWriter.Track();
+//track.setTempo(100000);
+//track.addLyric('test this mofo out');
+var noteOn = new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x3C, 0x40]});
+var noteOff = new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x3C, 0x40]});
 
+track.addEvent(noteOn);
+track.addEvent(noteOff);
+
+var write = new MidiWriter.Writer(track);
+console.log('data:audio/midi;base64,' + write.base64());
