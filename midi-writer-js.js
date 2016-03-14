@@ -23,7 +23,8 @@ MIDI.constants = {
 	META_TIME_SIGNATURE_ID	: "\x58",
 	META_KEY_SIGNATURE_ID	: "\x59",
 	META_END_OF_TRACK_ID	: "\x2F",
-	NOTE_ON_STATUS			: "\x90"
+	NOTE_ON_STATUS			: "\x90", // includes channel number (0)
+	NOTE_OFF_STATUS			: "\x80" // includes channel number (0)
 };
 
 MIDI.Chunk = function(fields) {
@@ -33,22 +34,25 @@ MIDI.Chunk = function(fields) {
 };
 
 MIDI.Chunk.prototype.addEvent = function(event) {
+	this.data = this.data.concat(MIDI.translateTickTime(128)); // Start all events with 128 Delta ticks time for now - quarter note
 	this.data = this.data.concat(event.data);
+	//console.log(this.data.length);
 	this.size = MIDI.numberToBytes(this.size.charCodeAt(0) + this.data.length, 4);
 };
 
 MIDI.NoteOnEvent = function(fields) {
-	this.data = ["\x00"].concat(fields.data); // 0 Delta time for now
+	this.data = fields.data;
+	//this.data = ["\x50"].concat(fields.data); // 80 Delta ticks time for now
 };
 
-MIDI.NoteOffEvent = function() {
-	//return ["\x80", "\x3C", "\x40"];
+MIDI.NoteOffEvent = function(fields) {
+	this.data = fields.data;
 };
 
 MIDI.MetaEvent = function(fields) {
-	this.type = fields.type;
+	//this.type = fields.type;
 	this.data = [MIDI.constants.META_EVENT_ID].concat(fields.data); 
-	this.size = MIDI.numberToBytes(fields.data.length);
+	//this.size = MIDI.numberToBytes(fields.data.length);
 };
 
 MIDI.SysexEvent = function() {
@@ -72,10 +76,10 @@ MIDI.Writer = function(events) {
 	//["\x80","\x90", "\x3C"/*note*/, "\x40"].concat(MIDI.constants.META_END_OF_TRACK_ID)
 
 	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x3C", "\x40"]}));
+	track.addEvent(new MIDI.NoteOffEvent({data: [MIDI.constants.NOTE_OFF_STATUS, "\x3C", "\x40"]}));
+	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x71", "\x40"]}));
 	track.addEvent(new MIDI.MetaEvent({data: [MIDI.constants.META_END_OF_TRACK_ID, "\x00"]}));
 
-	//track.data.push();
-	console.log(new MIDI.MetaEvent({type: MIDI.constants.META_END_OF_TRACK_ID, data: ["\x00"]}));
 
 	this.data.push(track);
 
@@ -88,6 +92,7 @@ MIDI.Writer.prototype.buildFile = function(data) {
 
 	// Data consists of chunks which consists of data
 	for (var i in data) {
+		console.log(data[i].data);
 		build += data[i].type + data[i].size + data[i].data.join('');
 	}
 
@@ -96,7 +101,7 @@ MIDI.Writer.prototype.buildFile = function(data) {
 
 /**
  * Utilities
- *
+ * Converts a number into a hex string.
  */
 MIDI.numberToBytes = function(number, neededBytes) {
 	var str = number.toString(16);
@@ -114,15 +119,36 @@ MIDI.numberToBytes = function(number, neededBytes) {
     return String.fromCharCode.apply(null, bytes);
 }
 
-MIDI.joinHexArray = function(array) {
-	var hexString = "";
+/**
+ * Translates number of ticks to MIDI timestamp format, returning an array of
+ * hex strings with the time values. Midi has a very particular time to express time,
+ * take a good look at the spec before ever touching this function.
+ * Thanks to https://github.com/sergi/jsmidi
+ *
+ * @param ticks {Integer} Number of ticks to be translated
+ * @returns Array of bytes that form the MIDI time value
+ */
+MIDI.translateTickTime = function(ticks) {
+    var buffer = ticks & 0x7F;
 
-	for (var i in array) {
-		hexString += array[i];
-	}
+    while (ticks = ticks >> 7) {
+        buffer <<= 8;
+        buffer |= ((ticks & 0x7F) | 0x80);
+    }
 
-	return hexString;
-}
+    var bList = [];
+    while (true) {
+        bList.push(buffer & 0xff);
+
+        if (buffer & 0x80) { buffer >>= 8; }
+        else { break; }
+    }
+
+    return bList.map(function(item) {
+    	return MIDI.numberToBytes(item);
+    });
+};
+
 
 new MIDI.Writer();
 
