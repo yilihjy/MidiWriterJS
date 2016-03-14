@@ -42,7 +42,6 @@ MIDI.Chunk.prototype.addEvent = function(event) {
 
 MIDI.NoteOnEvent = function(fields) {
 	this.data = fields.data;
-	//this.data = ["\x50"].concat(fields.data); // 80 Delta ticks time for now
 };
 
 MIDI.NoteOffEvent = function(fields) {
@@ -50,9 +49,7 @@ MIDI.NoteOffEvent = function(fields) {
 };
 
 MIDI.MetaEvent = function(fields) {
-	//this.type = fields.type;
 	this.data = [MIDI.constants.META_EVENT_ID].concat(fields.data); 
-	//this.size = MIDI.numberToBytes(fields.data.length);
 };
 
 MIDI.SysexEvent = function() {
@@ -77,12 +74,11 @@ MIDI.Writer = function(events) {
 
 	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x3C", "\x40"]}));
 	track.addEvent(new MIDI.NoteOffEvent({data: [MIDI.constants.NOTE_OFF_STATUS, "\x3C", "\x40"]}));
-	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x71", "\x40"]}));
+	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x4E", "\x40"]}));
+	track.addEvent(new MIDI.NoteOffEvent({data: [MIDI.constants.NOTE_OFF_STATUS, "\x4E", "\x40"]}));
 	track.addEvent(new MIDI.MetaEvent({data: [MIDI.constants.META_END_OF_TRACK_ID, "\x00"]}));
 
-
 	this.data.push(track);
-
 
 	console.log('data:audio/midi;base64,' + btoa(this.buildFile(this.data)));
 };
