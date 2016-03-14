@@ -1,119 +1,156 @@
 //https://www.csie.ntu.edu.tw/~r92092/ref/midi/
 
-var MIDI = {
+var MidiWriter = {
 };
 
-MIDI.constants = {
-	HEADER_CHUNK_TYPE  		: "MThd",
-	HEADER_CHUNK_LENGTH  	: "\x00\x00\x00\x06", // Header size for SMF
-	HEADER_CHUNK_FORMAT0    : ["\x00", "\x00"], // Midi Type 0 id
-	HEADER_CHUNK_FORMAT1    : ["\x00", "\x01"], // Midi Type 1 id
-	HEADER_CHUNK_DIVISION   : ["\x00", "\x80"], // Defaults to 128 ticks per beat
-	TRACK_CHUNK_TYPE		: "MTrk",
-	META_EVENT_ID			: "\xFF",
-	META_TEXT_ID			: "\x01",
-	META_COPYRIGHT_ID		: "\x02",
-	META_TRACK_NAME_ID		: "\x03",
-	META_INSTRUMENT_NAME_ID : "\x04",
-	META_LYRIC_ID			: "\x05",
-	META_MARKER_ID			: "\x06",
-	META_CUE_POINT			: "\x07",
-	META_TEMPO_ID			: "\x51",
-	META_SMTPE_OFFSET		: "\x54",
-	META_TIME_SIGNATURE_ID	: "\x58",
-	META_KEY_SIGNATURE_ID	: "\x59",
-	META_END_OF_TRACK_ID	: "\x2F",
-	NOTE_ON_STATUS			: "\x90", // includes channel number (0)
-	NOTE_OFF_STATUS			: "\x80" // includes channel number (0)
+MidiWriter.constants = {
+	HEADER_CHUNK_TYPE  		: [0x4d, 0x54, 0x68, 0x64], // Mthd
+	HEADER_CHUNK_LENGTH  	: [0x00, 0x00, 0x00, 0x06], // Header size for SMF
+	HEADER_CHUNK_FORMAT0    : [0x00, 0x00], // Midi Type 0 id
+	HEADER_CHUNK_FORMAT1    : [0x00, 0x01], // Midi Type 1 id
+	HEADER_CHUNK_DIVISION   : [0x00, 0x80], // Defaults to 128 ticks per beat
+	TRACK_CHUNK_TYPE		: [0x4d, 0x54, 0x72, 0x6b], // MTrk,
+	META_EVENT_ID			: 0xFF,
+	META_TEXT_ID			: 0x01,
+	META_COPYRIGHT_ID		: 0x02,
+	META_TRACK_NAME_ID		: 0x03,
+	META_INSTRUMENT_NAME_ID : 0x04,
+	META_LYRIC_ID			: 0x05,
+	META_MARKER_ID			: 0x06,
+	META_CUE_POINT			: 0x07,
+	META_TEMPO_ID			: 0x51,
+	META_SMTPE_OFFSET		: 0x54,
+	META_TIME_SIGNATURE_ID	: 0x58,
+	META_KEY_SIGNATURE_ID	: 0x59,
+	META_END_OF_TRACK_ID	: 0x2F,
+	NOTE_ON_STATUS			: 0x90, // includes channel number (0)
+	NOTE_OFF_STATUS			: 0x80 // includes channel number (0)
 };
 
-MIDI.Chunk = function(fields) {
+MidiWriter.constants.notes = { "G9": 0x7F, "Gb9": 0x7E, "F9": 0x7D, "E9": 0x7C, "Eb9": 0x7B,
+"D9": 0x7A, "Db9": 0x79, "C9": 0x78, "B8": 0x77, "Bb8": 0x76, "A8": 0x75, "Ab8": 0x74,
+"G8": 0x73, "Gb8": 0x72, "F8": 0x71, "E8": 0x70, "Eb8": 0x6F, "D8": 0x6E, "Db8": 0x6D,
+"C8": 0x6C, "B7": 0x6B, "Bb7": 0x6A, "A7": 0x69, "Ab7": 0x68, "G7": 0x67, "Gb7": 0x66,
+"F7": 0x65, "E7": 0x64, "Eb7": 0x63, "D7": 0x62, "Db7": 0x61, "C7": 0x60, "B6": 0x5F,
+"Bb6": 0x5E, "A6": 0x5D, "Ab6": 0x5C, "G6": 0x5B, "Gb6": 0x5A, "F6": 0x59, "E6": 0x58,
+"Eb6": 0x57, "D6": 0x56, "Db6": 0x55, "C6": 0x54, "B5": 0x53, "Bb5": 0x52, "A5": 0x51,
+"Ab5": 0x50, "G5": 0x4F, "Gb5": 0x4E, "F5": 0x4D, "E5": 0x4C, "Eb5": 0x4B, "D5": 0x4A,
+"Db5": 0x49, "C5": 0x48, "B4": 0x47, "Bb4": 0x46, "A4": 0x45, "Ab4": 0x44, "G4": 0x43,
+"Gb4": 0x42, "F4": 0x41, "E4": 0x40, "Eb4": 0x3F, "D4": 0x3E, "Db4": 0x3D, "C4": 0x3C,
+"B3": 0x3B, "Bb3": 0x3A, "A3": 0x39, "Ab3": 0x38, "G3": 0x37, "Gb3": 0x36, "F3": 0x35,
+"E3": 0x34, "Eb3": 0x33, "D3": 0x32, "Db3": 0x31, "C3": 0x30, "B2": 0x2F, "Bb2": 0x2E,
+"A2": 0x2D, "Ab2": 0x2C, "G2": 0x2B, "Gb2": 0x2A, "F2": 0x29, "E2": 0x28, "Eb2": 0x27,
+"D2": 0x26, "Db2": 0x25, "C2": 0x24, "B1": 0x23, "Bb1": 0x22, "A1": 0x21, "Ab1": 0x20,
+"G1": 0x1F, "Gb1": 0x1E, "F1": 0x1D, "E1": 0x1C, "Eb1": 0x1B, "D1": 0x1A, "Db1": 0x19,
+"C1": 0x18, "B0": 0x17, "Bb0": 0x16, "A0": 0x15, "Ab0": 0x14, "G0": 0x13, "Gb0": 0x12,
+"F0": 0x11, "E0": 0x10, "Eb0": 0x0F, "D0": 0x0E, "Db0": 0x0D, "C0": 0x0C };
+
+MidiWriter.Chunk = function(fields) {
 	this.type = fields.type;
-	this.size = MIDI.numberToBytes(fields.data.length, 4);
 	this.data = fields.data;
+	this.size = [0, 0, 0, fields.data.length];
 };
 
-MIDI.Chunk.prototype.addEvent = function(event) {
-	this.data = this.data.concat(MIDI.translateTickTime(128)); // Start all events with 128 Delta ticks time for now - quarter note
+MidiWriter.Chunk.prototype.addEvent = function(event) {
+	this.data = this.data.concat(MidiWriter.numberToVariableLength(128)); // Start all events with 128 Delta ticks time for now - quarter note
 	this.data = this.data.concat(event.data);
 	//console.log(this.data.length);
-	this.size = MIDI.numberToBytes(this.size.charCodeAt(0) + this.data.length, 4);
+	this.size = [0, 0, 0, this.data.length];
 };
 
-MIDI.NoteOnEvent = function(fields) {
+MidiWriter.Chunk.prototype.setTempo = function(tempo) {
+	var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
+	event.data.push(0x03); // Size
+	event.data.concat([0, 0, tempo]); // bytes
+	//console.log(event);
+	this.addEvent(event);
+};
+
+MidiWriter.Chunk.prototype.addLyric = function(lyric) {
+	var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_LYRIC_ID]});
+	event.data.concat(MidiWriter.numberToVariableLength(MidiWriter.stringByteCount(lyric))); // Size
+	event.data.push(lyric);
+	this.addEvent(event);
+	//console.log(MidiWriter.numberToVariableLength(MidiWriter.stringByteCount(lyric)));
+};
+
+MidiWriter.NoteOnEvent = function(fields) {
 	this.data = fields.data;
 };
 
-MIDI.NoteOffEvent = function(fields) {
+MidiWriter.NoteOffEvent = function(fields) {
 	this.data = fields.data;
 };
 
-MIDI.MetaEvent = function(fields) {
-	this.data = [MIDI.constants.META_EVENT_ID].concat(fields.data); 
+MidiWriter.MetaEvent = function(fields) {
+	this.data = [MidiWriter.constants.META_EVENT_ID].concat(fields.data); 
 };
 
-MIDI.SysexEvent = function() {
+MidiWriter.SysexEvent = function() {
 
 };
 
-MIDI.Writer = function(events) {
+MidiWriter.Writer = function(events) {
 	this.data = [];
 
 	// Header chunk
-	this.data.push(new MIDI.Chunk({
-							type: MIDI.constants.HEADER_CHUNK_TYPE, 
-							data: [].concat(MIDI.constants.HEADER_CHUNK_FORMAT0, ["\x00", "\x01"], MIDI.constants.HEADER_CHUNK_DIVISION)}));
+	this.data.push(new MidiWriter.Chunk({
+							type: MidiWriter.constants.HEADER_CHUNK_TYPE, 
+							data: [].concat(MidiWriter.constants.HEADER_CHUNK_FORMAT0, [0x00, 0x01], MidiWriter.constants.HEADER_CHUNK_DIVISION)}));
+
 
 	// Track chunks
-	var track = new MIDI.Chunk({
-		type: MIDI.constants.TRACK_CHUNK_TYPE,
+	var track = new MidiWriter.Chunk({
+		type: MidiWriter.constants.TRACK_CHUNK_TYPE,
 		data: []
 	});
 
-	//["\x80","\x90", "\x3C"/*note*/, "\x40"].concat(MIDI.constants.META_END_OF_TRACK_ID)
-
-	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x3C", "\x40"]}));
-	track.addEvent(new MIDI.NoteOffEvent({data: [MIDI.constants.NOTE_OFF_STATUS, "\x3C", "\x40"]}));
-	track.addEvent(new MIDI.NoteOnEvent({data: [MIDI.constants.NOTE_ON_STATUS, "\x4E", "\x40"]}));
-	track.addEvent(new MIDI.NoteOffEvent({data: [MIDI.constants.NOTE_OFF_STATUS, "\x4E", "\x40"]}));
-	track.addEvent(new MIDI.MetaEvent({data: [MIDI.constants.META_END_OF_TRACK_ID, "\x00"]}));
+	//track.setTempo(100000);
+	//track.addLyric('test this mofo out');
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x3C, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x3C, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOnEvent({data: [MidiWriter.constants.NOTE_ON_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.NoteOffEvent({data: [MidiWriter.constants.NOTE_OFF_STATUS, 0x4E, 0x40]}));
+	track.addEvent(new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_END_OF_TRACK_ID, 0x00]}));
 
 	this.data.push(track);
 
-	console.log('data:audio/midi;base64,' + btoa(this.buildFile(this.data)));
+	console.log('data:audio/midi;base64,' + btoa(String.fromCharCode.apply(null, this.buildFile(this.data))));
+
+	document.getElementById('midi-play').href = "javascript:void(play('data:audio/midi;base64," + btoa(this.buildFile(this.data)) + "'));";
 };
 
-MIDI.Writer.prototype.buildFile = function(data) {
-	var build = "";
+MidiWriter.Writer.prototype.buildFile = function(data) {
+	var build = [];
 
 	// Data consists of chunks which consists of data
 	for (var i in data) {
-		console.log(data[i].data);
-		build += data[i].type + data[i].size + data[i].data.join('');
+		/*
+		console.log(data[i].data.length);
+		var myArray = new ArrayBuffer(data[i].data.length);
+		var longInt8View = new Uint8Array(myArray);
+
+		console.log(longInt8View);
+		*/
+
+		build = build.concat(data[i].type);
+		build = build.concat(data[i].size);
+		build = build.concat(data[i].data);
 	}
 
 	return build;
 };
 
-/**
- * Utilities
- * Converts a number into a hex string.
- */
-MIDI.numberToBytes = function(number, neededBytes) {
-	var str = number.toString(16);
-
-    if (neededBytes) {
-        while ((str.length / 2) < neededBytes) { str = "0" + str; }
-    }
-
-    var bytes = [];
-    for (var i = str.length - 1; i >= 0; i = i - 2) {
-        var chars = i === 0 ? str[i] : str[i-1] + str[i];
-        bytes.unshift(parseInt(chars, 16));
-    }
-
-    return String.fromCharCode.apply(null, bytes);
-}
 
 /**
  * Translates number of ticks to MIDI timestamp format, returning an array of
@@ -124,7 +161,7 @@ MIDI.numberToBytes = function(number, neededBytes) {
  * @param ticks {Integer} Number of ticks to be translated
  * @returns Array of bytes that form the MIDI time value
  */
-MIDI.translateTickTime = function(ticks) {
+MidiWriter.numberToVariableLength = function(ticks) {
     var buffer = ticks & 0x7F;
 
     while (ticks = ticks >> 7) {
@@ -140,13 +177,13 @@ MIDI.translateTickTime = function(ticks) {
         else { break; }
     }
 
-    return bList.map(function(item) {
-    	return MIDI.numberToBytes(item);
-    });
+    return bList;
+};
+
+MidiWriter.stringByteCount = function (s) {
+    return encodeURI(s).split(/%..|./).length - 1;
 };
 
 
-new MIDI.Writer();
-
-
+new MidiWriter.Writer();
 
