@@ -76,14 +76,15 @@
 	MidiWriter.Track.prototype.setTempo = function(tempo) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
 		event.data.push(0x03); // Size
-		event.data.concat([0, 0, tempo]); // 3 bytes
+		event.data = event.data.concat([0, 0, tempo]); // Tempo, 3 bytes
 		this.addEvent(event);
 	};
 
 	MidiWriter.Track.prototype.addLyric = function(lyric) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_LYRIC_ID]});
-		event.data.concat(MidiWriter.numberToVariableLength(MidiWriter.stringByteCount(lyric))); // Size
-		event.data.push(lyric);
+		var stringBytes = MidiWriter.stringToBytes(lyric);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Lyric
 		this.addEvent(event);
 	};
 
@@ -96,33 +97,46 @@
 	MidiWriter.NoteEvent = function(fields) {
 		this.pitch = fields.pitch;
 		this.duration = fields.timeValue;
+		this.data = [];
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
+		var multiplier;
 		switch (fields.duration) {
 			case '1':
-				var multiplier = 4;
+				multiplier = 4;
 				break;
 			case '4':
-				var multiplier = 1;
+				multiplier = 1;
 				break;
 			case '8':
-				var multiplier = .5;
+				multiplier = .5;
 				break;
 			case '16':
-				var multiplier = .25;
+				multiplier = .25;
 				break;
 			default:
-				var multipler = 1;
+				multipler = 1;
 				break;
 		}
 
 		var tickDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * multiplier;
 
-		// Start all events with 128 Delta ticks time for now - quarter note
-		var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
-		var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+		// fields.pitch could be an array of pitches.
+		// If so create note events for each and apply the same duration.
+		if (Array.isArray(this.pitch)) {
+			for (var i in this.pitch) {
+				var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
+				var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
 
-		this.data = noteOn.data.concat(noteOff.data);
+				this.data = this.data.concat(noteOn.data.concat(noteOff.data));
+			}
+
+		} else {
+			var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+			var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+
+			this.data = noteOn.data.concat(noteOff.data);
+		}
 	};
 
 
@@ -196,7 +210,7 @@
 		} else {
 			return new Buffer(this.buildFile()).toString('base64');
 		}
-	}
+	};
 
 
 	/**
@@ -247,12 +261,22 @@
 			// ensure string is 2 chars
 			if (stringResult.length === 1) {
 				stringResult = "0" + stringResult;
-			};
+			}
 
 			hex += stringResult;
 		}
 
 		return parseInt(hex, 16);
+	};
+
+
+	MidiWriter.stringToBytes = function(string) {
+		var bytes = [];
+		for (var i = 0; i < string.length; i++) {
+			bytes.push(string[i].charCodeAt(0))
+		}
+
+		return bytes;
 	};
 
 	// Node support
