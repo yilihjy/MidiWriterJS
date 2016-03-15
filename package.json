@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A library providing an API for generating MIDI files.",
   "main": "src/midi-writer-js.js",
+  "devDependencies": {
+    "mocha": "~2.4.5"
+  },
   "directories": {
     "test": "test"
   },
