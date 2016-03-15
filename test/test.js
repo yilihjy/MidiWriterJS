@@ -18,4 +18,10 @@ describe('MidiWriterJS', function() {
 			assert.equal(8463, MidiWriter.numberFromBytes([0x21, 0x0f]));
 		});
 	});
+
+	describe('#stringToBytes()', function () {
+		it('should return [116, 101, 115, 116] when "test" is passed.', function () {
+			assert.equal([116, 101, 115, 116].toString(), MidiWriter.stringToBytes('test').toString());
+		});
+	});
 });

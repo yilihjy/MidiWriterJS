@@ -80,6 +80,52 @@
 		this.addEvent(event);
 	};
 
+
+	MidiWriter.Track.prototype.addText = function(text) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEXT_ID]});
+		var stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Text
+		this.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addCopyright = function(text) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_COPYRIGHT_ID]});
+		var stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Text
+		this.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addInstrumentName = function(text) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_INSTRUMENT_NAME_ID]});
+		var stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Text
+		this.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addMarker = function(text) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_MARKER_ID]});
+		var stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Text
+		this.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addCuePoint = function(text) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_CUE_POINT]});
+		var stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Text
+		this.addEvent(event);
+	};
+
+
 	MidiWriter.Track.prototype.addLyric = function(lyric) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_LYRIC_ID]});
 		var stringBytes = MidiWriter.stringToBytes(lyric);
