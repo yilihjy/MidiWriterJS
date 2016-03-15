@@ -1,8 +1,9 @@
 // https://github.com/grimmdude/MidiWriterJS
 // MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
-"use strict";
 
 (function() {
+	"use strict";
+
 	var MidiWriter = this.MidiWriter = {
 	};
 
@@ -155,13 +156,13 @@
 				multiplier = 1;
 				break;
 			case '8':
-				multiplier = .5;
+				multiplier = 0.5;
 				break;
 			case '16':
-				multiplier = .25;
+				multiplier = 0.25;
 				break;
 			default:
-				multipler = 1;
+				multiplier = 1;
 				break;
 		}
 
@@ -169,17 +170,18 @@
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
+		var noteOn, noteOff;
 		if (Array.isArray(this.pitch)) {
 			for (var i in this.pitch) {
-				var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
-				var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
+				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
+				noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
 
 				this.data = this.data.concat(noteOn.data.concat(noteOff.data));
 			}
 
 		} else {
-			var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
-			var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
 
 			this.data = noteOn.data.concat(noteOff.data);
 		}
@@ -319,7 +321,7 @@
 	MidiWriter.stringToBytes = function(string) {
 		var bytes = [];
 		for (var i = 0; i < string.length; i++) {
-			bytes.push(string[i].charCodeAt(0))
+			bytes.push(string[i].charCodeAt(0));
 		}
 
 		return bytes;
