@@ -1,0 +1,27 @@
+{
+  "name": "midi-writer-js",
+  "version": "1.0.0",
+  "description": "A library providing an API for generating MIDI files.",
+  "main": "src/midi-writer-js.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grimmdude/MidiWriterJS.git"
+  },
+  "keywords": [
+    "midi",
+    "generator",
+    "music"
+  ],
+  "author": "Garrett Grimm",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/grimmdude/MidiWriterJS/issues"
+  },
+  "homepage": "https://github.com/grimmdude/MidiWriterJS#readme"
+}
