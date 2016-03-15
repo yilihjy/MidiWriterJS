@@ -59,6 +59,11 @@ MidiWriter.Track = function() {
 	this.size = [];
 };
 
+
+/**
+ * Method to add any event type the track.
+ * @param Object event {data:[]}
+ */
 MidiWriter.Track.prototype.addEvent = function(event) {
 	//this.data = this.data.concat(MidiWriter.numberToVariableLength(0x80)); // Start all events with 128 Delta ticks time for now - quarter note
 	this.data = this.data.concat(event.data);
@@ -84,17 +89,36 @@ MidiWriter.Track.prototype.addLyric = function(lyric) {
 /**	
  * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
  * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
- * @param Object fields {pitch: 'C4', duration: '4'}
+ * @param Object fields {pitch: 'C4', duration: '1/4'}
  */
 MidiWriter.NoteEvent = function(fields) {
 	this.pitch = fields.pitch;
-	this.duration = fields.duration;
+	this.duration = fields.timeValue;
 
 	// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
+	switch (fields.duration) {
+		case '1':
+			var multiplier = 4;
+			break;
+		case '4':
+			var multiplier = 1;
+			break;
+		case '8':
+			var multiplier = .5;
+			break;
+		case '16':
+			var multiplier = .25;
+			break;
+		default:
+			var multipler = 1;
+			break;
+	}
+
+	var tickDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * multiplier;
 
 	// Start all events with 128 Delta ticks time for now - quarter note
-	var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x80).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
-	var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(0x80).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+	var noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+	var noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
 
 	this.data = noteOn.data.concat(noteOff.data);
 };
@@ -118,7 +142,8 @@ MidiWriter.NoteOffEvent = function(fields) {
 };
 
 MidiWriter.MetaEvent = function(fields) {
-	this.data = [MidiWriter.constants.META_EVENT_ID].concat(fields.data); 
+	this.data = MidiWriter.numberToVariableLength(0x00);// Start with zero time delta
+	this.data = this.data.concat([MidiWriter.constants.META_EVENT_ID].concat(fields.data)); 
 };
 
 MidiWriter.SysexEvent = function() {
@@ -142,7 +167,6 @@ MidiWriter.Writer = function(track) {
 	// Track chunks
 	track.addEvent(new MidiWriter.MetaEvent({data: MidiWriter.numberToVariableLength(0x80).concat([MidiWriter.constants.META_END_OF_TRACK_ID, 0x00])}));
 	this.data.push(track);
-	document.getElementById('midi-play').href = "javascript:void(play('data:audio/midi;base64," + btoa(this.buildFile(this.data)) + "'));";
 };
 
 MidiWriter.Writer.prototype.buildFile = function(data) {
@@ -158,6 +182,11 @@ MidiWriter.Writer.prototype.buildFile = function(data) {
 	return build;
 };
 
+
+/**
+ * Convert file buffer to a base64 string
+ *
+ */
 MidiWriter.Writer.prototype.base64 = function() {
 	return btoa(String.fromCharCode.apply(null, this.buildFile()));
 }
@@ -196,14 +225,18 @@ MidiWriter.stringByteCount = function (s) {
 };
 
 
-/* Example */
-var track = new MidiWriter.Track();
-//track.setTempo(100000);
-//track.addLyric('test this mofo out');
-var note = new MidiWriter.NoteEvent({pitch: 'C4', timeValue: '1/4'});
-track.addEvent(note);
-var notes = new MidiWriter.NoteEvent({pitch: 'D4', timeValue: '1/4'});
-track.addEvent(notes);
+/**
+ * Utility function to get an int from an array of bytes.
+ * @param Array bytes
+ * @return Number
+ */
+MidiWriter.numberFromBytes = function(bytes) {
+	var hex = '';
 
-var write = new MidiWriter.Writer(track);
-console.log('data:audio/midi;base64,' + write.base64());
+	for (var i in bytes) {
+		hex += bytes[i].toString(16);
+	}
+
+	return parseInt(hex, 16);
+};
+
