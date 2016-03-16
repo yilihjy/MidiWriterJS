@@ -26,7 +26,7 @@
 		META_SMTPE_OFFSET		: 0x54,
 		META_TIME_SIGNATURE_ID	: 0x58,
 		META_KEY_SIGNATURE_ID	: 0x59,
-		META_END_OF_TRACK_ID	: 0x2F,
+		META_END_OF_TRACK_ID	: [0x2F, 0x00],
 		NOTE_ON_STATUS			: 0x90, // includes channel number (0)
 		NOTE_OFF_STATUS			: 0x80 // includes channel number (0)
 	};
@@ -257,11 +257,11 @@
 		// Header chunk
 		this.data.push(new MidiWriter.Chunk({
 								type: MidiWriter.constants.HEADER_CHUNK_TYPE, 
-								data: [].concat(MidiWriter.constants.HEADER_CHUNK_FORMAT0, [0x00, 0x01], MidiWriter.constants.HEADER_CHUNK_DIVISION)}));
+								data: MidiWriter.constants.HEADER_CHUNK_FORMAT0.concat([0x00, 0x01].concat(MidiWriter.constants.HEADER_CHUNK_DIVISION))}));
 
 
 		// Track chunks
-		track.addEvent(new MidiWriter.MetaEvent({data: MidiWriter.numberToVariableLength(0x80).concat([MidiWriter.constants.META_END_OF_TRACK_ID, 0x00])}));
+		track.addEvent(new MidiWriter.MetaEvent({data: MidiWriter.constants.META_END_OF_TRACK_ID}));
 		this.data.push(track);
 	};
 
