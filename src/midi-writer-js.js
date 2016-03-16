@@ -139,13 +139,17 @@
 	/**	
 	 * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
 	 * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
-	 * @param Object fields {pitch: 'C4', duration: '1/4'}
+	 * @param Object fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */
 	MidiWriter.NoteEvent = function(fields) {
 		this.pitch = fields.pitch;
 		this.wait = fields.wait || 0;
 		this.duration = fields.timeValue;
+		this.velocity = fields.velocity || 50;
 		this.data = [];
+
+		// Convert velocity to value 0-127
+		this.velocity = Math.round(this.velocity / 100 * 127);
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
 		var multiplier;
@@ -155,6 +159,9 @@
 				break;
 			case '2':
 				multiplier = 2;
+				break;
+			case 'd2':
+				multiplier = 3;
 				break;
 			case '4':
 				multiplier = 1;
@@ -205,15 +212,15 @@
 					restDuration = 0;
 				}
 
-				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
-				noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch[i]], 0x40])});
+				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+				noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
 
 				this.data = this.data.concat(noteOn.data.concat(noteOff.data));
 			}
 
 		} else {
-			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
-			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], 0x40])});
+			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], this.velocity])});
+			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], this.velocity])});
 
 			this.data = noteOn.data.concat(noteOff.data);
 		}
