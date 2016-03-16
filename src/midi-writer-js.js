@@ -169,6 +169,9 @@
 			case '8':
 				multiplier = 0.5;
 				break;
+			case 'd8':
+				multiplier = 0.75;
+				break;
 			case '16':
 				multiplier = 0.25;
 				break;
