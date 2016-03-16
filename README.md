@@ -4,11 +4,29 @@ MidiWriterJS
 
 MidiWriterJS is a JavaScript library providing an API for generating MIDI files.  It's still very young and is in active development.
 
-```javascript
-var note = new MidiWriter.NoteEvent({pitch: 'C4', duration: '4'});
-track.addEvent(note);
+Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.
 
-var notes = new MidiWriter.NoteEvent({pitch: ['C4', 'D4', 'E4'], duration: '4'});
+```javascript
+var notes;
+notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'});
+track.addEvent(notes);
+
+notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
+track.addEvent(notes);
+
+notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'});
+track.addEvent(notes);
+
+notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
+track.addEvent(notes);
+
+notes = new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'});
+track.addEvent(notes);
+
+notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'});
+track.addEvent(notes);
+
+notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
 track.addEvent(notes);
 
 var write = new MidiWriter.Writer(track);
