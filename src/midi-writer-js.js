@@ -251,18 +251,23 @@
 	 * Object that puts together tracks and provides methods for file output.
 	 * @param Object MidiWriter.Track
 	 */
-	MidiWriter.Writer = function(track) {
+	MidiWriter.Writer = function(tracks) {
 		this.data = [];
+
+		var trackType = tracks.length > 1 ? MidiWriter.constants.HEADER_CHUNK_FORMAT1 : MidiWriter.constants.HEADER_CHUNK_FORMAT0;
+		var numberOfTracks = MidiWriter.numberToBytes(tracks.length, 2); // two bytes long
 
 		// Header chunk
 		this.data.push(new MidiWriter.Chunk({
 								type: MidiWriter.constants.HEADER_CHUNK_TYPE, 
-								data: MidiWriter.constants.HEADER_CHUNK_FORMAT0.concat([0x00, 0x01].concat(MidiWriter.constants.HEADER_CHUNK_DIVISION))}));
+								data: trackType.concat(numberOfTracks.concat(MidiWriter.constants.HEADER_CHUNK_DIVISION))}));
 
 
 		// Track chunks
-		track.addEvent(new MidiWriter.MetaEvent({data: MidiWriter.constants.META_END_OF_TRACK_ID}));
-		this.data.push(track);
+		for (var i in tracks) {
+			tracks[i].addEvent(new MidiWriter.MetaEvent({data: MidiWriter.constants.META_END_OF_TRACK_ID}));
+			this.data.push(tracks[i]);
+		}
 	};
 
 	MidiWriter.Writer.prototype.buildFile = function(data) {
