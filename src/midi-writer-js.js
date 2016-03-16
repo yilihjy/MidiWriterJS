@@ -28,7 +28,8 @@
 		META_KEY_SIGNATURE_ID	: 0x59,
 		META_END_OF_TRACK_ID	: [0x2F, 0x00],
 		NOTE_ON_STATUS			: 0x90, // includes channel number (0)
-		NOTE_OFF_STATUS			: 0x80 // includes channel number (0)
+		NOTE_OFF_STATUS			: 0x80, // includes channel number (0)
+		PROGRAM_CHANGE_STATUS	: 0xC0 // includes channel number (0)
 	};
 
 	MidiWriter.constants.notes = { "G9": 0x7F, "Gb9": 0x7E, "F9": 0x7D, "E9": 0x7C, "Eb9": 0x7B,
@@ -189,6 +190,9 @@
 			case '2':
 				multiplier = 2;
 				break;
+			case 'd2':
+				multiplier = 3;
+				break;
 			case '4':
 				multiplier = 1;
 				break;
@@ -246,6 +250,17 @@
 	MidiWriter.NoteOffEvent = function(fields) {
 		this.data = fields.data;
 	};
+
+
+	/**
+	 * Holds all data for a program change event.
+	 * @param Object fields {instrument: 1-127}
+	 */
+	MidiWriter.ProgramChangeEvent = function(fields) {
+		// delta time defaults to 0.
+		this.data = MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.PROGRAM_CHANGE_STATUS, fields.instrument]);
+	};
+
 
 	MidiWriter.MetaEvent = function(fields) {
 		this.data = MidiWriter.numberToVariableLength(0x00);// Start with zero time delta
