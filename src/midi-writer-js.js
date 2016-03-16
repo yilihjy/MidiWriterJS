@@ -70,7 +70,7 @@
 	 */
 	MidiWriter.Track.prototype.addEvent = function(event) {
 		this.data = this.data.concat(event.data);
-		this.size = [0, 0, 0, this.data.length];
+		this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
 	};
 
 
@@ -347,6 +347,40 @@
 		}
 
 		return parseInt(hex, 16);
+	};
+
+
+	/**
+	 * Takes a number and splits it up into an array of bytes.  Can be padded by passing a number to bytesNeeded
+	 * @param Number number
+	 * @param Number bytesNeeded
+	 * @return Array of bytes
+	 */
+	MidiWriter.numberToBytes = function(number, bytesNeeded) {
+		bytesNeeded = bytesNeeded || 1;
+
+		var hexString = number.toString(16);
+		
+		if (hexString.length & 1) { // Make sure hex string is even number of chars
+			hexString = '0' + hexString;
+		}
+
+		// Split hex string into an array of two char elements
+		var hexArray = hexString.match(/.{2}/g);
+
+		// Now parse them out as integers
+		hexArray = hexArray.map(function(item) {
+			return parseInt(item, 16);
+		});
+
+		// Prepend empty bytes if we don't have enough
+		if (hexArray.length < bytesNeeded) {
+			while (bytesNeeded - hexArray.length > 0) {
+				hexArray.unshift(0);
+			}
+		}
+
+		return hexArray;
 	};
 
 
