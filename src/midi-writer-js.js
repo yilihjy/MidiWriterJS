@@ -155,7 +155,7 @@
 	MidiWriter.NoteEvent = function(fields) {
 		this.pitch = fields.pitch;
 		this.wait = fields.wait || 0;
-		this.duration = fields.timeValue;
+		this.duration = fields.duration;
 		this.velocity = fields.velocity || 50;
 		this.data = [];
 
@@ -164,63 +164,9 @@
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
 		var multiplier;
-		switch (fields.duration) {
-			case '1':
-				multiplier = 4;
-				break;
-			case '2':
-				multiplier = 2;
-				break;
-			case 'd2':
-				multiplier = 3;
-				break;
-			case '4':
-				multiplier = 1;
-				break;
-			case '8':
-				multiplier = 0.5;
-				break;
-			case '8t':
-				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
-				multiplier = 0.5;
-			case 'd8':
-				multiplier = 0.75;
-				break;
-			case '16':
-				multiplier = 0.25;
-				break;
-			default:
-				multiplier = 1;
-				break;
-		}
 
-		var tickDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * multiplier;
-
-		switch (fields.wait) {
-			case '1':
-				multiplier = 4;
-				break;
-			case '2':
-				multiplier = 2;
-				break;
-			case 'd2':
-				multiplier = 3;
-				break;
-			case '4':
-				multiplier = 1;
-				break;
-			case '8':
-				multiplier = 0.5;
-				break;
-			case '16':
-				multiplier = 0.25;
-				break;
-			default:
-				multiplier = 0;
-				break;
-		}
-
-		var restDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * multiplier;
+		var tickDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * this.getDurationMultiplier(this.duration, 'note');
+		var restDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * this.getDurationMultiplier(this.wait, 'rest');
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
@@ -243,6 +189,52 @@
 			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], this.velocity])});
 
 			this.data = noteOn.data.concat(noteOff.data);
+		}
+	};
+
+
+	/**
+	 * Gets what to multiple ticks/quarter note by to get the specified duration.
+	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
+	 * @param String duration
+	 * @param String type ['note','rest']
+	 */
+	MidiWriter.NoteEvent.prototype.getDurationMultiplier = function(duration, type) {
+		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
+		switch (duration) {
+			case '1':
+				return 4;
+				break;
+			case '2':
+				return 2;
+				break;
+			case 'd2':
+				return 3;
+				break;
+			case '4':
+				return 1;
+				break;
+			case '8':
+				return 0.5;
+				break;
+			case '8t':
+				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
+				return 0.5;
+			case 'd8':
+				return 0.75;
+				break;
+			case '16':
+				return 0.25;
+				break;
+			default:
+				// Notes default to a quarter
+				if (type === 'note') {
+					return 1;
+				}
+
+				// Rests default to 0
+				return 0;
+				break;
 		}
 	};
 
