@@ -3,6 +3,16 @@ var MidiWriter = require('../src/midi-writer-js');
 
 
 describe('MidiWriterJS', function() {
+	describe('#NoteEvent()', function () {
+		describe('#getDurationMultiplier()', function () {
+			it('should return 1 for a quarter note.', function () {
+				var track = new MidiWriter.Track(); // Need to instantiate to build note object
+				var note = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '4'});
+				assert.equal(note.getDurationMultiplier(note.duration), 1);
+			});
+		});
+	});
+
 	describe('#Writer()', function () {
 		describe('#base64()', function () {
 			it('should return specific base64 string when a single C4 quarter note is created.', function () {
