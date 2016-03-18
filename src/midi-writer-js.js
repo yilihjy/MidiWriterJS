@@ -163,10 +163,10 @@
 		this.velocity = Math.round(this.velocity / 100 * 127);
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
-		var multiplier;
-
-		var tickDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * this.getDurationMultiplier(this.duration, 'note');
-		var restDuration = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION) * this.getDurationMultiplier(this.wait, 'rest');
+		// Rounding only applies to triplets, which the remainder is handled below
+		var quarterTicks = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION);
+		var tickDuration = Math.round(quarterTicks * this.getDurationMultiplier(this.duration, 'note'));
+		var restDuration = Math.round(quarterTicks * this.getDurationMultiplier(this.wait, 'rest'));
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
@@ -176,6 +176,12 @@
 				// restDuration only applies to first note
 				if (i > 0) {
 					restDuration = 0;
+				}
+
+				// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
+				// So, the last one will need to be the remainder
+				if (this.duration === '8t' && i == this.pitch.length - 1) {
+					tickDuration = quarterTicks - (tickDuration * 2);
 				}
 
 				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
@@ -214,12 +220,15 @@
 			case '4':
 				return 1;
 				break;
+			case 'd4':
+				return 1.5;
+				break;
 			case '8':
 				return 0.5;
 				break;
 			case '8t':
 				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
-				return 0.5;
+				return 0.33;
 			case 'd8':
 				return 0.75;
 				break;
