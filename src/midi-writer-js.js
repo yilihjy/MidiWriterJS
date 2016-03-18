@@ -1,6 +1,7 @@
 // https://github.com/grimmdude/MidiWriterJS
 // MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
 
+
 (function() {
 	"use strict";
 
@@ -27,14 +28,15 @@
 		META_TIME_SIGNATURE_ID	: 0x58,
 		META_KEY_SIGNATURE_ID	: 0x59,
 		META_END_OF_TRACK_ID	: [0x2F, 0x00],
-		NOTE_ON_STATUS			: 0x90, // includes channel number (0)
-		NOTE_OFF_STATUS			: 0x80, // includes channel number (0)
+		//NOTE_ON_STATUS			: 0x90, // includes channel number (0)
+		//NOTE_OFF_STATUS			: 0x80, // includes channel number (0)
 		PROGRAM_CHANGE_STATUS	: 0xC0 // includes channel number (0)
 	};
 
-	// Build with MidiWriter.buildNotesObject
-	MidiWriter.constants.notes = null;
-
+	/**
+	 * Builds notes object for reference against binary values.
+	 * @returns {object}
+	 */
 	MidiWriter.buildNotesObject = function() {
 		var allNotes = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
 		var notesObject = {};
@@ -52,8 +54,10 @@
 		}
 
 		return notesObject;
-
 	};
+
+	// Build with MidiWriter.buildNotesObject
+	MidiWriter.constants.notes = MidiWriter.buildNotesObject();
 
 	MidiWriter.Chunk = function(fields) {
 		this.type = fields.type;
@@ -63,11 +67,6 @@
 
 
 	MidiWriter.Track = function() {
-		// MidiWriter.constants.notes is not built yet then build it here.
-		if ( ! MidiWriter.constants.notes) {
-			MidiWriter.constants.notes = MidiWriter.buildNotesObject();
-		}
-
 		this.type = MidiWriter.constants.TRACK_CHUNK_TYPE;
 		this.data = [];
 		this.size = [];
@@ -77,7 +76,7 @@
 
 	/**
 	 * Method to add any event type the track.
-	 * @param Object event {data:[]}
+	 * @param {object} event {data:[]}
 	 */
 	MidiWriter.Track.prototype.addEvent = function(event) {
 		this.data = this.data.concat(event.data);
@@ -150,13 +149,14 @@
 	/**	
 	 * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
 	 * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
-	 * @param Object fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
+	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */
 	MidiWriter.NoteEvent = function(fields) {
 		this.pitch = fields.pitch;
 		this.wait = fields.wait || 0;
 		this.duration = fields.duration;
 		this.velocity = fields.velocity || 50;
+		this.channel = fields.channel || 1;
 		this.data = [];
 
 		// Convert velocity to value 0-127
@@ -184,8 +184,8 @@
 					tickDuration = quarterTicks - (tickDuration * 2);
 				}
 
-				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
-				noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+				noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
 
 				this.data = this.data.concat(noteOn.data.concat(noteOff.data));
 			}
@@ -202,8 +202,8 @@
 	/**
 	 * Gets what to multiple ticks/quarter note by to get the specified duration.
 	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
-	 * @param String duration
-	 * @param String type ['note','rest']
+	 * @param {string} duration
+	 * @param {string} type ['note','rest']
 	 */
 	MidiWriter.NoteEvent.prototype.getDurationMultiplier = function(duration, type) {
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
@@ -248,9 +248,31 @@
 	};
 
 
+	/**
+	 * Gets the note on status code based on the selected channel. 0x9{0-F}
+	 * @returns {number}
+	 */
+	MidiWriter.NoteEvent.prototype.getNoteOnStatus = function() {
+		// Note on at channel 0 is 0x90 (144)
+		// 0 = Ch 1
+		return 144 + this.channel - 1;
+	};
+
+
+	/**
+	 * Gets the note off status code based on the selected channel. 0x8{0-F}
+	 * @returns {number}
+	 */
+	MidiWriter.NoteEvent.prototype.getNoteOffStatus = function() {
+		// Note off at channel 0 is 0x80 (128)
+		// 0 = Ch 1
+		return 128 + this.channel - 1;
+	};
+
+
 	/**	
 	 * Holds all data for a "note on" MIDI event
-	 * @param Object fields {data: []}
+	 * @param {object} fields {data: []}
 	 */
 	MidiWriter.NoteOnEvent = function(fields) {
 		this.data = fields.data;
@@ -259,7 +281,7 @@
 
 	/**	
 	 * Holds all data for a "note off" MIDI event
-	 * @param Object fields {data: []}
+	 * @param {object} fields {data: []}
 	 */
 	MidiWriter.NoteOffEvent = function(fields) {
 		this.data = fields.data;
@@ -268,7 +290,7 @@
 
 	/**
 	 * Holds all data for a program change event.
-	 * @param Object fields {instrument: 1-127}
+	 * @param {object} fields {instrument: 1-127}
 	 */
 	MidiWriter.ProgramChangeEvent = function(fields) {
 		// delta time defaults to 0.
@@ -288,7 +310,7 @@
 
 	/**
 	 * Object that puts together tracks and provides methods for file output.
-	 * @param Object MidiWriter.Track
+	 * @param {object} MidiWriter.Track
 	 */
 	MidiWriter.Writer = function(tracks) {
 		this.data = [];
@@ -343,8 +365,8 @@
 	 * take a good look at the spec before ever touching this function.
 	 * Thanks to https://github.com/sergi/jsmidi
 	 *
-	 * @param ticks {Integer} Number of ticks to be translated
-	 * @returns Array of bytes that form the MIDI time value
+	 * @param {number} Number of ticks to be translated
+	 * @returns {array} of bytes that form the MIDI time value
 	 */
 	MidiWriter.numberToVariableLength = function(ticks) {
 	    var buffer = ticks & 0x7F;
@@ -372,8 +394,8 @@
 
 	/**
 	 * Utility function to get an int from an array of bytes.
-	 * @param Array bytes
-	 * @return Number
+	 * @param {array} bytes
+	 * @returns {number}
 	 */
 	MidiWriter.numberFromBytes = function(bytes) {
 		var hex = '';
@@ -396,9 +418,9 @@
 
 	/**
 	 * Takes a number and splits it up into an array of bytes.  Can be padded by passing a number to bytesNeeded
-	 * @param Number number
-	 * @param Number bytesNeeded
-	 * @return Array of bytes
+	 * @param {number} number
+	 * @param {number} bytesNeeded
+	 * @returns {array} of bytes
 	 */
 	MidiWriter.numberToBytes = function(number, bytesNeeded) {
 		bytesNeeded = bytesNeeded || 1;
