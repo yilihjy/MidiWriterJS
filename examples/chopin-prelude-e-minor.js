@@ -1,5 +1,10 @@
 var tracks = [];
 tracks[0] = new MidiWriter.Track();
+//tracks[0].addEvent(new MidiWriter.ProgramChangeEvent({instrument : 1}));
+//tracks[0].polyModeOn();
+tracks[0].addEvent(new MidiWriter.NoteEvent({pitch: ['B5', 'C5'], duration: '4', velocity:100, sequential:false}));
+/*
+tracks[0] = new MidiWriter.Track();
 tracks[0].addEvent(new MidiWriter.ProgramChangeEvent({instrument : 1}));
 tracks[0].addEvent(new MidiWriter.NoteEvent({pitch: ['B4'], duration: 'd2', velocity:100}));
 tracks[0].addEvent(new MidiWriter.NoteEvent({pitch: ['C5'], duration: '4', velocity:100}));
@@ -55,7 +60,7 @@ tracks[0].addEvent(new MidiWriter.NoteEvent({pitch: ['E4'], duration: '2', veloc
 
 tracks[1] = new MidiWriter.Track();
 tracks[1].addEvent(new MidiWriter.ProgramChangeEvent({instrument : 1}));
-tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4'], duration: '8', channel: 1}));
+tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4'], duration: '8'}));
 tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['E4', 'E4', 'E4', 'E4', 'Eb4', 'Eb4', 'Eb4', 'Eb4'], duration: '8'}));
 tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['Eb4', 'Eb4', 'Eb4', 'Eb4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}));
 tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['D4', 'D4', 'D4', 'D4', 'D4', 'D4', 'Db4', 'Db4'], duration: '8'}));
@@ -116,7 +121,7 @@ tracks[3].addEvent(new MidiWriter.NoteEvent({pitch: ['Gb3', 'Gb3', 'Gb3', 'Gb3',
 tracks[3].addEvent(new MidiWriter.NoteEvent({pitch: ['F3', 'F3', 'F3', 'F3', 'E3', 'E3', 'E3', 'E3'], duration: '8'}));
 tracks[3].addEvent(new MidiWriter.NoteEvent({pitch: ['E3', 'E3', 'E3', 'E3', 'Db3', 'Db3', 'C3', 'C3'], duration: '8'}));
 tracks[3].addEvent(new MidiWriter.NoteEvent({pitch: ['B2', 'C4', 'C4', 'C4', 'B3', 'B3', 'B3', 'B3'], duration: '8'}));
-
+*/
 
 
 var write = new MidiWriter.Writer(tracks);

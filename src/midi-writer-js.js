@@ -145,6 +145,13 @@
 		this.addEvent(event);
 	};
 
+	/** Channel Mode Messages **/
+	MidiWriter.Track.prototype.polyModeOn = function() {
+		var event = new MidiWriter.NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
+		this.addEvent(event);
+		console.log(event);
+	};
+
 
 	/**	
 	 * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
@@ -155,6 +162,7 @@
 		this.pitch = fields.pitch;
 		this.wait = fields.wait || 0;
 		this.duration = fields.duration;
+		this.sequential = fields.sequential || false;
 		this.velocity = fields.velocity || 50;
 		this.channel = fields.channel || 1;
 		this.data = [];
@@ -172,24 +180,55 @@
 		// If so create note events for each and apply the same duration.
 		var noteOn, noteOff;
 		if (Array.isArray(this.pitch)) {
-			for (var i in this.pitch) {
-				// restDuration only applies to first note
-				if (i > 0) {
-					restDuration = 0;
+			// By default this is a chord if it's an array of notes that requires one NoteOnEvent.
+			// If this.sequential === true then it's a sequential string of notes that requires separate NoteOnEvents.
+			if ( ! this.sequential) {
+				// Note on
+				for (var i in this.pitch) {
+					if (i == 0) {
+						noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+
+					} else {
+						noteOn = new MidiWriter.NoteOnEvent({data: [0, this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+					}
+
+					this.data = this.data.concat(noteOn.data);
 				}
 
-				// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
-				// So, the last one will need to be the remainder
-				if (this.duration === '8t' && i == this.pitch.length - 1) {
-					tickDuration = quarterTicks - (tickDuration * 2);
+				// Note off
+				for (var i in this.pitch) {
+					if (i == 0) {
+						noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+
+					} else {
+						noteOff = new MidiWriter.NoteOffEvent({data: [0, this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+
+					}
+
+					this.data = this.data.concat(noteOff.data);
 				}
 
-				noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
-				noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+				console.log(this.data);
 
-				this.data = this.data.concat(noteOn.data.concat(noteOff.data));
+			} else {
+				for (var i in this.pitch) {
+					// restDuration only applies to first note
+					if (i > 0) {
+						restDuration = 0;
+					}
+
+					// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
+					// So, the last one will need to be the remainder
+					if (this.duration === '8t' && i == this.pitch.length - 1) {
+						tickDuration = quarterTicks - (tickDuration * 2);
+					}
+
+					noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+					noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+
+					this.data = this.data.concat(noteOn.data.concat(noteOff.data));
+				}
 			}
-
 		} else {
 			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], this.velocity])});
 			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.constants.notes[this.pitch], this.velocity])});
@@ -331,7 +370,7 @@
 		}
 	};
 
-	MidiWriter.Writer.prototype.buildFile = function(data) {
+	MidiWriter.Writer.prototype.buildFile = function() {
 		var build = [];
 
 		// Data consists of chunks which consists of data
@@ -405,7 +444,7 @@
 			stringResult = bytes[i].toString(16);
 			
 			// ensure string is 2 chars
-			if (stringResult.length === 1) {
+			if (stringResult.length == 1) {
 				stringResult = "0" + stringResult;
 			}
 
