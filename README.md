@@ -29,6 +29,7 @@ console.log('data:audio/midi;base64,' + write.base64());
 Documentation
 ------------
 ### `MidiWriter.Track()`
+
 - `addEvent({event})`
 - `setTempo(tempo)`
 - `addText(text)`
@@ -37,12 +38,41 @@ Documentation
 - `addMarker()`
 - `addCuePoint()`
 - `addLyric()`
+
 ### `MidiWriter.NoteEvent({options})`
+
 The `NoteEvent` supports a some options that will help you write more effiently.
 #### pitch <small>*Array*</small>
 An array of notes to be triggered.  Format is `C#4`.
 
-#### duration <small>*String*</small>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Type</th>
+			<th>Values</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>duration</td>
+			<td>string</td>
+			<td>
+				* ``1`` whole
+				* ``2`` half
+				* ``d2`` dotted half
+				* ``4`` quarter
+				* ``d4`` dotted quarter 
+				* ``8`` eighth note
+				* ``8t`` eighth triplet
+				* ``d8`` dotted eighth
+				* ``16`` sixteenth
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+#### duration *`String`*
 How long the note should sound.  Possible values are:
 * ``1`` whole
 * ``2`` half
@@ -54,7 +84,7 @@ How long the note should sound.  Possible values are:
 * ``d8`` dotted eighth
 * ``16`` sixteenth
 
-#### wait <small>*Number*</small>
+#### wait *`Number`*
 How long to wait before sounding note; this is basically a rest.  Values are the the same as for `duration`.
 #### sequential <small>*Boolean*</small>
 If `true` the notes will be played in sequence at the specified duration.  If `false` the notes will be played simultaneously for the specified duration. (*default `false`*)
