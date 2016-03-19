@@ -41,7 +41,7 @@ Documentation
 
 ### `MidiWriter.NoteEvent({options})`
 
-The `NoteEvent` supports a some options that will help you write more effiently.
+The `NoteEvent` supports these options:
 
 <table>
 	<thead>
