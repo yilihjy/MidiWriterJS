@@ -55,7 +55,7 @@ The `NoteEvent` supports these options:
 		<tr>
 			<td><b>pitch</b></td>
 			<td>array</td>
-			<td>An array of notes to be triggered.  Format is `C#4`.</td>
+			<td>An array of notes to be triggered.  Format is <code>C#4</code>.</td>
 		</tr>
 		<tr>
 			<td><b>duration</b></td>
@@ -88,12 +88,12 @@ The `NoteEvent` supports these options:
 		<tr>
 			<td><b>velocity</b></td>
 			<td>number</td>
-			<td>How loud the note should sound, values 1-100.  Default: 50</td>
+			<td>How loud the note should sound, values 1-100.  Default: <code>50</code></td>
 		</tr>
 		<tr>
 			<td><b>repeat</b></td>
 			<td>number</td>
-			<td>How many times this event should be repeated. Default: 1</td>
+			<td>How many times this event should be repeated. Default: <code>1</code></td>
 		</tr>
 	</tbody>
 </table>
