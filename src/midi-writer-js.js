@@ -87,7 +87,7 @@
 	MidiWriter.Track.prototype.setTempo = function(tempo) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
 		event.data.push(0x03); // Size
-		event.data = event.data.concat([0, 0, tempo]); // Tempo, 3 bytes
+		event.data = event.data.concat(MidiWriter.numberToBytes(tempo, 3)); // Tempo, 3 bytes
 		this.addEvent(event);
 	};
 
