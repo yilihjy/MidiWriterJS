@@ -42,8 +42,6 @@ Documentation
 ### `MidiWriter.NoteEvent({options})`
 
 The `NoteEvent` supports a some options that will help you write more effiently.
-#### pitch <small>*Array*</small>
-An array of notes to be triggered.  Format is `C#4`.
 
 <table>
 	<thead>
@@ -54,6 +52,11 @@ An array of notes to be triggered.  Format is `C#4`.
 		</tr>
 	</thead>
 	<tbody>
+		<tr>
+			<td><b>pitch</b></td>
+			<td>array</td>
+			<td>An array of notes to be triggered.  Format is `C#4`.</td>
+		</tr>
 		<tr>
 			<td><b>duration</b></td>
 			<td>string</td>
@@ -73,22 +76,22 @@ An array of notes to be triggered.  Format is `C#4`.
 			</td>
 		</tr>
 		<tr>
-			<td>wait</td>
+			<td><b>wait</b></td>
 			<td>number</td>
 			<td>How long to wait before sounding note (rest)</td>
 		</tr>
 		<tr>
-			<td>sequential</td>
+			<td><b>sequential</b></td>
 			<td>boolean</td>
 			<td>If true then array of notes will be played sequentially as opposed to simulatanously.  Default: <code>false</code></td>
 		</tr>
 		<tr>
-			<td>velocity</td>
+			<td><b>velocity</b></td>
 			<td>number</td>
 			<td>How loud the note should sound, values 1-100.  Default: 50</td>
 		</tr>
 		<tr>
-			<td>repeat</td>
+			<td><b>repeat</b></td>
 			<td>number</td>
 			<td>How many times this event should be repeated. Default: 1</td>
 		</tr>
@@ -98,6 +101,7 @@ An array of notes to be triggered.  Format is `C#4`.
 
 ### `MidiWriter.Writer([tracks])`
 - `base64()`
+
 ### Hot Cross Buns
 Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.
 ```javascript
