@@ -159,13 +159,14 @@
 	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */
 	MidiWriter.NoteEvent = function(fields) {
-		this.pitch = fields.pitch;
-		this.wait = fields.wait || 0;
-		this.duration = fields.duration;
+		this.pitch 		= fields.pitch;
+		this.wait 		= fields.wait || 0;
+		this.duration 	= fields.duration;
 		this.sequential = fields.sequential || false;
-		this.velocity = fields.velocity || 50;
-		this.channel = fields.channel || 1;
-		this.data = [];
+		this.velocity 	= fields.velocity || 50;
+		this.channel 	= fields.channel || 1;
+		this.repeat 	= fields.repeat || 1;
+		this.data 		= [];
 
 		// Convert velocity to value 0-127
 		this.velocity = Math.round(this.velocity / 100 * 127);
@@ -183,51 +184,61 @@
 			// By default this is a chord if it's an array of notes that requires one NoteOnEvent.
 			// If this.sequential === true then it's a sequential string of notes that requires separate NoteOnEvents.
 			if ( ! this.sequential) {
-				// Note on
-				for (var i in this.pitch) {
-					if (i == 0) {
-						noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+				// Handle repeat
+				for (var j = 0; j < this.repeat; j++) {
+					// Note on
+					for (var i in this.pitch) {
+						if (i == 0) {
+							noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
 
-					} else {
-						noteOn = new MidiWriter.NoteOnEvent({data: [0, this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+						} else {
+							// Running status (can ommit the note on status)
+							noteOn = new MidiWriter.NoteOnEvent({data: [0, MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+							//noteOn = new MidiWriter.NoteOnEvent({data: [0, this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+						}
+
+						this.data = this.data.concat(noteOn.data);
 					}
 
-					this.data = this.data.concat(noteOn.data);
-				}
+					// Note off
+					for (var i in this.pitch) {
+						if (i == 0) {
+							noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
 
-				// Note off
-				for (var i in this.pitch) {
-					if (i == 0) {
-						noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+						} else {
+							// Running status (can ommit the note off status)
+							noteOff = new MidiWriter.NoteOffEvent({data: [0, MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+							//noteOff = new MidiWriter.NoteOffEvent({data: [0, this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
 
-					} else {
-						noteOff = new MidiWriter.NoteOffEvent({data: [0, this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity]});
+						}
 
+						this.data = this.data.concat(noteOff.data);
 					}
-
-					this.data = this.data.concat(noteOff.data);
 				}
-
-				console.log(this.data);
+				
 
 			} else {
-				for (var i in this.pitch) {
-					// restDuration only applies to first note
-					if (i > 0) {
-						restDuration = 0;
+				// Handle repeat
+				for (var j = 0; j < this.repeat; j++) {
+					for (var i in this.pitch) {
+						// restDuration only applies to first note
+						if (i > 0) {
+							restDuration = 0;
+						}
+
+						// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
+						// So, the last one will need to be the remainder
+						if (this.duration === '8t' && i == this.pitch.length - 1) {
+							tickDuration = quarterTicks - (tickDuration * 2);
+						}
+
+						noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+						noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
+
+						this.data = this.data.concat(noteOn.data.concat(noteOff.data));
 					}
-
-					// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
-					// So, the last one will need to be the remainder
-					if (this.duration === '8t' && i == this.pitch.length - 1) {
-						tickDuration = quarterTicks - (tickDuration * 2);
-					}
-
-					noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
-					noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.constants.notes[this.pitch[i]], this.velocity])});
-
-					this.data = this.data.concat(noteOn.data.concat(noteOff.data));
 				}
+
 			}
 		} else {
 			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.constants.notes[this.pitch], this.velocity])});
@@ -508,5 +519,3 @@
   	} 
 
 }).call(this);
-
-
