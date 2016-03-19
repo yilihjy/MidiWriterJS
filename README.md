@@ -50,24 +50,24 @@ An array of notes to be triggered.  Format is `C#4`.
 		<tr>
 			<th>Name</th>
 			<th>Type</th>
-			<th>Values</th>
+			<th>Description</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>duration</td>
 			<td>string</td>
-			<td>
-				* ``1`` whole
-				* ``2`` half
-				* ``d2`` dotted half
-				* ``4`` quarter
-				* ``d4`` dotted quarter 
-				* ``8`` eighth note
-				* ``8t`` eighth triplet
-				* ``d8`` dotted eighth
-				* ``16`` sixteenth
-			</td>
+			<td>How long the note should sound.</td>
+		</tr>
+		<tr>
+			<td>wait</td>
+			<td>number</td>
+			<td>How long to wait before sounding note (rest)</td>
+		</tr>
+		<tr>
+			<td>sequential</td>
+			<td>boolean</td>
+			<td>If true then array of notes will be played sequentially as opposed to simulatanously.  Default is `false`</td>
 		</tr>
 	</tbody>
 </table>
