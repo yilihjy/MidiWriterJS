@@ -105,6 +105,8 @@ The `NoteEvent` supports these options:
 ### Hot Cross Buns
 Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.
 ```javascript
+var track = new MidiWriter.Track();
+
 var notes;
 notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true});
 track.addEvent(notes);
@@ -127,6 +129,6 @@ track.addEvent(notes);
 notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
 track.addEvent(notes);
 
-var write = new MidiWriter.Writer(track);
+var write = new MidiWriter.Writer([track]);
 console.log('data:audio/midi;base64,' + write.base64());
 ```
