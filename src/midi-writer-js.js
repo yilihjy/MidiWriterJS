@@ -381,6 +381,11 @@
 		}
 	};
 
+
+	/**
+	 * Builds the file into a Uint8Array
+	 * @returns Uint8Array
+	 */
 	MidiWriter.Writer.prototype.buildFile = function() {
 		var build = [];
 
@@ -391,7 +396,7 @@
 			build = build.concat(this.data[i].data);
 		}
 
-		return build;
+		return new Uint8Array(build);
 	};
 
 
@@ -500,6 +505,11 @@
 	};
 
 
+	/**
+	 * Convert a string to an array of bytes
+	 * @param {string}
+	 * @returns {array}
+	 */
 	MidiWriter.stringToBytes = function(string) {
 		var bytes = [];
 		for (var i = 0; i < string.length; i++) {
