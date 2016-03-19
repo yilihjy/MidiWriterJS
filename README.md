@@ -55,12 +55,20 @@ An array of notes to be triggered.  Format is `C#4`.
 	</thead>
 	<tbody>
 		<tr>
-			<td>duration</td>
+			<td><b>duration</b></td>
 			<td>string</td>
 			<td>
 				How long the note should sound.
 				<ul>
-					<li>1 : whole</li>
+					<li>1  : whole</li>
+					<li>2  : half</li>
+					<li>d2 : dotted half</li>
+					<li>4  : quarter</li>
+					<li>d4 : dotted quarter</li>
+					<li>8  : eighth</li>
+					<li>8t : eighth triplet</li>
+					<li>d8 : dotted eighth</li>
+					<li>16 : sixteenth</li>
 				</ul>
 			</td>
 		</tr>
@@ -87,26 +95,7 @@ An array of notes to be triggered.  Format is `C#4`.
 	</tbody>
 </table>
 
-#### duration *`String`*
-How long the note should sound.  Possible values are:
-* ``1`` whole
-* ``2`` half
-* ``d2`` dotted half
-* ``4`` quarter
-* ``d4`` dotted quarter 
-* ``8`` eighth note
-* ``8t`` eighth triplet
-* ``d8`` dotted eighth
-* ``16`` sixteenth
 
-#### wait *`Number`*
-How long to wait before sounding note; this is basically a rest.  Values are the the same as for `duration`.
-#### sequential <small>*Boolean*</small>
-If `true` the notes will be played in sequence at the specified duration.  If `false` the notes will be played simultaneously for the specified duration. (*default `false`*)
-#### velocity <small>*Number*</small>
-Value 1-100 of how loud the note should sound. (*default `50`*)
-#### repeat <small>*Number*</small>
-How many times this event should be repeated. (*default `1`*)
 ### `MidiWriter.Writer([tracks])`
 - `base64()`
 ### Hot Cross Buns
