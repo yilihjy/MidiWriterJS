@@ -78,7 +78,7 @@ The `NoteEvent` supports these options:
 		<tr>
 			<td><b>wait</b></td>
 			<td>number</td>
-			<td>How long to wait before sounding note (rest)</td>
+			<td>How long to wait before sounding note (rest).  Takes same values as <b>duration</b>.</td>
 		</tr>
 		<tr>
 			<td><b>sequential</b></td>
