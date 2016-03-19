@@ -57,7 +57,12 @@ An array of notes to be triggered.  Format is `C#4`.
 		<tr>
 			<td>duration</td>
 			<td>string</td>
-			<td>How long the note should sound.</td>
+			<td>
+				How long the note should sound.
+				<ul>
+					<li>1 : whole</li>
+				</ul>
+			</td>
 		</tr>
 		<tr>
 			<td>wait</td>
@@ -67,7 +72,17 @@ An array of notes to be triggered.  Format is `C#4`.
 		<tr>
 			<td>sequential</td>
 			<td>boolean</td>
-			<td>If true then array of notes will be played sequentially as opposed to simulatanously.  Default is `false`</td>
+			<td>If true then array of notes will be played sequentially as opposed to simulatanously.  Default: <code>false</code></td>
+		</tr>
+		<tr>
+			<td>velocity</td>
+			<td>number</td>
+			<td>How loud the note should sound, values 1-100.  Default: 50</td>
+		</tr>
+		<tr>
+			<td>repeat</td>
+			<td>number</td>
+			<td>How many times this event should be repeated. Default: 1</td>
 		</tr>
 	</tbody>
 </table>
