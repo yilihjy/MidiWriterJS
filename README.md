@@ -35,9 +35,9 @@ Documentation
 - `addText(text)`
 - `addCopyright(text)`
 - `addInstrumentName(text)`
-- `addMarker()`
-- `addCuePoint()`
-- `addLyric()`
+- `addMarker(text)`
+- `addCuePoint(text)`
+- `addLyric(text)`
 
 ### `MidiWriter.NoteEvent({options})`
 
@@ -95,12 +95,18 @@ The `NoteEvent` supports these options:
 			<td>number</td>
 			<td>How many times this event should be repeated. Default: <code>1</code></td>
 		</tr>
+		<tr>
+			<td><b>channel</b></td>
+			<td>number</td>
+			<td>MIDI channel to use. Default: <code>1</code></td>
+		</tr>
 	</tbody>
 </table>
 
 
 ### `MidiWriter.Writer([tracks])`
-- `base64()`
+- `base64()` 
+- `dataUri()`
 
 ### Hot Cross Buns
 Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.

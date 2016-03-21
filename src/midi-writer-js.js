@@ -414,6 +414,15 @@
 	};
 
 
+    /**
+     * Get the data URI.
+     * 
+     */
+    MidiWriter.Writer.prototype.dataUri = function() {
+        return 'data:audio/midi;base64,' + this.base64();
+    };
+
+
 	/**
 	 * Translates number of ticks to MIDI timestamp format, returning an array of
 	 * hex strings with the time values. Midi has a very particular time to express time,

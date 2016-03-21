@@ -125,4 +125,4 @@ tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['B3', 'F#3', 'B2'], duratio
 tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['E2', 'E1'], duration: '1'}));
 
 var write = new MidiWriter.Writer(tracks);
-console.log('data:audio/midi;base64,' + write.base64());
+console.log(write.dataUri());
