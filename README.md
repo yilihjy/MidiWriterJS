@@ -24,7 +24,7 @@ track.addEvent(note);
 
 // Generate a data URI
 var write = new MidiWriter.Writer([track]);
-console.log('data:audio/midi;base64,' + write.base64());
+console.log(write.dataUri());
 ```
 Documentation
 ------------
