@@ -105,8 +105,10 @@ The `NoteEvent` supports these options:
 
 
 ### `MidiWriter.Writer([tracks])`
-- `base64()` 
-- `dataUri()`
+The `Writer` object provides a few ways to output the file:
+- `buildFile()` *Uint8Array*
+- `base64()` *string*
+- `dataUri()` *string*
 
 ### Hot Cross Buns
 Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.
