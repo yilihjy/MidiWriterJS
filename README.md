@@ -138,5 +138,5 @@ notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
 track.addEvent(notes);
 
 var write = new MidiWriter.Writer([track]);
-console.log('data:audio/midi;base64,' + write.base64());
+console.log(write.dataUri());
 ```
