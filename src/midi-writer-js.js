@@ -86,13 +86,15 @@
 		this.addEvent(event);
 	};
 
-	MidiWriter.Track.prototype.setTimeSignature = function(numerator, denominator, midiclockspertick = 24, notespermidiclock = 8) {
+	MidiWriter.Track.prototype.setTimeSignature = function(numerator, denominator, midiclockspertick, notespermidiclock) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TIME_SIGNATURE_ID]});
 		event.data.push(0x04); // Size
 		event.data = event.data.concat(MidiWriter.numberToBytes(numerator, 1)); // Numerator, 1 bytes
 		var _denominator = (denominator < 4) ? (denominator - 1) : Math.sqrt(denominator);	// Denominator is expressed as pow of 2
 		event.data = event.data.concat(MidiWriter.numberToBytes(_denominator, 1)); // Denominator, 1 bytes
+		var midiclockspertick = midiclockspertick || 24;
 		event.data = event.data.concat(MidiWriter.numberToBytes(midiclockspertick, 1)); // MIDI Clocks per tick, 1 bytes
+		var notespermidiclock = notespermidiclock || 8;
 		event.data = event.data.concat(MidiWriter.numberToBytes(notespermidiclock, 1)); // Number of 1/32 notes per MIDI clocks, 1 bytes
 		this.addEvent(event);
 	};
