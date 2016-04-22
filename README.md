@@ -38,6 +38,7 @@ Documentation
 - `addMarker(text)`
 - `addCuePoint(text)`
 - `addLyric(text)`
+- `setTimeSignature(numerator, denominator)`
 
 ### `MidiWriter.NoteEvent({options})`
 
