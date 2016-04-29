@@ -20,7 +20,7 @@ var tracks = [];
 
 tracks[0] = new MidiWriter.Track();
 tracks[0].setTimeSignature(3, 4);
-tracks[0].setTempo(500000);
+tracks[0].setTempo(100);
 
 var notes;
 

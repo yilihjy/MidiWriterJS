@@ -1,6 +1,6 @@
 var tracks = [];
 tracks[0] = new MidiWriter.Track();
-tracks[0].setTempo(1000000);
+tracks[0].setTempo(60);
 tracks[0].addEvent(new MidiWriter.ProgramChangeEvent({instrument : 1}));
 tracks[0].addEvent(new MidiWriter.NoteEvent({pitch: ['B4'], duration: 'd2', velocity:100}));
 tracks[0].addEvent(new MidiWriter.NoteEvent({pitch: ['C5'], duration: '4', velocity:100}));
