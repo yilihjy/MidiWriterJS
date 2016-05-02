@@ -100,6 +100,14 @@
 		this.addEvent(event);
 	};
 
+	MidiWriter.Track.prototype.setKeySignature = function(sf, mi) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
+		event.data.push(0x02); // Size
+		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
+		event.data = event.data.concat(MidiWriter.numberToBytes(mi, 1)); // Mode: 0 major, 1 minor
+		this.addEvent(event);
+	};
+
 	MidiWriter.Track.prototype.addText = function(text) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEXT_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
