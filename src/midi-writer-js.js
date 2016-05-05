@@ -104,37 +104,55 @@
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
 		event.data.push(0x02); // Size
 
+		var mode = mi || 0;
+		sf = sf || 0;
+
 		//	Function called with string notation
 		if (typeof mi === 'undefined') {
 			var fifths = [
 				['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'],
-				['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']];
-			var note = 'C';
-			var mode = 0;
-			var _sflength = sf.length;
-			
-			// mode check
-			if (sf.charAt(_sflength - 1) == 'm') {
+				['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']
+			];
+			var _sflen = sf.length;
+			var note = sf || 'C';
+
+			if (sf[0] === sf[0].toLowerCase()) {
 				mode = 1;
-				note = sf.charAt(0).toLowerCase();
-			} else {
-				note = sf.charAt(0).toUpperCase();
+
 			}
 
-			// building alteration
-			var _alteration = '';
-			if (_sflength > 1) {
-				_alteration = sf.charAt(1);
-
-				if(_alteration !== 'm') {
-					note = note.concat(_alteration);
+			if (_sflen > 1) {
+				switch (sf.charAt(_sflen - 1)) {
+					case 'm':
+						mode = 1;
+						note = sf.charAt(0).toLowerCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+					case '-':
+						mode = 1;
+						note = sf.charAt(0).toLowerCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+					case 'M':
+						mode = 0;
+						note = sf.charAt(0).toUpperCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+					case '+':
+						mode = 0;
+						note = sf.charAt(0).toUpperCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
 				}
 			}
 
 			sf = fifths[mode].indexOf(note) - 7;
-		} else {
-			mode = mi;
+
 		}
+
+	sf = fifths[mode].indexOf(note) - 7;
+
+}
 
 		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
 		event.data = event.data.concat(MidiWriter.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
