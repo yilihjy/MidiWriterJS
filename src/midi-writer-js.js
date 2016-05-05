@@ -103,8 +103,41 @@
 	MidiWriter.Track.prototype.setKeySignature = function(sf, mi) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
 		event.data.push(0x02); // Size
+
+		var fifths = [
+			['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'],
+			['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']];
+		var note = 'C';
+		var mode = 0;
+		var _sflength = sf.length;
+
+		//	Function called with string notation
+		if (typeof mi === 'undefined') {
+			// mode check
+			if (sf.charAt(_sflength - 1) == 'm') {
+				mode = 1;
+				note = sf.charAt(0).toLowerCase();
+			} else {
+				note = sf.charAt(0).toUpperCase();
+			}
+
+			// building alteration
+			var _alteration = '';
+			if (_sflength > 1) {
+				_alteration = sf.charAt(1);
+
+				if(_alteration !== 'm') {
+					note = note.concat(_alteration);
+				}
+			}
+
+			sf = fifths[mode].indexOf(note) - 7;
+		} else {
+			mode = mi;
+		}
+
 		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
-		event.data = event.data.concat(MidiWriter.numberToBytes(mi, 1)); // Mode: 0 major, 1 minor
+		event.data = event.data.concat(MidiWriter.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
 		this.addEvent(event);
 	};
 
