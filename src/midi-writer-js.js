@@ -104,15 +104,15 @@
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
 		event.data.push(0x02); // Size
 
-		var fifths = [
-			['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'],
-			['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']];
-		var note = 'C';
-		var mode = 0;
-		var _sflength = sf.length;
-
 		//	Function called with string notation
 		if (typeof mi === 'undefined') {
+			var fifths = [
+				['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'],
+				['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']];
+			var note = 'C';
+			var mode = 0;
+			var _sflength = sf.length;
+			
 			// mode check
 			if (sf.charAt(_sflength - 1) == 'm') {
 				mode = 1;
