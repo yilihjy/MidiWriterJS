@@ -146,14 +146,15 @@
 				}
 			}
 
-			sf = fifths[mode].indexOf(note) - 7;
+			var fifthindex = fifths[mode].indexOf(note);
+			if (fifthindex === -1) {
+				sf = 0;
+
+			} else {
+				sf = fifthindex - 7;
+			}
 
 		}
-
-	sf = fifths[mode].indexOf(note) - 7;
-
-}
-
 		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
 		event.data = event.data.concat(MidiWriter.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
 		this.addEvent(event);
