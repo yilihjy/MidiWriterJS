@@ -2,7 +2,9 @@
 ===============
 [![Build Status](https://travis-ci.org/grimmdude/MidiWriterJS.svg?branch=master)](https://travis-ci.org/grimmdude/MidiWriterJS)
 
-MidiWriterJS is a JavaScript library providing an API for generating expressive multi-track MIDI files.  It's still young and in active development.
+MidiWriterJS is a JavaScript library providing an API for generating expressive multi-track MIDI files.  
+
+Note that the `master` branch is in active development so if you're looking for a tried and true stable version please use the latest release.
 
 Install
 ------------
