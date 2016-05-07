@@ -100,6 +100,66 @@
 		this.addEvent(event);
 	};
 
+	MidiWriter.Track.prototype.setKeySignature = function(sf, mi) {
+		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
+		event.data.push(0x02); // Size
+
+		var mode = mi || 0;
+		sf = sf || 0;
+
+		//	Function called with string notation
+		if (typeof mi === 'undefined') {
+			var fifths = [
+				['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'],
+				['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']
+			];
+			var _sflen = sf.length;
+			var note = sf || 'C';
+
+			if (sf[0] === sf[0].toLowerCase()) {
+				mode = 1;
+
+			}
+
+			if (_sflen > 1) {
+				switch (sf.charAt(_sflen - 1)) {
+					case 'm':
+						mode = 1;
+						note = sf.charAt(0).toLowerCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+					case '-':
+						mode = 1;
+						note = sf.charAt(0).toLowerCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+					case 'M':
+						mode = 0;
+						note = sf.charAt(0).toUpperCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+					case '+':
+						mode = 0;
+						note = sf.charAt(0).toUpperCase();
+						note = note.concat(sf.substring(1, _sflen - 1));
+						break;
+				}
+			}
+
+			var fifthindex = fifths[mode].indexOf(note);
+			if (fifthindex === -1) {
+				sf = 0;
+
+			} else {
+				sf = fifthindex - 7;
+			}
+
+		}
+		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
+		event.data = event.data.concat(MidiWriter.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
+		this.addEvent(event);
+	};
+
 	MidiWriter.Track.prototype.addText = function(text) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEXT_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
