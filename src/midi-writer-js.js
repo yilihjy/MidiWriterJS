@@ -65,7 +65,7 @@
 		this.type = MidiWriter.constants.TRACK_CHUNK_TYPE;
 		this.data = [];
 		this.size = [];
-		this.currentRest = 0;
+		this.events = [];
 	};
 
 
@@ -76,6 +76,7 @@
 	MidiWriter.Track.prototype.addEvent = function(event) {
 		this.data = this.data.concat(event.data);
 		this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
+		this.events.push(event);
 	};
 
 
@@ -328,31 +329,23 @@
 		switch (duration) {
 			case '1':
 				return 4;
-				break;
 			case '2':
 				return 2;
-				break;
 			case 'd2':
 				return 3;
-				break;
 			case '4':
 				return 1;
-				break;
 			case 'd4':
 				return 1.5;
-				break;
 			case '8':
 				return 0.5;
-				break;
 			case '8t':
 				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
 				return 0.33;
 			case 'd8':
 				return 0.75;
-				break;
 			case '16':
 				return 0.25;
-				break;
 			default:
 				// Notes default to a quarter
 				if (type === 'note') {
@@ -361,7 +354,6 @@
 
 				// Rests default to 0
 				return 0;
-				break;
 		}
 	};
 
