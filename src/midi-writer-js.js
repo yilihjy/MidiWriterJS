@@ -77,6 +77,7 @@
 		this.data = this.data.concat(event.data);
 		this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
 		this.events.push(event);
+		return this;
 	};
 
 
@@ -85,7 +86,7 @@
 		event.data.push(0x03); // Size
 		var tempo = Math.round(60000000 / bpm);
 		event.data = event.data.concat(MidiWriter.numberToBytes(tempo, 3)); // Tempo, 3 bytes
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 	MidiWriter.Track.prototype.setTimeSignature = function(numerator, denominator, midiclockspertick, notespermidiclock) {
@@ -98,7 +99,7 @@
 		event.data = event.data.concat(MidiWriter.numberToBytes(midiclockspertick, 1)); // MIDI Clocks per tick, 1 bytes
 		var notespermidiclock = notespermidiclock || 8;
 		event.data = event.data.concat(MidiWriter.numberToBytes(notespermidiclock, 1)); // Number of 1/32 notes per MIDI clocks, 1 bytes
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 	MidiWriter.Track.prototype.setKeySignature = function(sf, mi) {
@@ -158,7 +159,7 @@
 		}
 		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
 		event.data = event.data.concat(MidiWriter.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 	MidiWriter.Track.prototype.addText = function(text) {
@@ -166,7 +167,7 @@
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 
@@ -175,7 +176,7 @@
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 
@@ -184,7 +185,7 @@
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 
@@ -193,7 +194,7 @@
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 
@@ -202,7 +203,7 @@
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 
@@ -211,7 +212,7 @@
 		var stringBytes = MidiWriter.stringToBytes(lyric);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Lyric
-		this.addEvent(event);
+		return this.addEvent(event);
 	};
 
 	/** Channel Mode Messages **/
