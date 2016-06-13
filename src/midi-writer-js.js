@@ -71,12 +71,22 @@
 
 	/**
 	 * Method to add any event type the track.
-	 * @param {object} event {data:[]}
+	 * @param A single event object, or array of event objects
 	 */
 	MidiWriter.Track.prototype.addEvent = function(event) {
-		this.data = this.data.concat(event.data);
-		this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
-		this.events.push(event);
+		if (Array.isArray(event)) {
+			for (var i in event) {
+				this.data = this.data.concat(event[i].data);
+				this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
+				this.events.push(event[i]);
+			}
+
+		} else {
+			this.data = this.data.concat(event.data);
+			this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
+			this.events.push(event);
+		}
+
 		return this;
 	};
 
