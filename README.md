@@ -118,27 +118,16 @@ Here's an example of how everyone's favorite song "Hot Cross Buns" could be writ
 ```javascript
 var track = new MidiWriter.Track();
 
-var notes;
-notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true});
-track.addEvent(notes);
-
-notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
-track.addEvent(notes);
-
-notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true});
-track.addEvent(notes);
-
-notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
-track.addEvent(notes);
-
-notes = new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8', sequential: true});
-track.addEvent(notes);
-
-notes = new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true});
-track.addEvent(notes);
-
-notes = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'});
-track.addEvent(notes);
+track.addEvent([
+			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
+			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
+			new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
+	]
+);
 
 var write = new MidiWriter.Writer([track]);
 console.log(write.dataUri());
