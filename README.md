@@ -14,6 +14,9 @@ npm install midi-writer-js
 Getting Started
 ------------
 ```javascript
+// If using Node require the module
+var MidiWriter = require('./src/midi-writer-js');
+
 // Start with a new track
 var track = new MidiWriter.Track();
 
@@ -116,6 +119,9 @@ The `Writer` object provides a few ways to output the file:
 ### Hot Cross Buns
 Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.
 ```javascript
+// If using Node require the module
+var MidiWriter = require('./src/midi-writer-js');
+
 var track = new MidiWriter.Track();
 
 track.addEvent([
