@@ -611,6 +611,79 @@
 		return bytes;
 	};
 
+	MidiWriter.VexFlow = {};
+
+	/**
+	 * Support for converting VexFlow voice into MidiWriterJS track
+	 * @return MidiWritier.Track object
+	 */
+	MidiWriter.VexFlow.trackFromNotes = function(notes) {
+		var track = new MidiWriter.Track();
+		var wait, pitches = [];
+
+		for (var i in notes) {
+			pitches = [];
+			//console.log(notes[i].isDotted());
+
+			if (notes[i].noteType === 'n') {
+				for (var j in notes[i].keys) {
+					// build array of pitches
+					pitches.push(MidiWriter.VexFlow.convertPitch(notes[i].keys[j]));
+				}
+
+			} else if (notes[i].noteType === 'r') {
+				// move on to the next tickable and use this rest as a `wait` property for the next event
+				wait = MidiWriter.VexFlow.convertDuration(notes[i]);
+				continue;
+			}
+
+			track.addEvent(new MidiWriter.NoteEvent({pitch: pitches, duration: MidiWriter.VexFlow.convertDuration(notes[i]), wait: wait}));
+			
+			// reset wait
+			wait = 0;
+		}
+
+		return track;
+	};
+
+
+	/**
+	 * Converts VexFlow pitch syntax to MidiWriterJS syntax
+	 * @param pitch string
+	 */
+	MidiWriter.VexFlow.convertPitch = function(pitch) {
+		return pitch.replace('/', '');
+	};
+
+
+	/**
+	 * Converts VexFlow duration syntax to MidiWriterJS syntax
+	 * @param note struct from VexFlow
+	 */
+	MidiWriter.VexFlow.convertDuration = function(note) {
+		switch (note.duration) {
+			case 'w':
+				return '1';
+			case 'h':
+				return '2';
+			case 'q':
+				if (note.isDotted()) {
+					return 'd4';
+				}
+
+				return '4';
+			case '8':
+				if (note.isDotted()) {
+					return 'd8';
+				}
+
+				return '8';
+		}
+
+		return note.duration;
+	};
+
+
 	// Node support
 	if( typeof exports !== 'undefined' ) {
 		if( typeof module !== 'undefined' && module.exports ) {
