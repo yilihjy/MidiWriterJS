@@ -61,7 +61,7 @@ The `NoteEvent` supports these options:
 		<tr>
 			<td><b>pitch</b></td>
 			<td>array</td>
-			<td>An array of notes to be triggered.  Format is <code>C#4</code>.  Pro tip: You can use the output from [tonal](https://github.com/danigb/tonal) functions to build scales, chords, intervals, etc. in this parameter.</td>
+			<td>An array of notes to be triggered.  Format is <code>C#4</code>.  Pro tip: You can use the output from <a href="https://github.com/danigb/tonal" target="_blank">tonal</a> functions to build scales, chords, intervals, etc. in this parameter.</td>
 		</tr>
 		<tr>
 			<td><b>duration</b></td>
