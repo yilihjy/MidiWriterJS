@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>midi-writer-js.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>midi-writer-js.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p><a href="https://github.com/grimmdude/MidiWriterJS">MidiWriterJS</a> - Copyright (c) Garrett Grimm 2016.</p>
+<h2 id="description">Description</h2>
+<p>A JavaScript library providing an API for programmatically generating expressive
+multi-track MIDI files in browser and Node.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+
+<span class="hljs-comment">/* https://github.com/grimmdude/MidiWriterJS
+ * MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
+ */</span>
+
+(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-meta">	"use strict"</span>;
+
+	<span class="hljs-keyword">var</span> MidiWriter = <span class="hljs-keyword">this</span>.MidiWriter = {
+	};
+
+	MidiWriter.constants = {
+		HEADER_CHUNK_TYPE  		: [<span class="hljs-number">0x4d</span>, <span class="hljs-number">0x54</span>, <span class="hljs-number">0x68</span>, <span class="hljs-number">0x64</span>], <span class="hljs-comment">// Mthd</span>
+		HEADER_CHUNK_LENGTH  	: [<span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x06</span>], <span class="hljs-comment">// Header size for SMF</span>
+		HEADER_CHUNK_FORMAT0    : [<span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>], <span class="hljs-comment">// Midi Type 0 id</span>
+		HEADER_CHUNK_FORMAT1    : [<span class="hljs-number">0x00</span>, <span class="hljs-number">0x01</span>], <span class="hljs-comment">// Midi Type 1 id</span>
+		HEADER_CHUNK_DIVISION   : [<span class="hljs-number">0x00</span>, <span class="hljs-number">0x80</span>], <span class="hljs-comment">// Defaults to 128 ticks per beat</span>
+		TRACK_CHUNK_TYPE		: [<span class="hljs-number">0x4d</span>, <span class="hljs-number">0x54</span>, <span class="hljs-number">0x72</span>, <span class="hljs-number">0x6b</span>], <span class="hljs-comment">// MTrk,</span>
+		META_EVENT_ID			: <span class="hljs-number">0xFF</span>,
+		META_TEXT_ID			: <span class="hljs-number">0x01</span>,
+		META_COPYRIGHT_ID		: <span class="hljs-number">0x02</span>,
+		META_TRACK_NAME_ID		: <span class="hljs-number">0x03</span>,
+		META_INSTRUMENT_NAME_ID : <span class="hljs-number">0x04</span>,
+		META_LYRIC_ID			: <span class="hljs-number">0x05</span>,
+		META_MARKER_ID			: <span class="hljs-number">0x06</span>,
+		META_CUE_POINT			: <span class="hljs-number">0x07</span>,
+		META_TEMPO_ID			: <span class="hljs-number">0x51</span>,
+		META_SMTPE_OFFSET		: <span class="hljs-number">0x54</span>,
+		META_TIME_SIGNATURE_ID	: <span class="hljs-number">0x58</span>,
+		META_KEY_SIGNATURE_ID	: <span class="hljs-number">0x59</span>,
+		META_END_OF_TRACK_ID	: [<span class="hljs-number">0x2F</span>, <span class="hljs-number">0x00</span>],
+		<span class="hljs-comment">/*NOTE_ON_STATUS			: 0x90, // includes channel number (0)*/</span>
+		<span class="hljs-comment">/*NOTE_OFF_STATUS			: 0x80, // includes channel number (0)*/</span>
+		PROGRAM_CHANGE_STATUS	: <span class="hljs-number">0xC0</span> <span class="hljs-comment">// includes channel number (0)</span>
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Builds notes object for reference against binary values.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+		MidiWriter.constants.notes = {};
+		<span class="hljs-keyword">var</span> allNotes = [[<span class="hljs-string">'C'</span>], [<span class="hljs-string">'C#'</span>,<span class="hljs-string">'Db'</span>], [<span class="hljs-string">'D'</span>], [<span class="hljs-string">'D#'</span>,<span class="hljs-string">'Eb'</span>], [<span class="hljs-string">'E'</span>],[<span class="hljs-string">'F'</span>], [<span class="hljs-string">'F#'</span>,<span class="hljs-string">'Gb'</span>], [<span class="hljs-string">'G'</span>], [<span class="hljs-string">'G#'</span>,<span class="hljs-string">'Ab'</span>], [<span class="hljs-string">'A'</span>], [<span class="hljs-string">'A#'</span>,<span class="hljs-string">'Bb'</span>], [<span class="hljs-string">'B'</span>]];
+		<span class="hljs-keyword">var</span> counter = <span class="hljs-number">0</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>All available octaves.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">-1</span>; i &lt;= <span class="hljs-number">9</span>; i++) {
+			<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> j <span class="hljs-keyword">in</span> allNotes) {
+				<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> k <span class="hljs-keyword">in</span> allNotes[j]) {
+					MidiWriter.constants.notes[allNotes[j][k] + i] = counter;
+				}
+
+				counter++;
+			}
+		}
+	})();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Chunk object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	MidiWriter.Chunk = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.type = fields.type;
+		<span class="hljs-keyword">this</span>.data = fields.data;
+		<span class="hljs-keyword">this</span>.size = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, fields.data.length];
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Track object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	MidiWriter.Track = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+		<span class="hljs-keyword">this</span>.type = MidiWriter.constants.TRACK_CHUNK_TYPE;
+		<span class="hljs-keyword">this</span>.data = [];
+		<span class="hljs-keyword">this</span>.size = [];
+		<span class="hljs-keyword">this</span>.events = [];
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Method to add any event type the track.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	MidiWriter.Track.prototype.addEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">event</span>) </span>{
+		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">Array</span>.isArray(event)) {
+			<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> event) {
+				<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat(event[i].data);
+				<span class="hljs-keyword">this</span>.size = MidiWriter.numberToBytes(<span class="hljs-keyword">this</span>.data.length, <span class="hljs-number">4</span>); <span class="hljs-comment">// 4 bytes long</span>
+				<span class="hljs-keyword">this</span>.events.push(event[i]);
+			}
+
+		} <span class="hljs-keyword">else</span> {
+			<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat(event.data);
+			<span class="hljs-keyword">this</span>.size = MidiWriter.numberToBytes(<span class="hljs-keyword">this</span>.data.length, <span class="hljs-number">4</span>); <span class="hljs-comment">// 4 bytes long</span>
+			<span class="hljs-keyword">this</span>.events.push(event);
+		}
+
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Sets tempo.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	MidiWriter.Track.prototype.setTempo = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bpm</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
+		event.data.push(<span class="hljs-number">0x03</span>); <span class="hljs-comment">// Size</span>
+		<span class="hljs-keyword">var</span> tempo = <span class="hljs-built_in">Math</span>.round(<span class="hljs-number">60000000</span> / bpm);
+		event.data = event.data.concat(MidiWriter.numberToBytes(tempo, <span class="hljs-number">3</span>)); <span class="hljs-comment">// Tempo, 3 bytes</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+	MidiWriter.Track.prototype.setTimeSignature = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">numerator, denominator, midiclockspertick, notespermidiclock</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TIME_SIGNATURE_ID]});
+		event.data.push(<span class="hljs-number">0x04</span>); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(MidiWriter.numberToBytes(numerator, <span class="hljs-number">1</span>)); <span class="hljs-comment">// Numerator, 1 bytes</span>
+		<span class="hljs-keyword">var</span> _denominator = (denominator &lt; <span class="hljs-number">4</span>) ? (denominator - <span class="hljs-number">1</span>) : <span class="hljs-built_in">Math</span>.sqrt(denominator);	<span class="hljs-comment">// Denominator is expressed as pow of 2</span>
+		event.data = event.data.concat(MidiWriter.numberToBytes(_denominator, <span class="hljs-number">1</span>)); <span class="hljs-comment">// Denominator, 1 bytes</span>
+		midiclockspertick = midiclockspertick || <span class="hljs-number">24</span>;
+		event.data = event.data.concat(MidiWriter.numberToBytes(midiclockspertick, <span class="hljs-number">1</span>)); <span class="hljs-comment">// MIDI Clocks per tick, 1 bytes</span>
+		notespermidiclock = notespermidiclock || <span class="hljs-number">8</span>;
+		event.data = event.data.concat(MidiWriter.numberToBytes(notespermidiclock, <span class="hljs-number">1</span>)); <span class="hljs-comment">// Number of 1/32 notes per MIDI clocks, 1 bytes</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+	MidiWriter.Track.prototype.setKeySignature = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sf, mi</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
+		event.data.push(<span class="hljs-number">0x02</span>); <span class="hljs-comment">// Size</span>
+
+		<span class="hljs-keyword">var</span> mode = mi || <span class="hljs-number">0</span>;
+		sf = sf || <span class="hljs-number">0</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Function called with string notation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> mi === <span class="hljs-string">'undefined'</span>) {
+			<span class="hljs-keyword">var</span> fifths = [
+				[<span class="hljs-string">'Cb'</span>, <span class="hljs-string">'Gb'</span>, <span class="hljs-string">'Db'</span>, <span class="hljs-string">'Ab'</span>, <span class="hljs-string">'Eb'</span>, <span class="hljs-string">'Bb'</span>, <span class="hljs-string">'F'</span>, <span class="hljs-string">'C'</span>, <span class="hljs-string">'G'</span>, <span class="hljs-string">'D'</span>, <span class="hljs-string">'A'</span>, <span class="hljs-string">'E'</span>, <span class="hljs-string">'B'</span>, <span class="hljs-string">'F#'</span>, <span class="hljs-string">'C#'</span>],
+				[<span class="hljs-string">'ab'</span>, <span class="hljs-string">'eb'</span>, <span class="hljs-string">'bb'</span>, <span class="hljs-string">'f'</span>, <span class="hljs-string">'c'</span>, <span class="hljs-string">'g'</span>, <span class="hljs-string">'d'</span>, <span class="hljs-string">'a'</span>, <span class="hljs-string">'e'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'f#'</span>, <span class="hljs-string">'c#'</span>, <span class="hljs-string">'g#'</span>, <span class="hljs-string">'d#'</span>, <span class="hljs-string">'a#'</span>]
+			];
+			<span class="hljs-keyword">var</span> _sflen = sf.length;
+			<span class="hljs-keyword">var</span> note = sf || <span class="hljs-string">'C'</span>;
+
+			<span class="hljs-keyword">if</span> (sf[<span class="hljs-number">0</span>] === sf[<span class="hljs-number">0</span>].toLowerCase()) {
+				mode = <span class="hljs-number">1</span>;
+
+			}
+
+			<span class="hljs-keyword">if</span> (_sflen &gt; <span class="hljs-number">1</span>) {
+				<span class="hljs-keyword">switch</span> (sf.charAt(_sflen - <span class="hljs-number">1</span>)) {
+					<span class="hljs-keyword">case</span> <span class="hljs-string">'m'</span>:
+						mode = <span class="hljs-number">1</span>;
+						note = sf.charAt(<span class="hljs-number">0</span>).toLowerCase();
+						note = note.concat(sf.substring(<span class="hljs-number">1</span>, _sflen - <span class="hljs-number">1</span>));
+						<span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">'-'</span>:
+						mode = <span class="hljs-number">1</span>;
+						note = sf.charAt(<span class="hljs-number">0</span>).toLowerCase();
+						note = note.concat(sf.substring(<span class="hljs-number">1</span>, _sflen - <span class="hljs-number">1</span>));
+						<span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">'M'</span>:
+						mode = <span class="hljs-number">0</span>;
+						note = sf.charAt(<span class="hljs-number">0</span>).toUpperCase();
+						note = note.concat(sf.substring(<span class="hljs-number">1</span>, _sflen - <span class="hljs-number">1</span>));
+						<span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">'+'</span>:
+						mode = <span class="hljs-number">0</span>;
+						note = sf.charAt(<span class="hljs-number">0</span>).toUpperCase();
+						note = note.concat(sf.substring(<span class="hljs-number">1</span>, _sflen - <span class="hljs-number">1</span>));
+						<span class="hljs-keyword">break</span>;
+				}
+			}
+
+			<span class="hljs-keyword">var</span> fifthindex = fifths[mode].indexOf(note);
+			<span class="hljs-keyword">if</span> (fifthindex === <span class="hljs-number">-1</span>) {
+				sf = <span class="hljs-number">0</span>;
+
+			} <span class="hljs-keyword">else</span> {
+				sf = fifthindex - <span class="hljs-number">7</span>;
+			}
+
+		}
+		event.data = event.data.concat(MidiWriter.numberToBytes(sf, <span class="hljs-number">1</span>)); <span class="hljs-comment">// Number of sharp or flats ( &lt; 0 flat; &gt; 0 sharp)</span>
+		event.data = event.data.concat(MidiWriter.numberToBytes(mode, <span class="hljs-number">1</span>)); <span class="hljs-comment">// Mode: 0 major, 1 minor</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+	MidiWriter.Track.prototype.addText = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEXT_ID]});
+		<span class="hljs-keyword">var</span> stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(stringBytes); <span class="hljs-comment">// Text</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addCopyright = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_COPYRIGHT_ID]});
+		<span class="hljs-keyword">var</span> stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(stringBytes); <span class="hljs-comment">// Text</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addInstrumentName = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_INSTRUMENT_NAME_ID]});
+		<span class="hljs-keyword">var</span> stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(stringBytes); <span class="hljs-comment">// Text</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addMarker = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_MARKER_ID]});
+		<span class="hljs-keyword">var</span> stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(stringBytes); <span class="hljs-comment">// Text</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addCuePoint = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_CUE_POINT]});
+		<span class="hljs-keyword">var</span> stringBytes = MidiWriter.stringToBytes(text);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(stringBytes); <span class="hljs-comment">// Text</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+
+	MidiWriter.Track.prototype.addLyric = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">lyric</span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: [MidiWriter.constants.META_LYRIC_ID]});
+		<span class="hljs-keyword">var</span> stringBytes = MidiWriter.stringToBytes(lyric);
+		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); <span class="hljs-comment">// Size</span>
+		event.data = event.data.concat(stringBytes); <span class="hljs-comment">// Lyric</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.addEvent(event);
+	};
+
+	<span class="hljs-comment">/** Channel Mode Messages **/</span>
+	MidiWriter.Track.prototype.polyModeOn = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+		<span class="hljs-keyword">var</span> event = <span class="hljs-keyword">new</span> MidiWriter.NoteOnEvent({data: [<span class="hljs-number">0x00</span>, <span class="hljs-number">0xB0</span>, <span class="hljs-number">0x7E</span>, <span class="hljs-number">0x00</span>]});
+		<span class="hljs-keyword">this</span>.addEvent(event);
+		<span class="hljs-built_in">console</span>.log(event);
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
+	 * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
+	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
+	 */</span>
+	MidiWriter.NoteEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.pitch 		= fields.pitch;
+		<span class="hljs-keyword">this</span>.wait 		= fields.wait || <span class="hljs-number">0</span>;
+		<span class="hljs-keyword">this</span>.duration 	= fields.duration;
+		<span class="hljs-keyword">this</span>.sequential = fields.sequential || <span class="hljs-literal">false</span>;
+		<span class="hljs-keyword">this</span>.velocity 	= fields.velocity || <span class="hljs-number">50</span>;
+		<span class="hljs-keyword">this</span>.channel 	= fields.channel || <span class="hljs-number">1</span>;
+		<span class="hljs-keyword">this</span>.repeat 	= fields.repeat || <span class="hljs-number">1</span>;
+		<span class="hljs-keyword">this</span>.data 		= [];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Convert velocity to value 0-127</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.velocity = <span class="hljs-built_in">Math</span>.round(<span class="hljs-keyword">this</span>.velocity / <span class="hljs-number">100</span> * <span class="hljs-number">127</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
+Rounding only applies to triplets, which the remainder is handled below</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">var</span> quarterTicks = MidiWriter.numberFromBytes(MidiWriter.constants.HEADER_CHUNK_DIVISION);
+		<span class="hljs-keyword">var</span> tickDuration = <span class="hljs-built_in">Math</span>.round(quarterTicks * <span class="hljs-keyword">this</span>.getDurationMultiplier(<span class="hljs-keyword">this</span>.duration, <span class="hljs-string">'note'</span>));
+		<span class="hljs-keyword">var</span> restDuration = <span class="hljs-built_in">Math</span>.round(quarterTicks * <span class="hljs-keyword">this</span>.getDurationMultiplier(<span class="hljs-keyword">this</span>.wait, <span class="hljs-string">'rest'</span>));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>fields.pitch could be an array of pitches.
+If so create note events for each and apply the same duration.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">var</span> noteOn, noteOff;
+		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">Array</span>.isArray(<span class="hljs-keyword">this</span>.pitch)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>By default this is a chord if it’s an array of notes that requires one NoteOnEvent.
+If this.sequential === true then it’s a sequential string of notes that requires separate NoteOnEvents.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">if</span> ( ! <span class="hljs-keyword">this</span>.sequential) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Handle repeat</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>; j &lt; <span class="hljs-keyword">this</span>.repeat; j++) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Note on</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.pitch) {
+						<span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) {
+							noteOn = <span class="hljs-keyword">new</span> MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([<span class="hljs-keyword">this</span>.getNoteOnStatus(), MidiWriter.getPitch(<span class="hljs-keyword">this</span>.pitch[i]), <span class="hljs-keyword">this</span>.velocity])});
+
+						} <span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Running status (can ommit the note on status)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>							noteOn = <span class="hljs-keyword">new</span> MidiWriter.NoteOnEvent({data: [<span class="hljs-number">0</span>, MidiWriter.getPitch(<span class="hljs-keyword">this</span>.pitch[i]), <span class="hljs-keyword">this</span>.velocity]});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>noteOn = new MidiWriter.NoteOnEvent({data: [0, this.getNoteOnStatus(), MidiWriter.getPitch(this.pitch[i]), this.velocity]});</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						}
+
+						<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat(noteOn.data);
+					}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Note off</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.pitch) {
+						<span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) {
+							noteOff = <span class="hljs-keyword">new</span> MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([<span class="hljs-keyword">this</span>.getNoteOffStatus(), MidiWriter.getPitch(<span class="hljs-keyword">this</span>.pitch[i]), <span class="hljs-keyword">this</span>.velocity])});
+
+						} <span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Running status (can ommit the note off status)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>							noteOff = <span class="hljs-keyword">new</span> MidiWriter.NoteOffEvent({data: [<span class="hljs-number">0</span>, MidiWriter.getPitch(<span class="hljs-keyword">this</span>.pitch[i]), <span class="hljs-keyword">this</span>.velocity]});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>noteOff = new MidiWriter.NoteOffEvent({data: [0, this.getNoteOffStatus(), MidiWriter.getPitch(this.pitch[i]), this.velocity]});</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+						}
+
+						<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat(noteOff.data);
+					}
+				}
+
+			} <span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Handle repeat</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>; j &lt; <span class="hljs-keyword">this</span>.repeat; j++) {
+					<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.pitch) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>restDuration only applies to first note</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="hljs-keyword">if</span> (i &gt; <span class="hljs-number">0</span>) {
+							restDuration = <span class="hljs-number">0</span>;
+						}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>If duration is 8th triplets we need to make sure that the total ticks == quarter note.
+So, the last one will need to be the remainder</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.duration === <span class="hljs-string">'8t'</span> &amp;&amp; i == <span class="hljs-keyword">this</span>.pitch.length - <span class="hljs-number">1</span>) {
+							tickDuration = quarterTicks - (tickDuration * <span class="hljs-number">2</span>);
+						}
+
+						noteOn = <span class="hljs-keyword">new</span> MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([<span class="hljs-keyword">this</span>.getNoteOnStatus(), MidiWriter.getPitch(<span class="hljs-keyword">this</span>.pitch[i]), <span class="hljs-keyword">this</span>.velocity])});
+						noteOff = <span class="hljs-keyword">new</span> MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([<span class="hljs-keyword">this</span>.getNoteOffStatus(), MidiWriter.getPitch(<span class="hljs-keyword">this</span>.pitch[i]), <span class="hljs-keyword">this</span>.velocity])});
+
+						<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat(noteOn.data.concat(noteOff.data));
+					}
+				}
+
+			}
+		} <span class="hljs-keyword">else</span> {
+			<span class="hljs-built_in">console</span>.error(<span class="hljs-string">'pitch must be an array.'</span>);
+			<span class="hljs-comment">/*
+			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.getPitch(this.pitch[i]), this.velocity])});
+			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.getPitch(this.pitch[i]), this.velocity])});
+
+			this.data = noteOn.data.concat(noteOff.data);
+			*/</span>
+		}
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Gets what to multiple ticks/quarter note by to get the specified duration.
+	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
+	 * @param {string} duration
+	 * @param {string} type ['note','rest']
+	 */</span>
+	MidiWriter.NoteEvent.prototype.getDurationMultiplier = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">duration, type</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">switch</span> (duration) {
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'1'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">4</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'2'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'d2'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">3</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'4'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'d4'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">1.5</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'8'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">0.5</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'8t'</span>:</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>For 8th triplets, let’s divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">return</span> <span class="hljs-number">0.33</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'d8'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">0.75</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'16'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-number">0.25</span>;
+			<span class="hljs-keyword">default</span>:</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Notes default to a quarter</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">if</span> (type === <span class="hljs-string">'note'</span>) {
+					<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+				}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Rests default to 0</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+		}
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Gets the note on status code based on the selected channel. 0x9{0-F}
+	 * @returns {number}
+	 */</span>
+	MidiWriter.NoteEvent.prototype.getNoteOnStatus = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Note on at channel 0 is 0x90 (144)
+0 = Ch 1</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">return</span> <span class="hljs-number">144</span> + <span class="hljs-keyword">this</span>.channel - <span class="hljs-number">1</span>;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Gets the note off status code based on the selected channel. 0x8{0-F}
+	 * @returns {number}
+	 */</span>
+	MidiWriter.NoteEvent.prototype.getNoteOffStatus = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Note off at channel 0 is 0x80 (128)
+0 = Ch 1</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">return</span> <span class="hljs-number">128</span> + <span class="hljs-keyword">this</span>.channel - <span class="hljs-number">1</span>;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Holds all data for a "note on" MIDI event
+	 * @param {object} fields {data: []}
+	 */</span>
+	MidiWriter.NoteOnEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.data = fields.data;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Holds all data for a "note off" MIDI event
+	 * @param {object} fields {data: []}
+	 */</span>
+	MidiWriter.NoteOffEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.data = fields.data;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Holds all data for a program change event.
+	 * @param {object} fields {instrument: 1-127}
+	 */</span>
+	MidiWriter.ProgramChangeEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>delta time defaults to 0.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.data = MidiWriter.numberToVariableLength(<span class="hljs-number">0x00</span>).concat([MidiWriter.constants.PROGRAM_CHANGE_STATUS, fields.instrument]);
+	};
+
+
+	MidiWriter.MetaEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.data = MidiWriter.numberToVariableLength(<span class="hljs-number">0x00</span>);<span class="hljs-comment">// Start with zero time delta</span>
+		<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat([MidiWriter.constants.META_EVENT_ID].concat(fields.data));
+	};
+
+	MidiWriter.SysexEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Object that puts together tracks and provides methods for file output.
+	 * @param {object} MidiWriter.Track
+	 */</span>
+	MidiWriter.Writer = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tracks</span>) </span>{
+		<span class="hljs-keyword">this</span>.data = [];
+
+		<span class="hljs-keyword">var</span> trackType = tracks.length &gt; <span class="hljs-number">1</span> ? MidiWriter.constants.HEADER_CHUNK_FORMAT1 : MidiWriter.constants.HEADER_CHUNK_FORMAT0;
+		<span class="hljs-keyword">var</span> numberOfTracks = MidiWriter.numberToBytes(tracks.length, <span class="hljs-number">2</span>); <span class="hljs-comment">// two bytes long</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Header chunk</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.data.push(<span class="hljs-keyword">new</span> MidiWriter.Chunk({
+								type: MidiWriter.constants.HEADER_CHUNK_TYPE,
+								data: trackType.concat(numberOfTracks.concat(MidiWriter.constants.HEADER_CHUNK_DIVISION))}));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Track chunks</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> tracks) {
+			tracks[i].addEvent(<span class="hljs-keyword">new</span> MidiWriter.MetaEvent({data: MidiWriter.constants.META_END_OF_TRACK_ID}));
+			<span class="hljs-keyword">this</span>.data.push(tracks[i]);
+		}
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Builds the file into a Uint8Array
+	 * @returns Uint8Array
+	 */</span>
+	MidiWriter.Writer.prototype.buildFile = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+		<span class="hljs-keyword">var</span> build = [];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Data consists of chunks which consists of data</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.data) {
+			build = build.concat(<span class="hljs-keyword">this</span>.data[i].type);
+			build = build.concat(<span class="hljs-keyword">this</span>.data[i].size);
+			build = build.concat(<span class="hljs-keyword">this</span>.data[i].data);
+		}
+
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(build);
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Convert file buffer to a base64 string.  Different methods depending on if browser or node.
+	 *
+	 */</span>
+	MidiWriter.Writer.prototype.base64 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> btoa === <span class="hljs-string">'function'</span>) {
+			<span class="hljs-keyword">return</span> btoa(<span class="hljs-built_in">String</span>.fromCharCode.apply(<span class="hljs-literal">null</span>, <span class="hljs-keyword">this</span>.buildFile()));
+
+		} <span class="hljs-keyword">else</span> {
+			<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Buffer(<span class="hljs-keyword">this</span>.buildFile()).toString(<span class="hljs-string">'base64'</span>);
+		}
+	};
+
+
+    <span class="hljs-comment">/**
+     * Get the data URI.
+     *
+     */</span>
+    MidiWriter.Writer.prototype.dataUri = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-string">'data:audio/midi;base64,'</span> + <span class="hljs-keyword">this</span>.base64();
+    };
+
+
+    <span class="hljs-comment">/**
+     * Returns the correct MIDI number for the specified pitch.
+     * @param {string} 'C#4'
+     * @return {number}
+     */</span>
+     MidiWriter.getPitch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pitch</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>Change letter to uppercase</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>     	pitch = pitch.charAt(<span class="hljs-number">0</span>).toUpperCase() + pitch.substring(<span class="hljs-number">1</span>);
+     	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.constants.notes[pitch];
+     };
+
+
+	<span class="hljs-comment">/**
+	 * Translates number of ticks to MIDI timestamp format, returning an array of
+	 * hex strings with the time values. Midi has a very particular time to express time,
+	 * take a good look at the spec before ever touching this function.
+	 * Thanks to https://github.com/sergi/jsmidi
+	 *
+	 * @param {number} Number of ticks to be translated
+	 * @returns {array} of bytes that form the MIDI time value
+	 */</span>
+	MidiWriter.numberToVariableLength = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ticks</span>) </span>{
+	    <span class="hljs-keyword">var</span> buffer = ticks &amp; <span class="hljs-number">0x7F</span>;
+
+	    <span class="hljs-keyword">while</span> (ticks = ticks &gt;&gt; <span class="hljs-number">7</span>) {
+	        buffer &lt;&lt;= <span class="hljs-number">8</span>;
+	        buffer |= ((ticks &amp; <span class="hljs-number">0x7F</span>) | <span class="hljs-number">0x80</span>);
+	    }
+
+	    <span class="hljs-keyword">var</span> bList = [];
+	    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+	        bList.push(buffer &amp; <span class="hljs-number">0xff</span>);
+
+	        <span class="hljs-keyword">if</span> (buffer &amp; <span class="hljs-number">0x80</span>) { buffer &gt;&gt;= <span class="hljs-number">8</span>; }
+	        <span class="hljs-keyword">else</span> { <span class="hljs-keyword">break</span>; }
+	    }
+
+	    <span class="hljs-keyword">return</span> bList;
+	};
+
+	MidiWriter.stringByteCount = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s</span>) </span>{
+	    <span class="hljs-keyword">return</span> <span class="hljs-built_in">encodeURI</span>(s).split(<span class="hljs-regexp">/%..|./</span>).length - <span class="hljs-number">1</span>;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Utility function to get an int from an array of bytes.
+	 * @param {array} bytes
+	 * @returns {number}
+	 */</span>
+	MidiWriter.numberFromBytes = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bytes</span>) </span>{
+		<span class="hljs-keyword">var</span> hex = <span class="hljs-string">''</span>;
+		<span class="hljs-keyword">var</span> stringResult;
+
+		<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> bytes) {
+			stringResult = bytes[i].toString(<span class="hljs-number">16</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>ensure string is 2 chars</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">if</span> (stringResult.length == <span class="hljs-number">1</span>) {
+				stringResult = <span class="hljs-string">"0"</span> + stringResult;
+			}
+
+			hex += stringResult;
+		}
+
+		<span class="hljs-keyword">return</span> <span class="hljs-built_in">parseInt</span>(hex, <span class="hljs-number">16</span>);
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Takes a number and splits it up into an array of bytes.  Can be padded by passing a number to bytesNeeded
+	 * @param {number} number
+	 * @param {number} bytesNeeded
+	 * @returns {array} of bytes
+	 */</span>
+	MidiWriter.numberToBytes = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">number, bytesNeeded</span>) </span>{
+		bytesNeeded = bytesNeeded || <span class="hljs-number">1</span>;
+
+		<span class="hljs-keyword">var</span> hexString = number.toString(<span class="hljs-number">16</span>);
+
+		<span class="hljs-keyword">if</span> (hexString.length &amp; <span class="hljs-number">1</span>) { <span class="hljs-comment">// Make sure hex string is even number of chars</span>
+			hexString = <span class="hljs-string">'0'</span> + hexString;
+		}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>Split hex string into an array of two char elements</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">var</span> hexArray = hexString.match(<span class="hljs-regexp">/.{2}/g</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>Now parse them out as integers</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		hexArray = hexArray.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item</span>) </span>{
+			<span class="hljs-keyword">return</span> <span class="hljs-built_in">parseInt</span>(item, <span class="hljs-number">16</span>);
+		});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>Prepend empty bytes if we don’t have enough</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (hexArray.length &lt; bytesNeeded) {
+			<span class="hljs-keyword">while</span> (bytesNeeded - hexArray.length &gt; <span class="hljs-number">0</span>) {
+				hexArray.unshift(<span class="hljs-number">0</span>);
+			}
+		}
+
+		<span class="hljs-keyword">return</span> hexArray;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Convert a string to an array of bytes
+	 * @param {string}
+	 * @returns {array}
+	 */</span>
+	MidiWriter.stringToBytes = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">string</span>) </span>{
+		<span class="hljs-keyword">var</span> bytes = [];
+		<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; string.length; i++) {
+			bytes.push(string[i].charCodeAt(<span class="hljs-number">0</span>));
+		}
+
+		<span class="hljs-keyword">return</span> bytes;
+	};
+
+	MidiWriter.VexFlow = {};
+
+	<span class="hljs-comment">/**
+	 * Support for converting VexFlow voice into MidiWriterJS track
+	 * @return MidiWritier.Track object
+	 */</span>
+	MidiWriter.VexFlow.trackFromVoice = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">voice</span>) </span>{
+		<span class="hljs-keyword">var</span> track = <span class="hljs-keyword">new</span> MidiWriter.Track();
+		<span class="hljs-keyword">var</span> wait, pitches = [];
+
+		<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> voice.tickables) {
+			pitches = [];
+
+			<span class="hljs-keyword">if</span> (voice.tickables[i].noteType === <span class="hljs-string">'n'</span>) {
+				<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> j <span class="hljs-keyword">in</span> notes[i].keys) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>build array of pitches</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					pitches.push(MidiWriter.VexFlow.convertPitch(voice.tickables[i].keys[j]));
+				}
+
+			} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (voice.tickables[i].noteType === <span class="hljs-string">'r'</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>move on to the next tickable and use this rest as a <code>wait</code> property for the next event</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				wait = MidiWriter.VexFlow.convertDuration(voice.tickables[i]);
+				<span class="hljs-keyword">continue</span>;
+			}
+
+			track.addEvent(<span class="hljs-keyword">new</span> MidiWriter.NoteEvent({pitch: pitches, duration: MidiWriter.VexFlow.convertDuration(voice.tickables[i]), wait: wait}));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>reset wait</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			wait = <span class="hljs-number">0</span>;
+		}
+
+		<span class="hljs-keyword">return</span> track;
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Converts VexFlow pitch syntax to MidiWriterJS syntax
+	 * @param pitch string
+	 */</span>
+	MidiWriter.VexFlow.convertPitch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pitch</span>) </span>{
+		<span class="hljs-keyword">return</span> pitch.replace(<span class="hljs-string">'/'</span>, <span class="hljs-string">''</span>);
+	};
+
+
+	<span class="hljs-comment">/**
+	 * Converts VexFlow duration syntax to MidiWriterJS syntax
+	 * @param note struct from VexFlow
+	 */</span>
+	MidiWriter.VexFlow.convertDuration = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">note</span>) </span>{
+		<span class="hljs-keyword">switch</span> (note.duration) {
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'w'</span>:
+				<span class="hljs-keyword">return</span> <span class="hljs-string">'1'</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'h'</span>:
+				<span class="hljs-keyword">if</span> (note.isDotted()) {
+					<span class="hljs-keyword">return</span> <span class="hljs-string">'d2'</span>;
+				}
+
+				<span class="hljs-keyword">return</span> <span class="hljs-string">'2'</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'q'</span>:
+				<span class="hljs-keyword">if</span> (note.isDotted()) {
+					<span class="hljs-keyword">return</span> <span class="hljs-string">'d4'</span>;
+				}
+
+				<span class="hljs-keyword">return</span> <span class="hljs-string">'4'</span>;
+			<span class="hljs-keyword">case</span> <span class="hljs-string">'8'</span>:
+				<span class="hljs-keyword">if</span> (note.isDotted()) {
+					<span class="hljs-keyword">return</span> <span class="hljs-string">'d8'</span>;
+				}
+
+				<span class="hljs-keyword">return</span> <span class="hljs-string">'8'</span>;
+		}
+
+		<span class="hljs-keyword">return</span> note.duration;
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>Node support</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> exports !== <span class="hljs-string">'undefined'</span> ) {
+		<span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> <span class="hljs-built_in">module</span> !== <span class="hljs-string">'undefined'</span> &amp;&amp; <span class="hljs-built_in">module</span>.exports ) {
+	      exports = <span class="hljs-built_in">module</span>.exports = MidiWriter;
+	    }
+
+    	exports.MidiWriterJS = MidiWriter;
+  	}
+
+}).call(<span class="hljs-keyword">this</span>);</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

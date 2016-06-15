@@ -1,6 +1,14 @@
-// https://github.com/grimmdude/MidiWriterJS
-// MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
+// [MidiWriterJS](https://github.com/grimmdude/MidiWriterJS) - Copyright (c) Garrett Grimm 2016.
+//
+// ## Description
+//
+// A JavaScript library providing an API for programmatically generating expressive
+// multi-track MIDI files in browser and Node.
 
+
+/* https://github.com/grimmdude/MidiWriterJS
+ * MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
+ */
 
 (function() {
 	"use strict";
@@ -28,20 +36,18 @@
 		META_TIME_SIGNATURE_ID	: 0x58,
 		META_KEY_SIGNATURE_ID	: 0x59,
 		META_END_OF_TRACK_ID	: [0x2F, 0x00],
-		//NOTE_ON_STATUS			: 0x90, // includes channel number (0)
-		//NOTE_OFF_STATUS			: 0x80, // includes channel number (0)
+		/*NOTE_ON_STATUS			: 0x90, // includes channel number (0)*/
+		/*NOTE_OFF_STATUS			: 0x80, // includes channel number (0)*/
 		PROGRAM_CHANGE_STATUS	: 0xC0 // includes channel number (0)
 	};
 
-	/**
-	 * Builds notes object for reference against binary values.
-	 */
+	// Builds notes object for reference against binary values.
 	(function() {
 		MidiWriter.constants.notes = {};
 		var allNotes = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
 		var counter = 0;
 
-		// All available octaves
+		// All available octaves.
 		for (var i = -1; i <= 9; i++) {
 			for (var j in allNotes) {
 				for (var k in allNotes[j]) {
@@ -53,14 +59,14 @@
 		}
 	})();
 
-
+	// Chunk object.
 	MidiWriter.Chunk = function(fields) {
 		this.type = fields.type;
 		this.data = fields.data;
 		this.size = [0, 0, 0, fields.data.length];
 	};
 
-
+	// Track object
 	MidiWriter.Track = function() {
 		this.type = MidiWriter.constants.TRACK_CHUNK_TYPE;
 		this.data = [];
@@ -69,10 +75,7 @@
 	};
 
 
-	/**
-	 * Method to add any event type the track.
-	 * @param A single event object, or array of event objects
-	 */
+	// Method to add any event type the track.
 	MidiWriter.Track.prototype.addEvent = function(event) {
 		if (Array.isArray(event)) {
 			for (var i in event) {
@@ -91,6 +94,7 @@
 	};
 
 
+	// Sets tempo.
 	MidiWriter.Track.prototype.setTempo = function(bpm) {
 		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
 		event.data.push(0x03); // Size
@@ -105,9 +109,9 @@
 		event.data = event.data.concat(MidiWriter.numberToBytes(numerator, 1)); // Numerator, 1 bytes
 		var _denominator = (denominator < 4) ? (denominator - 1) : Math.sqrt(denominator);	// Denominator is expressed as pow of 2
 		event.data = event.data.concat(MidiWriter.numberToBytes(_denominator, 1)); // Denominator, 1 bytes
-		var midiclockspertick = midiclockspertick || 24;
+		midiclockspertick = midiclockspertick || 24;
 		event.data = event.data.concat(MidiWriter.numberToBytes(midiclockspertick, 1)); // MIDI Clocks per tick, 1 bytes
-		var notespermidiclock = notespermidiclock || 8;
+		notespermidiclock = notespermidiclock || 8;
 		event.data = event.data.concat(MidiWriter.numberToBytes(notespermidiclock, 1)); // Number of 1/32 notes per MIDI clocks, 1 bytes
 		return this.addEvent(event);
 	};
@@ -296,7 +300,6 @@
 					}
 				}
 
-
 			} else {
 				// Handle repeat
 				for (var j = 0; j < this.repeat; j++) {
@@ -321,10 +324,13 @@
 
 			}
 		} else {
+			console.error('pitch must be an array.');
+			/*
 			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.getPitch(this.pitch[i]), this.velocity])});
 			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.getPitch(this.pitch[i]), this.velocity])});
 
 			this.data = noteOn.data.concat(noteOff.data);
+			*/
 		}
 	};
 
@@ -617,27 +623,26 @@
 	 * Support for converting VexFlow voice into MidiWriterJS track
 	 * @return MidiWritier.Track object
 	 */
-	MidiWriter.VexFlow.trackFromNotes = function(notes) {
+	MidiWriter.VexFlow.trackFromVoice = function(voice) {
 		var track = new MidiWriter.Track();
 		var wait, pitches = [];
 
-		for (var i in notes) {
+		for (var i in voice.tickables) {
 			pitches = [];
-			//console.log(notes[i].isDotted());
 
-			if (notes[i].noteType === 'n') {
+			if (voice.tickables[i].noteType === 'n') {
 				for (var j in notes[i].keys) {
 					// build array of pitches
-					pitches.push(MidiWriter.VexFlow.convertPitch(notes[i].keys[j]));
+					pitches.push(MidiWriter.VexFlow.convertPitch(voice.tickables[i].keys[j]));
 				}
 
-			} else if (notes[i].noteType === 'r') {
+			} else if (voice.tickables[i].noteType === 'r') {
 				// move on to the next tickable and use this rest as a `wait` property for the next event
-				wait = MidiWriter.VexFlow.convertDuration(notes[i]);
+				wait = MidiWriter.VexFlow.convertDuration(voice.tickables[i]);
 				continue;
 			}
 
-			track.addEvent(new MidiWriter.NoteEvent({pitch: pitches, duration: MidiWriter.VexFlow.convertDuration(notes[i]), wait: wait}));
+			track.addEvent(new MidiWriter.NoteEvent({pitch: pitches, duration: MidiWriter.VexFlow.convertDuration(voice.tickables[i]), wait: wait}));
 			
 			// reset wait
 			wait = 0;
@@ -665,6 +670,10 @@
 			case 'w':
 				return '1';
 			case 'h':
+				if (note.isDotted()) {
+					return 'd2';
+				}
+
 				return '2';
 			case 'q':
 				if (note.isDotted()) {
