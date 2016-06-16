@@ -243,6 +243,7 @@
 	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */
 	MidiWriter.NoteEvent = function(fields) {
+		this.type 		= 'note';
 		this.pitch 		= fields.pitch;
 		this.wait 		= fields.wait || 0;
 		this.duration 	= fields.duration;
@@ -420,12 +421,14 @@
 	 * @param {object} fields {instrument: 1-127}
 	 */
 	MidiWriter.ProgramChangeEvent = function(fields) {
+		this.type = 'program';
 		// delta time defaults to 0.
 		this.data = MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.PROGRAM_CHANGE_STATUS, fields.instrument]);
 	};
 
 
 	MidiWriter.MetaEvent = function(fields) {
+		this.type = 'meta';
 		this.data = MidiWriter.numberToVariableLength(0x00);// Start with zero time delta
 		this.data = this.data.concat([MidiWriter.constants.META_EVENT_ID].concat(fields.data));
 	};

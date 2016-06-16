@@ -355,6 +355,7 @@ multi-track MIDI files in browser and Node.</p>
 	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */</span>
 	MidiWriter.NoteEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.type 		= <span class="hljs-string">'note'</span>;
 		<span class="hljs-keyword">this</span>.pitch 		= fields.pitch;
 		<span class="hljs-keyword">this</span>.wait 		= fields.wait || <span class="hljs-number">0</span>;
 		<span class="hljs-keyword">this</span>.duration 	= fields.duration;
@@ -785,7 +786,8 @@ So, the last one will need to be the remainder</p>
 	 * Holds all data for a program change event.
 	 * @param {object} fields {instrument: 1-127}
 	 */</span>
-	MidiWriter.ProgramChangeEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{</pre></div></div>
+	MidiWriter.ProgramChangeEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.type = <span class="hljs-string">'program'</span>;</pre></div></div>
             
         </li>
         
@@ -805,6 +807,7 @@ So, the last one will need to be the remainder</p>
 
 
 	MidiWriter.MetaEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fields</span>) </span>{
+		<span class="hljs-keyword">this</span>.type = <span class="hljs-string">'meta'</span>;
 		<span class="hljs-keyword">this</span>.data = MidiWriter.numberToVariableLength(<span class="hljs-number">0x00</span>);<span class="hljs-comment">// Start with zero time delta</span>
 		<span class="hljs-keyword">this</span>.data = <span class="hljs-keyword">this</span>.data.concat([MidiWriter.constants.META_EVENT_ID].concat(fields.data));
 	};
