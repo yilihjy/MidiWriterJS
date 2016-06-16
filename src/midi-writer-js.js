@@ -43,7 +43,7 @@
 
 	// Builds notes object for reference against binary values.
 	(function() {
-		MidiWriter.constants.notes = {};
+		MidiWriter.constants.NOTES = {};
 		var allNotes = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
 		var counter = 0;
 
@@ -51,7 +51,7 @@
 		for (var i = -1; i <= 9; i++) {
 			for (var j in allNotes) {
 				for (var k in allNotes[j]) {
-					MidiWriter.constants.notes[allNotes[j][k] + i] = counter;
+					MidiWriter.constants.NOTES[allNotes[j][k] + i] = counter;
 				}
 
 				counter++;
@@ -326,12 +326,6 @@
 			}
 		} else {
 			console.error('pitch must be an array.');
-			/*
-			noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([MidiWriter.constants.NOTE_ON_STATUS, MidiWriter.getPitch(this.pitch[i]), this.velocity])});
-			noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([MidiWriter.constants.NOTE_OFF_STATUS, MidiWriter.getPitch(this.pitch[i]), this.velocity])});
-
-			this.data = noteOn.data.concat(noteOff.data);
-			*/
 		}
 	};
 
@@ -519,7 +513,7 @@
      	} else {
      		// Change letter to uppercase
      		pitch = pitch.charAt(0).toUpperCase() + pitch.substring(1);
-     		return this.constants.notes[pitch];
+     		return this.constants.NOTES[pitch];
      	}	
      };
 
