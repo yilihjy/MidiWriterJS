@@ -505,13 +505,22 @@
 
     /**
      * Returns the correct MIDI number for the specified pitch.
-     * @param {string} 'C#4'
+     * @param {string/number} 'C#4' or midi note code
      * @return {number}
      */
      MidiWriter.getPitch = function(pitch) {
-     	// Change letter to uppercase
-     	pitch = pitch.charAt(0).toUpperCase() + pitch.substring(1);
-     	return this.constants.notes[pitch];
+     	if (MidiWriter.isNumeric(pitch)) {
+     		if (pitch >= 0 && pitch <= 127) {
+     			return pitch;
+
+     		} else {
+     			console.error(pitch + ' is not within MIDI note range (0-127).');
+     		}
+     	} else {
+     		// Change letter to uppercase
+     		pitch = pitch.charAt(0).toUpperCase() + pitch.substring(1);
+     		return this.constants.notes[pitch];
+     	}	
      };
 
 
@@ -619,6 +628,12 @@
 
 		return bytes;
 	};
+
+
+	MidiWriter.isNumeric = function(n) {
+  		return !isNaN(parseFloat(n)) && isFinite(n);
+	}
+
 
 	MidiWriter.VexFlow = {};
 
