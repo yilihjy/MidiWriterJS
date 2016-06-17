@@ -17,6 +17,7 @@
 	};
 
 	MidiWriter.constants = {
+		VERSION					: '1.3.1',
 		HEADER_CHUNK_TYPE  		: [0x4d, 0x54, 0x68, 0x64], // Mthd
 		HEADER_CHUNK_LENGTH  	: [0x00, 0x00, 0x00, 0x06], // Header size for SMF
 		HEADER_CHUNK_FORMAT0    : [0x00, 0x00], // Midi Type 0 id
@@ -76,9 +77,33 @@
 
 
 	// Method to add any event type the track.
-	MidiWriter.Track.prototype.addEvent = function(event) {
+	MidiWriter.Track.prototype.addEvent = function(event, mapFunction) {
 		if (Array.isArray(event)) {
 			for (var i in event) {
+				// Handle map function if provided
+				if (typeof mapFunction === 'function' && event[i].type === 'note') {
+					var properties = mapFunction(i, event[i]);
+
+					if (typeof properties === 'object') {
+						
+						for (var j in properties) {
+							switch(j) {
+								case 'duration':
+									event[i].duration = properties[j];
+									break;
+								case 'velocity':
+									event[i].velocity = event[i].convertVelocity(properties[j]);
+									break;
+							}
+						}
+						
+
+						//console.log(event[i]);
+						// Gotta build that data
+						event[i].buildData(true);
+					}
+				}
+
 				this.data = this.data.concat(event[i].data);
 				this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
 				this.events.push(event[i]);
@@ -251,10 +276,12 @@
 		this.velocity 	= fields.velocity || 50;
 		this.channel 	= fields.channel || 1;
 		this.repeat 	= fields.repeat || 1;
-		this.data 		= [];
+		this.velocity 	= this.convertVelocity(this.velocity);
+		this.buildData();
+	};
 
-		// Convert velocity to value 0-127
-		this.velocity = Math.round(this.velocity / 100 * 127);
+	MidiWriter.NoteEvent.prototype.buildData = function(t) {
+		this.data 		= [];
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
 		// Rounding only applies to triplets, which the remainder is handled below
@@ -327,7 +354,18 @@
 		} else {
 			console.error('pitch must be an array.');
 		}
-	};
+	}
+
+
+	// Convert velocity to value 0-127
+	MidiWriter.NoteEvent.prototype.convertVelocity = function(velocity) {
+		// Max passed value limited to 100
+		if (velocity > 100) {
+			velocity = 100;
+		}
+
+		return Math.round(velocity / 100 * 127);
+	}
 
 
 	/**

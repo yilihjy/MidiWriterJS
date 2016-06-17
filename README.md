@@ -36,7 +36,7 @@ Documentation
 ------------
 ### `MidiWriter.Track()`
 
-- `addEvent({event})`
+- `addEvent({event}, mapFunction)`
 - `setTempo(tempo)`
 - `addText(text)`
 - `addCopyright(text)`
