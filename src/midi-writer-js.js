@@ -80,36 +80,31 @@
 	MidiWriter.Track.prototype.addEvent = function(event, mapFunction) {
 		if (Array.isArray(event)) {
 			event.forEach(function(e, i) {
-
-			});
-
-			for (var i in event) {
 				// Handle map function if provided
-				if (typeof mapFunction === 'function' && event[i].type === 'note') {
-					var properties = mapFunction(i, event[i]);
+				if (typeof mapFunction === 'function' && e.type === 'note') {
+					var properties = mapFunction(i, e);
 
 					if (typeof properties === 'object') {
 						for (var j in properties) {
 							switch(j) {
 								case 'duration':
-									event[i].duration = properties[j];
+									e.duration = properties[j];
 									break;
 								case 'velocity':
-									event[i].velocity = event[i].convertVelocity(properties[j]);
+									e.velocity = e.convertVelocity(properties[j]);
 									break;
 							}
 						}		
 
-						//console.log(event[i]);
 						// Gotta build that data
-						event[i].buildData(true);
+						e.buildData();
 					}
 				}
 
-				this.data = this.data.concat(event[i].data);
+				this.data = this.data.concat(e.data);
 				this.size = MidiWriter.numberToBytes(this.data.length, 4); // 4 bytes long
-				this.events.push(event[i]);
-			}
+				this.events.push(e);
+			}, this);
 
 		} else {
 			this.data = this.data.concat(event.data);
@@ -161,7 +156,6 @@
 
 			if (sf[0] === sf[0].toLowerCase()) {
 				mode = 1;
-
 			}
 
 			if (_sflen > 1) {
@@ -190,14 +184,9 @@
 			}
 
 			var fifthindex = fifths[mode].indexOf(note);
-			if (fifthindex === -1) {
-				sf = 0;
-
-			} else {
-				sf = fifthindex - 7;
-			}
-
+			sf = fifthindex === -1 ? 0 : fifthindex - 7;
 		}
+
 		event.data = event.data.concat(MidiWriter.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
 		event.data = event.data.concat(MidiWriter.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
 		return this.addEvent(event);
@@ -282,7 +271,7 @@
 		this.buildData();
 	};
 
-	MidiWriter.NoteEvent.prototype.buildData = function(t) {
+	MidiWriter.NoteEvent.prototype.buildData = function() {
 		this.data 		= [];
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
@@ -355,18 +344,15 @@
 		} else {
 			console.error('pitch must be an array.');
 		}
-	}
+	};
 
 
 	// Convert velocity to value 0-127
 	MidiWriter.NoteEvent.prototype.convertVelocity = function(velocity) {
 		// Max passed value limited to 100
-		if (velocity > 100) {
-			velocity = 100;
-		}
-
+		velocity = velocity > 100 ? 100 : velocity;
 		return Math.round(velocity / 100 * 127);
-	}
+	};
 
 
 	/**
@@ -398,13 +384,8 @@
 			case '16':
 				return 0.25;
 			default:
-				// Notes default to a quarter
-				if (type === 'note') {
-					return 1;
-				}
-
-				// Rests default to 0
-				return 0;
+				// Notes default to a quarter, rests default to 0
+				return type === 'note' ? 1 : 0;
 		}
 	};
 
@@ -521,9 +502,9 @@
 		if (typeof btoa === 'function') {
 			return btoa(String.fromCharCode.apply(null, this.buildFile()));
 
-		} else {
-			return new Buffer(this.buildFile()).toString('base64');
 		}
+		
+		return new Buffer(this.buildFile()).toString('base64');
 	};
 
 
@@ -665,7 +646,7 @@
 
 	MidiWriter.isNumeric = function(n) {
   		return !isNaN(parseFloat(n)) && isFinite(n);
-	}
+	};
 
 
 	MidiWriter.VexFlow = {};
@@ -721,23 +702,11 @@
 			case 'w':
 				return '1';
 			case 'h':
-				if (note.isDotted()) {
-					return 'd2';
-				}
-
-				return '2';
+				return note.isDotted() ? 'd2' : '2';
 			case 'q':
-				if (note.isDotted()) {
-					return 'd4';
-				}
-
-				return '4';
+				return note.isDotted() ? 'd4' : '4';
 			case '8':
-				if (note.isDotted()) {
-					return 'd8';
-				}
-
-				return '8';
+				return note.isDotted() ? 'd8' : '8';
 		}
 
 		return note.duration;
