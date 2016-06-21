@@ -465,7 +465,6 @@
 								type: MidiWriter.constants.HEADER_CHUNK_TYPE,
 								data: trackType.concat(numberOfTracks, MidiWriter.constants.HEADER_CHUNK_DIVISION)}));
 
-
 		// Track chunks
 		tracks.forEach(function(track, i) {
 			track.addEvent(new MidiWriter.MetaEvent({data: MidiWriter.constants.META_END_OF_TRACK_ID}));
@@ -516,17 +515,13 @@
      */
      MidiWriter.getPitch = function(pitch) {
      	if (MidiWriter.isNumeric(pitch)) {
-     		if (pitch >= 0 && pitch <= 127) {
-     			return pitch;
+     		if (pitch >= 0 && pitch <= 127) console.error(pitch + ' is not within MIDI note range (0-127).');
+     		return pitch;
+     	}
 
-     		} else {
-     			console.error(pitch + ' is not within MIDI note range (0-127).');
-     		}
-     	} else {
-     		// Change letter to uppercase
-     		pitch = pitch.charAt(0).toUpperCase() + pitch.substring(1);
-     		return this.constants.NOTES[pitch];
-     	}	
+ 		// Change letter to uppercase
+ 		pitch = pitch.charAt(0).toUpperCase() + pitch.substring(1);
+ 		return this.constants.NOTES[pitch];
      };
 
 
