@@ -292,12 +292,11 @@
 					// Note on
 					this.pitch.forEach(function(p, i) {
 						if (i == 0) {
-							noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.getPitch(p), this.velocity])});
+							noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), MidiWriter.getPitch(p), this.velocity)});
 
 						} else {
 							// Running status (can ommit the note on status)
 							noteOn = new MidiWriter.NoteOnEvent({data: [0, MidiWriter.getPitch(p), this.velocity]});
-							//noteOn = new MidiWriter.NoteOnEvent({data: [0, this.getNoteOnStatus(), MidiWriter.getPitch(this.pitch[i]), this.velocity]});
 						}
 
 						this.data = this.data.concat(noteOn.data);
@@ -306,12 +305,11 @@
 					// Note off
 					this.pitch.forEach(function(p, i) {
 						if (i == 0) {
-							noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.getPitch(p), this.velocity])});
+							noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), MidiWriter.getPitch(p), this.velocity)});
 
 						} else {
 							// Running status (can ommit the note off status)
 							noteOff = new MidiWriter.NoteOffEvent({data: [0, MidiWriter.getPitch(p), this.velocity]});
-							//noteOff = new MidiWriter.NoteOffEvent({data: [0, this.getNoteOffStatus(), MidiWriter.getPitch(this.pitch[i]), this.velocity]});
 						}
 
 						this.data = this.data.concat(noteOff.data);
@@ -336,7 +334,7 @@
 						noteOn = new MidiWriter.NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.getPitch(p), this.velocity])});
 						noteOff = new MidiWriter.NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.getPitch(p), this.velocity])});
 
-						this.data = this.data.concat(noteOn.data.concat(noteOff.data));
+						this.data = this.data.concat(noteOn.data, noteOff.data);
 					}, this);
 				}
 			}
@@ -437,14 +435,14 @@
 	MidiWriter.ProgramChangeEvent = function(fields) {
 		this.type = 'program';
 		// delta time defaults to 0.
-		this.data = MidiWriter.numberToVariableLength(0x00).concat([MidiWriter.constants.PROGRAM_CHANGE_STATUS, fields.instrument]);
+		this.data = MidiWriter.numberToVariableLength(0x00).concat(MidiWriter.constants.PROGRAM_CHANGE_STATUS, fields.instrument);
 	};
 
 
 	MidiWriter.MetaEvent = function(fields) {
 		this.type = 'meta';
 		this.data = MidiWriter.numberToVariableLength(0x00);// Start with zero time delta
-		this.data = this.data.concat([MidiWriter.constants.META_EVENT_ID].concat(fields.data));
+		this.data = this.data.concat(MidiWriter.constants.META_EVENT_ID, fields.data);
 	};
 
 	MidiWriter.SysexEvent = function() {
@@ -465,7 +463,7 @@
 		// Header chunk
 		this.data.push(new MidiWriter.Chunk({
 								type: MidiWriter.constants.HEADER_CHUNK_TYPE,
-								data: trackType.concat(numberOfTracks.concat(MidiWriter.constants.HEADER_CHUNK_DIVISION))}));
+								data: trackType.concat(numberOfTracks, MidiWriter.constants.HEADER_CHUNK_DIVISION)}));
 
 
 		// Track chunks
@@ -485,9 +483,7 @@
 
 		// Data consists of chunks which consists of data
 		this.data.forEach(function(d) {
-			build = build.concat(d.type);
-			build = build.concat(d.size);
-			build = build.concat(d.data);
+			build = build.concat(d.type, d.size, d.data);
 		});
 
 		return new Uint8Array(build);
@@ -499,11 +495,7 @@
 	 *
 	 */
 	MidiWriter.Writer.prototype.base64 = function() {
-		if (typeof btoa === 'function') {
-			return btoa(String.fromCharCode.apply(null, this.buildFile()));
-
-		}
-		
+		if (typeof btoa === 'function') return btoa(String.fromCharCode.apply(null, this.buildFile()));		
 		return new Buffer(this.buildFile()).toString('base64');
 	};
 
@@ -647,7 +639,6 @@
 	MidiWriter.isNumeric = function(n) {
   		return !isNaN(parseFloat(n)) && isFinite(n);
 	};
-
 
 	MidiWriter.VexFlow = {};
 
