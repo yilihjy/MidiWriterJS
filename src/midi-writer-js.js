@@ -362,8 +362,8 @@
 	MidiWriter.NoteEvent.prototype.getDurationMultiplier = function(duration, type) {
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
 		switch (duration) {
-      case '0':
-        return 0;
+			case '0':
+				return 0;
 			case '1':
 				return 4;
 			case '2':
