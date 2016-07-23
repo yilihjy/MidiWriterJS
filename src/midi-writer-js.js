@@ -615,21 +615,16 @@
 		return hexArray;
 	};
 
-
 	/**
 	 * Convert a string to an array of bytes
 	 * @param {string}
 	 * @returns {array}
 	 */
 	MidiWriter.stringToBytes = function(string) {
-		var bytes = [];
-		for (var i = 0; i < string.length; i++) {
-			bytes.push(string[i].charCodeAt(0));
-		}
-
-		return bytes;
+		return string.split('').map(function(char) {
+			return char.charCodeAt();
+		});
 	};
-
 
 	MidiWriter.isNumeric = function(n) {
   		return !isNaN(parseFloat(n)) && isFinite(n);
