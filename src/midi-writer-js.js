@@ -90,6 +90,9 @@
 								case 'duration':
 									e.duration = properties[j];
 									break;
+								case 'sequential':
+									e.sequential = properties[j];
+									break;
 								case 'velocity':
 									e.velocity = e.convertVelocity(properties[j]);
 									break;

@@ -118,7 +118,8 @@ The `Writer` object provides a few ways to output the file:
 - `dataUri()` *string*
 
 ### Hot Cross Buns
-Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.
+Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.  Note use of the mapping function passed as the second argument of `addEvent()`.  This can be used to apply specific properties to all events.  With some 
+street smarts you could also use it for programmatic crescendos and other property 'animation'.
 ```javascript
 // If using Node require the module
 var MidiWriter = require('midi-writer-js');
@@ -126,14 +127,16 @@ var MidiWriter = require('midi-writer-js');
 var track = new MidiWriter.Track();
 
 track.addEvent([
-			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
 			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
 			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-			new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8', sequential: true}),
-			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4', sequential: true}),
+			new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}),
+			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
 			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
-	]
+	], function(event, index) {
+    return {sequential:true};
+  }
 );
 
 var write = new MidiWriter.Writer([track]);
