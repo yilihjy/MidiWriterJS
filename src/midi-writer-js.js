@@ -17,7 +17,7 @@
 	};
 
 	MidiWriter.constants = {
-		VERSION					: '1.3.1',
+		VERSION					: '1.3.2',
 		HEADER_CHUNK_TYPE  		: [0x4d, 0x54, 0x68, 0x64], // Mthd
 		HEADER_CHUNK_LENGTH  	: [0x00, 0x00, 0x00, 0x06], // Header size for SMF
 		HEADER_CHUNK_FORMAT0    : [0x00, 0x00], // Midi Type 0 id
