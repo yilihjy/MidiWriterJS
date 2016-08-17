@@ -1,5 +1,5 @@
 var assert = require('assert');
-var MidiWriter = require('../src/midi-writer-js');
+var MidiWriter = require('../build/midi-writer-js');
 
 
 describe('MidiWriterJS', function() {

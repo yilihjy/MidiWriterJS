@@ -10,11 +10,58 @@
  * MIDI reference: https://www.csie.ntu.edu.tw/~r92092/ref/midi/
  */
 
+interface Chunk {
+	type: number[];
+	data: number[];
+	size: number[];
+}
+
+interface Track {
+	type: number[];
+	data: number[];
+	size: number[];
+	events: number[];
+	addEvent(): Track;
+	setTempo(): Track;
+}
+
+interface NoteEvent {
+    type: string;
+    pitch: any;
+    wait: string;
+    duration: string;
+    sequential: boolean;
+    velocity: number;
+    channel: number;
+    repeat: number;
+    data: number[];
+    buildData();
+}
+
+interface NoteOnEvent {
+	data: number[];
+}
+
+interface NoteOffEvent {
+	data: number[];
+}
+
+interface ProgramChangeEvent {
+	type: string;
+	data: number[];
+}
+
+interface MetaEvent {
+	type: string;
+	data: number[];
+}
+
+
+
 (function() {
 	"use strict";
 
-	var MidiWriter = this.MidiWriter = {
-	};
+	var MidiWriter = this.MidiWriter = {};
 
 	MidiWriter.constants = {
 		VERSION					: '1.3.2',
@@ -45,13 +92,13 @@
 	// Builds notes object for reference against binary values.
 	(function() {
 		MidiWriter.constants.NOTES = {};
-		var allNotes = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
-		var counter = 0;
+		var allNotes: [] = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
+		var counter: number = 0;
 
 		// All available octaves.
 		for (var i = -1; i <= 9; i++) {
-			allNotes.forEach(function(noteGroup) {
-				noteGroup.forEach(function(note) {
+			allNotes.forEach(function(noteGroup: []) {
+				noteGroup.forEach(function(note: string) {
 					MidiWriter.constants.NOTES[note + i] = counter;
 				});
 
@@ -61,7 +108,7 @@
 	})();
 
 	// Chunk object.
-	MidiWriter.Chunk = function(fields) {
+	MidiWriter.Chunk = function(fields: Chunk) {
 		this.type = fields.type;
 		this.data = fields.data;
 		this.size = [0, 0, 0, fields.data.length];
@@ -74,7 +121,6 @@
 		this.size = [];
 		this.events = [];
 	};
-
 
 	// Method to add any event type the track.
 	MidiWriter.Track.prototype.addEvent = function(event, mapFunction) {
@@ -120,16 +166,16 @@
 
 
 	// Sets tempo.
-	MidiWriter.Track.prototype.setTempo = function(bpm) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
+	MidiWriter.Track.prototype.setTempo = function(bpm: number) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEMPO_ID]});
 		event.data.push(0x03); // Size
 		var tempo = Math.round(60000000 / bpm);
 		event.data = event.data.concat(MidiWriter.numberToBytes(tempo, 3)); // Tempo, 3 bytes
 		return this.addEvent(event);
 	};
 
-	MidiWriter.Track.prototype.setTimeSignature = function(numerator, denominator, midiclockspertick, notespermidiclock) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TIME_SIGNATURE_ID]});
+	MidiWriter.Track.prototype.setTimeSignature = function(numerator: number, denominator: number, midiclockspertick: number, notespermidiclock: number) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TIME_SIGNATURE_ID]});
 		event.data.push(0x04); // Size
 		event.data = event.data.concat(MidiWriter.numberToBytes(numerator, 1)); // Numerator, 1 bytes
 		var _denominator = (denominator < 4) ? (denominator - 1) : Math.sqrt(denominator);	// Denominator is expressed as pow of 2
@@ -142,7 +188,7 @@
 	};
 
 	MidiWriter.Track.prototype.setKeySignature = function(sf, mi) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_KEY_SIGNATURE_ID]});
 		event.data.push(0x02); // Size
 
 		var mode = mi || 0;
@@ -157,9 +203,7 @@
 			var _sflen = sf.length;
 			var note = sf || 'C';
 
-			if (sf[0] === sf[0].toLowerCase()) {
-				mode = 1;
-			}
+			if (sf[0] === sf[0].toLowerCase()) mode = 1
 
 			if (_sflen > 1) {
 				switch (sf.charAt(_sflen - 1)) {
@@ -195,8 +239,8 @@
 		return this.addEvent(event);
 	};
 
-	MidiWriter.Track.prototype.addText = function(text) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEXT_ID]});
+	MidiWriter.Track.prototype.addText = function(text: string) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_TEXT_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -204,8 +248,8 @@
 	};
 
 
-	MidiWriter.Track.prototype.addCopyright = function(text) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_COPYRIGHT_ID]});
+	MidiWriter.Track.prototype.addCopyright = function(text: string) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_COPYRIGHT_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -213,8 +257,8 @@
 	};
 
 
-	MidiWriter.Track.prototype.addInstrumentName = function(text) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_INSTRUMENT_NAME_ID]});
+	MidiWriter.Track.prototype.addInstrumentName = function(text: string) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_INSTRUMENT_NAME_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -222,8 +266,8 @@
 	};
 
 
-	MidiWriter.Track.prototype.addMarker = function(text) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_MARKER_ID]});
+	MidiWriter.Track.prototype.addMarker = function(text: string) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_MARKER_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -231,8 +275,8 @@
 	};
 
 
-	MidiWriter.Track.prototype.addCuePoint = function(text) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_CUE_POINT]});
+	MidiWriter.Track.prototype.addCuePoint = function(text:string) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_CUE_POINT]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -240,8 +284,8 @@
 	};
 
 
-	MidiWriter.Track.prototype.addLyric = function(lyric) {
-		var event = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_LYRIC_ID]});
+	MidiWriter.Track.prototype.addLyric = function(lyric: string) {
+		var event: MetaEvent = new MidiWriter.MetaEvent({data: [MidiWriter.constants.META_LYRIC_ID]});
 		var stringBytes = MidiWriter.stringToBytes(lyric);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Lyric
@@ -250,7 +294,7 @@
 
 	/** Channel Mode Messages **/
 	MidiWriter.Track.prototype.polyModeOn = function() {
-		var event = new MidiWriter.NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
+		var event: NoteOnEvent = new MidiWriter.NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
 		this.addEvent(event);
 		console.log(event);
 	};
@@ -261,7 +305,7 @@
 	 * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
 	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */
-	MidiWriter.NoteEvent = function(fields) {
+	MidiWriter.NoteEvent = function(fields: NoteEvent) {
 		this.type 		= 'note';
 		this.pitch 		= fields.pitch;
 		this.wait 		= fields.wait || 0;
@@ -275,7 +319,7 @@
 	};
 
 	MidiWriter.NoteEvent.prototype.buildData = function() {
-		this.data 		= [];
+		this.data = [];
 
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
 		// Rounding only applies to triplets, which the remainder is handled below
@@ -349,7 +393,7 @@
 
 
 	// Convert velocity to value 0-127
-	MidiWriter.NoteEvent.prototype.convertVelocity = function(velocity) {
+	MidiWriter.NoteEvent.prototype.convertVelocity = function(velocity: number): number {
 		// Max passed value limited to 100
 		velocity = velocity > 100 ? 100 : velocity;
 		return Math.round(velocity / 100 * 127);
@@ -362,7 +406,7 @@
 	 * @param {string} duration
 	 * @param {string} type ['note','rest']
 	 */
-	MidiWriter.NoteEvent.prototype.getDurationMultiplier = function(duration, type) {
+	MidiWriter.NoteEvent.prototype.getDurationMultiplier = function(duration: string, type: string) {
 		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
 		switch (duration) {
 			case '0':
@@ -395,56 +439,48 @@
 
 	/**
 	 * Gets the note on status code based on the selected channel. 0x9{0-F}
+	 * Note on at channel 0 is 0x90 (144)
+	 * 0 = Ch 1
 	 * @returns {number}
 	 */
-	MidiWriter.NoteEvent.prototype.getNoteOnStatus = function() {
-		// Note on at channel 0 is 0x90 (144)
-		// 0 = Ch 1
-		return 144 + this.channel - 1;
-	};
+	MidiWriter.NoteEvent.prototype.getNoteOnStatus = function() {return 144 + this.channel - 1}
 
 
 	/**
 	 * Gets the note off status code based on the selected channel. 0x8{0-F}
+	 * Note off at channel 0 is 0x80 (128)
+	 * 0 = Ch 1
 	 * @returns {number}
 	 */
-	MidiWriter.NoteEvent.prototype.getNoteOffStatus = function() {
-		// Note off at channel 0 is 0x80 (128)
-		// 0 = Ch 1
-		return 128 + this.channel - 1;
-	};
+	MidiWriter.NoteEvent.prototype.getNoteOffStatus = function() {return 128 + this.channel - 1}
 
 
 	/**
 	 * Holds all data for a "note on" MIDI event
 	 * @param {object} fields {data: []}
 	 */
-	MidiWriter.NoteOnEvent = function(fields) {
-		this.data = fields.data;
-	};
+	MidiWriter.NoteOnEvent = function(fields: NoteOnEvent) {this.data = fields.data}
 
 
 	/**
 	 * Holds all data for a "note off" MIDI event
 	 * @param {object} fields {data: []}
 	 */
-	MidiWriter.NoteOffEvent = function(fields) {
-		this.data = fields.data;
-	};
+	MidiWriter.NoteOffEvent = function(fields: NoteOffEvent) {this.data = fields.data}
 
 
 	/**
 	 * Holds all data for a program change event.
 	 * @param {object} fields {instrument: 1-127}
 	 */
-	MidiWriter.ProgramChangeEvent = function(fields) {
+	MidiWriter.ProgramChangeEvent = function(fields: ProgramChangeEvent) {
 		this.type = 'program';
 		// delta time defaults to 0.
 		this.data = MidiWriter.numberToVariableLength(0x00).concat(MidiWriter.constants.PROGRAM_CHANGE_STATUS, fields.instrument);
 	};
 
 
-	MidiWriter.MetaEvent = function(fields) {
+	MidiWriter.MetaEvent = function(fields: MetaEvent) {
 		this.type = 'meta';
 		this.data = MidiWriter.numberToVariableLength(0x00);// Start with zero time delta
 		this.data = this.data.concat(MidiWriter.constants.META_EVENT_ID, fields.data);
@@ -459,7 +495,7 @@
 	 * Object that puts together tracks and provides methods for file output.
 	 * @param {object} MidiWriter.Track
 	 */
-	MidiWriter.Writer = function(tracks) {
+	MidiWriter.Writer = function(tracks: Track[]) {
 		this.data = [];
 
 		var trackType = tracks.length > 1 ? MidiWriter.constants.HEADER_CHUNK_FORMAT1 : MidiWriter.constants.HEADER_CHUNK_FORMAT0;
@@ -508,9 +544,7 @@
      * Get the data URI.
      *
      */
-    MidiWriter.Writer.prototype.dataUri = function() {
-        return 'data:audio/midi;base64,' + this.base64();
-    };
+    MidiWriter.Writer.prototype.dataUri = function(): string {return 'data:audio/midi;base64,' + this.base64()}
 
 
     /**
@@ -518,7 +552,7 @@
      * @param {string/number} 'C#4' or midi note code
      * @return {number}
      */
-     MidiWriter.getPitch = function(pitch) {
+     MidiWriter.getPitch = function(pitch: any) {
      	if (MidiWriter.isNumeric(pitch)) {
      		if (pitch >= 0 && pitch <= 127) console.error(pitch + ' is not within MIDI note range (0-127).');
      		return pitch;
@@ -539,7 +573,7 @@
 	 * @param {number} Number of ticks to be translated
 	 * @returns {array} of bytes that form the MIDI time value
 	 */
-	MidiWriter.numberToVariableLength = function(ticks) {
+	MidiWriter.numberToVariableLength = function(ticks: number) {
 	    var buffer = ticks & 0x7F;
 
 	    while (ticks = ticks >> 7) {
@@ -551,34 +585,29 @@
 	    while (true) {
 	        bList.push(buffer & 0xff);
 
-	        if (buffer & 0x80) { buffer >>= 8; }
+	        if (buffer & 0x80) buffer >>= 8
 	        else { break; }
 	    }
 
 	    return bList;
 	};
 
-	MidiWriter.stringByteCount = function (s) {
-	    return encodeURI(s).split(/%..|./).length - 1;
-	};
-
+	MidiWriter.stringByteCount = (s) => encodeURI(s).split(/%..|./).length - 1
 
 	/**
 	 * Utility function to get an int from an array of bytes.
 	 * @param {array} bytes
 	 * @returns {number}
 	 */
-	MidiWriter.numberFromBytes = function(bytes) {
-		var hex = '';
+	MidiWriter.numberFromBytes = function(bytes: number[]) {
+		var hex: string = '';
 		var stringResult;
 
 		bytes.forEach(function(byte) {
 			stringResult = byte.toString(16);
 
 			// ensure string is 2 chars
-			if (stringResult.length == 1) {
-				stringResult = "0" + stringResult;
-			}
+			if (stringResult.length == 1) stringResult = "0" + stringResult
 
 			hex += stringResult;
 		});
@@ -593,7 +622,7 @@
 	 * @param {number} bytesNeeded
 	 * @returns {array} of bytes
 	 */
-	MidiWriter.numberToBytes = function(number, bytesNeeded) {
+	MidiWriter.numberToBytes = function(number: number, bytesNeeded: number) {
 		bytesNeeded = bytesNeeded || 1;
 
 		var hexString = number.toString(16);
@@ -606,9 +635,7 @@
 		var hexArray = hexString.match(/.{2}/g);
 
 		// Now parse them out as integers
-		hexArray = hexArray.map(function(item) {
-			return parseInt(item, 16);
-		});
+		hexArray = hexArray.map(item => parseInt(item, 16))
 
 		// Prepend empty bytes if we don't have enough
 		if (hexArray.length < bytesNeeded) {
@@ -625,15 +652,9 @@
 	 * @param {string}
 	 * @returns {array}
 	 */
-	MidiWriter.stringToBytes = function(string) {
-		return string.split('').map(function(char) {
-			return char.charCodeAt();
-		});
-	};
+	MidiWriter.stringToBytes = (string: string) => string.split('').map(char => char.charCodeAt())
 
-	MidiWriter.isNumeric = function(n) {
-  		return !isNaN(parseFloat(n)) && isFinite(n);
-	};
+	MidiWriter.isNumeric = (n: any) => !isNaN(parseFloat(n)) && isFinite(n)
 
 	MidiWriter.VexFlow = {};
 
@@ -642,7 +663,7 @@
 	 * @return MidiWritier.Track object
 	 */
 	MidiWriter.VexFlow.trackFromVoice = function(voice) {
-		var track = new MidiWriter.Track();
+		var track: Track = new MidiWriter.Track();
 		var wait, pitches = [];
 
 		voice.tickables.forEach(function(tickable, i) {
@@ -674,9 +695,7 @@
 	 * Converts VexFlow pitch syntax to MidiWriterJS syntax
 	 * @param pitch string
 	 */
-	MidiWriter.VexFlow.convertPitch = function(pitch) {
-		return pitch.replace('/', '');
-	};
+	MidiWriter.VexFlow.convertPitch = (pitch: string) => pitch.replace('/', '')
 
 
 	/**

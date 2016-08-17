@@ -2,7 +2,10 @@
   "name": "midi-writer-js",
   "version": "1.3.2",
   "description": "A library providing an API for generating MIDI files.",
-  "main": "src/midi-writer-js.js",
+  "main": "build/midi-writer-js.js",
+  "dependencies": {
+    "typescript":"*"
+  },
   "devDependencies": {
     "mocha": "~2.4.5"
   },
@@ -10,7 +13,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "tsc src/midi-writer-js.ts --outFile build/midi-writer-js.js --removeComments"
   },
   "repository": {
     "type": "git",
