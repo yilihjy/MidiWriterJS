@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "build": "tsc src/midi-writer-js.ts --outFile build/midi-writer-js.js --removeComments"
+    "pretest": "tsc"
   },
   "repository": {
     "type": "git",

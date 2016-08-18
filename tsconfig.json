@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "build/midi-writer-js.js",
+        "sourceMap": true
+    },
+    "files": [
+        "src/constants.ts",
+        "src/midi-writer.ts",
+        "src/chunk.ts",
+        "src/track.ts",
+        "src/note-on-event.ts",
+        "src/note-off-event.ts",
+        "src/note-event.ts",
+        "src/meta-event.ts",
+        "src/writer.ts",
+        "src/vexflow.ts",
+        "src/exports.ts"
+    ]
+}

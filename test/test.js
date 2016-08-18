@@ -1,7 +1,6 @@
 var assert = require('assert');
 var MidiWriter = require('../build/midi-writer-js');
 
-
 describe('MidiWriterJS', function() {
 	describe('#NoteEvent()', function () {
 		describe('#getDurationMultiplier()', function () {
