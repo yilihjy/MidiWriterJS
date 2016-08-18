@@ -9,11 +9,12 @@ class VexFlow {
 	 * Support for converting VexFlow voice into MidiWriterJS track
 	 * @return MidiWritier.Track object
 	 */
-	trackFromVoice(voice) {
+	trackFromVoice(voice: any) {
 		var track: Track = new Track();
-		var wait, pitches = [];
+		var wait: string;
+		var pitches: string[] = [];
 
-		voice.tickables.forEach(function(tickable, i: number) {
+		voice.tickables.forEach(function(tickable:, i: number) {
 			pitches = [];
 
 			if (tickable.noteType === 'n') {

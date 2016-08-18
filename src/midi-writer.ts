@@ -1,4 +1,8 @@
-class MidiWriter {
+class MidiWriter {	
+	static version(): string {
+		return Constants.VERSION;
+	}
+
 	/**
 	 * Convert a string to an array of bytes
 	 * @param {string}
@@ -57,7 +61,7 @@ class MidiWriter {
 	    return bList;
 	}
 
-	static stringByteCount(s) {
+	static stringByteCount(s: string): number {
 		return encodeURI(s).split(/%..|./).length - 1
 	}
 

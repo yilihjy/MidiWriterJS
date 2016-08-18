@@ -27,14 +27,14 @@ var Constants = {
 
 (function() {
 	// Builds notes object for reference against binary values.
-	var allNotes: [] = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
+	var allNotes: string[][] = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
 	var counter: number = 0;
 
 	// All available octaves.
-	for (var i = -1; i <= 9; i++) {
-		allNotes.forEach((noteGroup: []) =>
-			noteGroup.forEach((note: string) => Constants.NOTES[note + i] = counter);
+	for (var i: number = -1; i <= 9; i++) {
+		allNotes.forEach(function(noteGroup: string[]) {
+			noteGroup.forEach(function(note: string) {Constants.NOTES[note + i] = counter});
 			counter ++;
-		);
+		});
 	}
 })();

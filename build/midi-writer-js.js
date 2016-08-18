@@ -27,15 +27,17 @@ var Constants = {
     var counter = 0;
     for (var i = -1; i <= 9; i++) {
         allNotes.forEach(function (noteGroup) {
-            return noteGroup.forEach(function (note) { return Constants.NOTES[note + i] = counter; });
+            noteGroup.forEach(function (note) { Constants.NOTES[note + i] = counter; });
+            counter++;
         });
-        counter++;
-        ;
     }
 })();
 var MidiWriter = (function () {
     function MidiWriter() {
     }
+    MidiWriter.version = function () {
+        return Constants.VERSION;
+    };
     MidiWriter.stringToBytes = function (string) {
         return string.split('').map(function (char) { return char.charCodeAt(); });
     };
@@ -413,7 +415,8 @@ var VexFlow = (function () {
     }
     VexFlow.prototype.trackFromVoice = function (voice) {
         var track = new Track();
-        var wait, pitches = [];
+        var wait;
+        var pitches = [];
         voice.tickables.forEach(function (tickable, i) {
             pitches = [];
             if (tickable.noteType === 'n') {

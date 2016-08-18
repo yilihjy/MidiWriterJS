@@ -35,4 +35,22 @@ describe('MidiWriterJS', function() {
 			assert.equal([116, 101, 115, 116].toString(), MidiWriter.stringToBytes('test').toString());
 		});
 	});
+
+	describe('#isNumeric()', function () {
+		it('should return false when "t" is passed.', function () {
+			assert.equal(false, MidiWriter.isNumeric('t'));
+		});
+	});
+
+	describe('#getPitch()', function () {
+		it('should return 101 when "F7" is passed.', function () {
+			assert.equal(101, MidiWriter.getPitch('F7'));
+		});
+	});
+
+	describe('#stringByteCount()', function () {
+		it('should return 7 when "Garrett" is passed.', function () {
+			assert.equal(7, MidiWriter.stringByteCount('Garrett'));
+		});
+	});
 });
