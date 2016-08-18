@@ -1,4 +1,6 @@
 class Writer {
+	data: Chunk[] & Track[];
+
 	/**
 	 * Object that puts together tracks and provides methods for file output.
 	 * @param {object} MidiWriter.Track
@@ -26,7 +28,7 @@ class Writer {
 	 * @returns Uint8Array
 	 */
 	buildFile(): ArrayBuffer {
-		var build: [] = [];
+		var build: any[] = [];
 
 		// Data consists of chunks which consists of data
 		this.data.forEach((d) => build = build.concat(d.type, d.size, d.data));

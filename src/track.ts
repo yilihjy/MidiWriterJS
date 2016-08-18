@@ -12,7 +12,7 @@ class Track {
 	}
 
 	// Method to add any event type the track.
-	addEvent(event: MetaEvent | NoteEvent, mapFunction): Track {
+	addEvent(event: MetaEvent & NoteEvent, mapFunction: Function): Track {
 		if (Array.isArray(event)) {
 			event.forEach(function(e, i) {
 				// Handle map function if provided
@@ -63,7 +63,7 @@ class Track {
 
 
 	setTimeSignature(numerator: number, denominator: number, midiclockspertick: number, notespermidiclock: number) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_TIME_SIGNATURE_ID]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_TIME_SIGNATURE_ID]});
 		event.data.push(0x04); // Size
 		event.data = event.data.concat(MidiWriter.numberToBytes(numerator, 1)); // Numerator, 1 bytes
 		var _denominator = (denominator < 4) ? (denominator - 1) : Math.sqrt(denominator);	// Denominator is expressed as pow of 2
@@ -75,8 +75,8 @@ class Track {
 		return this.addEvent(event);
 	}
 
-	setKeySignature(sf, mi) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_KEY_SIGNATURE_ID]});
+	setKeySignature(sf: any, mi: any) {
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_KEY_SIGNATURE_ID]});
 		event.data.push(0x02); // Size
 
 		var mode = mi || 0;
@@ -128,7 +128,7 @@ class Track {
 	}
 
 	addText(text: string) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_TEXT_ID]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_TEXT_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -137,7 +137,7 @@ class Track {
 
 
 	addCopyright(text: string) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_COPYRIGHT_ID]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_COPYRIGHT_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -146,7 +146,7 @@ class Track {
 
 
 	addInstrumentName(text: string) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_INSTRUMENT_NAME_ID]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_INSTRUMENT_NAME_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -155,7 +155,7 @@ class Track {
 
 
 	addMarker(text: string) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_MARKER_ID]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_MARKER_ID]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -164,7 +164,7 @@ class Track {
 
 
 	addCuePoint(text:string) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_CUE_POINT]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_CUE_POINT]});
 		var stringBytes = MidiWriter.stringToBytes(text);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Text
@@ -173,7 +173,7 @@ class Track {
 
 
 	addLyric(lyric: string) {
-		var event: MetaEvent = new MidiWriter.MetaEvent({data: [Constants.META_LYRIC_ID]});
+		var event: MetaEvent = new MetaEvent({data: [Constants.META_LYRIC_ID]});
 		var stringBytes = MidiWriter.stringToBytes(lyric);
 		event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length)); // Size
 		event.data = event.data.concat(stringBytes); // Lyric
@@ -182,7 +182,7 @@ class Track {
 
 	/** Channel Mode Messages **/
 	polyModeOn() {
-		var event: NoteOnEvent = new MidiWriter.NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
+		var event: NoteOnEvent = new NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
 		this.addEvent(event);
 		console.log(event);
 	}

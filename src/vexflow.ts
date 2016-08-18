@@ -11,14 +11,14 @@ class VexFlow {
 	 */
 	trackFromVoice(voice: any) {
 		var track: Track = new Track();
-		var wait: string;
+		var wait: number | string;
 		var pitches: string[] = [];
 
-		voice.tickables.forEach(function(tickable:, i: number) {
+		voice.tickables.forEach(function(tickable: any, i: number) {
 			pitches = [];
 
 			if (tickable.noteType === 'n') {
-				notes[i].keys.forEach(function(key) {
+				notes[i].keys.forEach(function(key: string) {
 					// build array of pitches
 					pitches.push(this.convertPitch(key));
 				});

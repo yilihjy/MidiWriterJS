@@ -158,7 +158,7 @@ var Track = (function () {
         return this.addEvent(event);
     };
     Track.prototype.setTimeSignature = function (numerator, denominator, midiclockspertick, notespermidiclock) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_TIME_SIGNATURE_ID] });
+        var event = new MetaEvent({ data: [Constants.META_TIME_SIGNATURE_ID] });
         event.data.push(0x04);
         event.data = event.data.concat(MidiWriter.numberToBytes(numerator, 1));
         var _denominator = (denominator < 4) ? (denominator - 1) : Math.sqrt(denominator);
@@ -170,7 +170,7 @@ var Track = (function () {
         return this.addEvent(event);
     };
     Track.prototype.setKeySignature = function (sf, mi) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_KEY_SIGNATURE_ID] });
+        var event = new MetaEvent({ data: [Constants.META_KEY_SIGNATURE_ID] });
         event.data.push(0x02);
         var mode = mi || 0;
         sf = sf || 0;
@@ -215,49 +215,49 @@ var Track = (function () {
         return this.addEvent(event);
     };
     Track.prototype.addText = function (text) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_TEXT_ID] });
+        var event = new MetaEvent({ data: [Constants.META_TEXT_ID] });
         var stringBytes = MidiWriter.stringToBytes(text);
         event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length));
         event.data = event.data.concat(stringBytes);
         return this.addEvent(event);
     };
     Track.prototype.addCopyright = function (text) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_COPYRIGHT_ID] });
+        var event = new MetaEvent({ data: [Constants.META_COPYRIGHT_ID] });
         var stringBytes = MidiWriter.stringToBytes(text);
         event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length));
         event.data = event.data.concat(stringBytes);
         return this.addEvent(event);
     };
     Track.prototype.addInstrumentName = function (text) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_INSTRUMENT_NAME_ID] });
+        var event = new MetaEvent({ data: [Constants.META_INSTRUMENT_NAME_ID] });
         var stringBytes = MidiWriter.stringToBytes(text);
         event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length));
         event.data = event.data.concat(stringBytes);
         return this.addEvent(event);
     };
     Track.prototype.addMarker = function (text) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_MARKER_ID] });
+        var event = new MetaEvent({ data: [Constants.META_MARKER_ID] });
         var stringBytes = MidiWriter.stringToBytes(text);
         event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length));
         event.data = event.data.concat(stringBytes);
         return this.addEvent(event);
     };
     Track.prototype.addCuePoint = function (text) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_CUE_POINT] });
+        var event = new MetaEvent({ data: [Constants.META_CUE_POINT] });
         var stringBytes = MidiWriter.stringToBytes(text);
         event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length));
         event.data = event.data.concat(stringBytes);
         return this.addEvent(event);
     };
     Track.prototype.addLyric = function (lyric) {
-        var event = new MidiWriter.MetaEvent({ data: [Constants.META_LYRIC_ID] });
+        var event = new MetaEvent({ data: [Constants.META_LYRIC_ID] });
         var stringBytes = MidiWriter.stringToBytes(lyric);
         event.data = event.data.concat(MidiWriter.numberToVariableLength(stringBytes.length));
         event.data = event.data.concat(stringBytes);
         return this.addEvent(event);
     };
     Track.prototype.polyModeOn = function () {
-        var event = new MidiWriter.NoteOnEvent({ data: [0x00, 0xB0, 0x7E, 0x00] });
+        var event = new NoteOnEvent({ data: [0x00, 0xB0, 0x7E, 0x00] });
         this.addEvent(event);
         console.log(event);
     };

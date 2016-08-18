@@ -1,7 +1,7 @@
 class NoteEvent {
 	type: string;
 	pitch: any;
-	wait: string;
+	wait: string | number;
 	duration: string;
 	sequential: boolean;
 	velocity: number;
@@ -39,7 +39,7 @@ class NoteEvent {
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
-		var noteOn, noteOff;
+		var noteOn: NoteOnEvent, noteOff: NoteOffEvent;
 		if (Array.isArray(this.pitch)) {
 			// By default this is a chord if it's an array of notes that requires one NoteOnEvent.
 			// If this.sequential === true then it's a sequential string of notes that requires separate NoteOnEvents.
@@ -47,7 +47,7 @@ class NoteEvent {
 				// Handle repeat
 				for (var j = 0; j < this.repeat; j++) {
 					// Note on
-					this.pitch.forEach(function(p, i) {
+					this.pitch.forEach(function(p: string, i: number) {
 						if (i == 0) {
 							noteOn = new NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), MidiWriter.getPitch(p), this.velocity)});
 
@@ -60,7 +60,7 @@ class NoteEvent {
 					}, this);
 
 					// Note off
-					this.pitch.forEach(function(p, i) {
+					this.pitch.forEach(function(p: string, i: number) {
 						if (i == 0) {
 							noteOff = new NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), MidiWriter.getPitch(p), this.velocity)});
 
@@ -76,7 +76,7 @@ class NoteEvent {
 			} else {
 				// Handle repeat
 				for (var j = 0; j < this.repeat; j++) {
-					this.pitch.forEach(function(p, i) {
+					this.pitch.forEach(function(p: string, i: number) {
 						// restDuration only applies to first note
 						if (i > 0) {
 							restDuration = 0;
