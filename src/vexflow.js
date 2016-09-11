@@ -4,21 +4,20 @@ class VexFlow {
 		// code...
 	}
 
-
 	/**
 	 * Support for converting VexFlow voice into MidiWriterJS track
 	 * @return MidiWritier.Track object
 	 */
-	trackFromVoice(voice: any) {
-		var track: Track = new Track();
-		var wait: number | string;
-		var pitches: string[] = [];
+	trackFromVoice(voice) {
+		var track = new Track();
+		var wait;
+		var pitches = [];
 
-		voice.tickables.forEach(function(tickable: any, i: number) {
+		voice.tickables.forEach(function(tickable, i) {
 			pitches = [];
 
 			if (tickable.noteType === 'n') {
-				notes[i].keys.forEach(function(key: string) {
+				notes[i].keys.forEach(function(key) {
 					// build array of pitches
 					pitches.push(this.convertPitch(key));
 				});
@@ -43,7 +42,7 @@ class VexFlow {
 	 * Converts VexFlow pitch syntax to MidiWriterJS syntax
 	 * @param pitch string
 	 */
-	convertPitch(pitch: string) {
+	convertPitch(pitch) {
 		return pitch.replace('/', '');
 	} 
 
@@ -52,7 +51,7 @@ class VexFlow {
 	 * Converts VexFlow duration syntax to MidiWriterJS syntax
 	 * @param note struct from VexFlow
 	 */
-	convertDuration(note: any) {
+	convertDuration(note) {
 		switch (note.duration) {
 			case 'w':
 				return '1';
@@ -67,3 +66,5 @@ class VexFlow {
 		return note.duration;
 	};
 }
+
+exports.VexFlow = VexFlow;

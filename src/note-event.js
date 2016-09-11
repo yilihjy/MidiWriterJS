@@ -1,4 +1,5 @@
 class NoteEvent {
+	/*
 	type: string;
 	pitch: any;
 	wait: string | number;
@@ -8,13 +9,14 @@ class NoteEvent {
 	channel: number;
 	repeat: number;
 	data: number[];
+	*/
 
 	/**
 	 * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
 	 * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
 	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 */
-	constructor(fields: NoteEvent) {
+	constructor(fields) {
 		this.type 		= 'note';
 		this.pitch 		= fields.pitch;
 		this.wait 		= fields.wait || 0;
@@ -31,15 +33,15 @@ class NoteEvent {
 	buildData() {
 		this.data = [];
 
-		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
+		// Need to apply duration here.  Quarter note == Constants.HEADER_CHUNK_DIVISION
 		// Rounding only applies to triplets, which the remainder is handled below
-		var quarterTicks = MidiWriter.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
+		var quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
 		var tickDuration = Math.round(quarterTicks * this.getDurationMultiplier(this.duration, 'note'));
 		var restDuration = Math.round(quarterTicks * this.getDurationMultiplier(this.wait, 'rest'));
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
-		var noteOn: NoteOnEvent, noteOff: NoteOffEvent;
+		var noteOn, noteOff;
 		if (Array.isArray(this.pitch)) {
 			// By default this is a chord if it's an array of notes that requires one NoteOnEvent.
 			// If this.sequential === true then it's a sequential string of notes that requires separate NoteOnEvents.
@@ -47,26 +49,26 @@ class NoteEvent {
 				// Handle repeat
 				for (var j = 0; j < this.repeat; j++) {
 					// Note on
-					this.pitch.forEach(function(p: string, i: number) {
+					this.pitch.forEach(function(p, i) {
 						if (i == 0) {
-							noteOn = new NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), MidiWriter.getPitch(p), this.velocity)});
+							noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), Utils.getPitch(p), this.velocity)});
 
 						} else {
 							// Running status (can ommit the note on status)
-							noteOn = new NoteOnEvent({data: [0, MidiWriter.getPitch(p), this.velocity]});
+							noteOn = new NoteOnEvent({data: [0, Utils.getPitch(p), this.velocity]});
 						}
 
 						this.data = this.data.concat(noteOn.data);
 					}, this);
 
 					// Note off
-					this.pitch.forEach(function(p: string, i: number) {
+					this.pitch.forEach(function(p, i) {
 						if (i == 0) {
-							noteOff = new NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), MidiWriter.getPitch(p), this.velocity)});
+							noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), this.velocity)});
 
 						} else {
 							// Running status (can ommit the note off status)
-							noteOff = new NoteOffEvent({data: [0, MidiWriter.getPitch(p), this.velocity]});
+							noteOff = new NoteOffEvent({data: [0, Utils.getPitch(p), this.velocity]});
 						}
 
 						this.data = this.data.concat(noteOff.data);
@@ -76,7 +78,7 @@ class NoteEvent {
 			} else {
 				// Handle repeat
 				for (var j = 0; j < this.repeat; j++) {
-					this.pitch.forEach(function(p: string, i: number) {
+					this.pitch.forEach(function(p, i) {
 						// restDuration only applies to first note
 						if (i > 0) {
 							restDuration = 0;
@@ -88,8 +90,8 @@ class NoteEvent {
 							tickDuration = quarterTicks - (tickDuration * 2);
 						}
 
-						noteOn = new NoteOnEvent({data: MidiWriter.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), MidiWriter.getPitch(p), this.velocity])});
-						noteOff = new NoteOffEvent({data: MidiWriter.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), MidiWriter.getPitch(p), this.velocity])});
+						noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), Utils.getPitch(p), this.velocity])});
+						noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), Utils.getPitch(p), this.velocity])});
 
 						this.data = this.data.concat(noteOn.data, noteOff.data);
 					}, this);
@@ -103,7 +105,7 @@ class NoteEvent {
 
 
 	// Convert velocity to value 0-127
-	convertVelocity(velocity: number): number {
+	convertVelocity(velocity) {
 		// Max passed value limited to 100
 		velocity = velocity > 100 ? 100 : velocity;
 		return Math.round(velocity / 100 * 127);
@@ -116,8 +118,8 @@ class NoteEvent {
 	 * @param {string} duration
 	 * @param {string} type ['note','rest']
 	 */
-	getDurationMultiplier(duration: string, type: string) {
-		// Need to apply duration here.  Quarter note == MidiWriter.HEADER_CHUNK_DIVISION
+	getDurationMultiplier(duration, type) {
+		// Need to apply duration here.  Quarter note == Constants.HEADER_CHUNK_DIVISION
 		switch (duration) {
 			case '0':
 				return 0;
@@ -164,3 +166,5 @@ class NoteEvent {
 	 */
 	getNoteOffStatus() {return 128 + this.channel - 1}
 }
+
+exports.NoteEvent = NoteEvent;

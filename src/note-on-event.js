@@ -3,9 +3,11 @@
  * @param {object} fields {data: []}
  */
 class NoteOnEvent {
-	data: number[];
+	//data: number[];
 
-	constructor(fields: NoteOnEvent) {
+	constructor(fields) {
 		this.data = fields.data;
 	}
 }
+
+exports.NoteOnEvent = NoteOnEvent;

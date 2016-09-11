@@ -1,3 +1,4 @@
+var MidiWriter = require('../build/index');
 var tracks = [];
 
 // Lead Instrument

@@ -1,5 +1,6 @@
-class MidiWriter {	
-	static version(): string {
+class Utils {
+
+	static version() {
 		return Constants.VERSION;
 	}
 
@@ -8,11 +9,11 @@ class MidiWriter {
 	 * @param {string}
 	 * @returns {array}
 	 */
-	static stringToBytes(string: string): number[] {
+	static stringToBytes(string) {
 		return string.split('').map(char => char.charCodeAt())
 	}
 
-	static isNumeric(n: any): boolean {
+	static isNumeric(n) {
 		return !isNaN(parseFloat(n)) && isFinite(n)
 	}
 
@@ -21,7 +22,7 @@ class MidiWriter {
      * @param {string/number} 'C#4' or midi note code
      * @return {number}
      */
-     static getPitch(pitch: any): any {
+     static getPitch(pitch) {
      	if (this.isNumeric(pitch)) {
      		if (pitch >= 0 && pitch <= 127) console.error(pitch + ' is not within MIDI note range (0-127).');
      		return pitch;
@@ -42,7 +43,7 @@ class MidiWriter {
 	 * @param {number} Number of ticks to be translated
 	 * @returns {array} of bytes that form the MIDI time value
 	 */
-	static numberToVariableLength(ticks: number): number[] {
+	static numberToVariableLength(ticks) {
 	    var buffer = ticks & 0x7F;
 
 	    while (ticks = ticks >> 7) {
@@ -61,7 +62,7 @@ class MidiWriter {
 	    return bList;
 	}
 
-	static stringByteCount(s: string): number {
+	static stringByteCount(s) {
 		return encodeURI(s).split(/%..|./).length - 1
 	}
 
@@ -70,8 +71,8 @@ class MidiWriter {
 	 * @param {array} bytes
 	 * @returns {number}
 	 */
-	static numberFromBytes(bytes: number[]): number {
-		var hex: string = '';
+	static numberFromBytes(bytes) {
+		var hex = '';
 		var stringResult;
 
 		bytes.forEach(function(byte) {
@@ -93,7 +94,7 @@ class MidiWriter {
 	 * @param {number} bytesNeeded
 	 * @returns {array} of bytes
 	 */
-	static numberToBytes(number: number, bytesNeeded: number): number[] {
+	static numberToBytes(number, bytesNeeded) {
 		bytesNeeded = bytesNeeded || 1;
 
 		var hexString = number.toString(16);
@@ -118,3 +119,5 @@ class MidiWriter {
 		return hexArray;
 	}
 }
+
+exports.Utils = Utils;

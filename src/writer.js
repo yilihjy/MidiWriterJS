@@ -1,15 +1,15 @@
 class Writer {
-	data: Chunk[] & Track[];
+	//data: Chunk[] & Track[];
 
 	/**
 	 * Object that puts together tracks and provides methods for file output.
 	 * @param {object} MidiWriter.Track
 	 */
-	constructor(tracks: Track[]) {
+	constructor(tracks) {
 		this.data = [];
 
 		var trackType = tracks.length > 1 ? Constants.HEADER_CHUNK_FORMAT1 : Constants.HEADER_CHUNK_FORMAT0;
-		var numberOfTracks = MidiWriter.numberToBytes(tracks.length, 2); // two bytes long
+		var numberOfTracks = Utils.numberToBytes(tracks.length, 2); // two bytes long
 
 		// Header chunk
 		this.data.push(new Chunk({
@@ -27,8 +27,8 @@ class Writer {
 	 * Builds the file into a Uint8Array
 	 * @returns Uint8Array
 	 */
-	buildFile(): ArrayBuffer {
-		var build: any[] = [];
+	buildFile() {
+		var build = [];
 
 		// Data consists of chunks which consists of data
 		this.data.forEach((d) => build = build.concat(d.type, d.size, d.data));
@@ -51,7 +51,9 @@ class Writer {
      * Get the data URI.
      *
      */
-    dataUri(): string {
+    dataUri() {
     	return 'data:audio/midi;base64,' + this.base64();
     }
 }
+
+exports.Writer = Writer;

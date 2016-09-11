@@ -1,3 +1,4 @@
+var MidiWriter = require('../build/index');
 var tracks = [];
 tracks[0] = new MidiWriter.Track();
 
