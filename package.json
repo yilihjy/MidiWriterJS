@@ -3,19 +3,19 @@
   "version": "1.4.0",
   "description": "A library providing an API for generating MIDI files.",
   "main": "build/index.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-cli": "^6.14.0",
     "babel-preset-es2015": "^6.14.0",
-    "mocha": "~2.4.5"
+    "mocha": "~2.4.5",
+    "uglify-js": "^2.7.3"
   },
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "mocha",
-    "build": "babel src --out-file build/index.js --no-comments"
+    "build": "babel src --out-file build/index.js && uglifyjs build/index.js -m > build/index.min.js && ls -l build/"
   },
   "repository": {
     "type": "git",

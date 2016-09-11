@@ -54,6 +54,13 @@ class Writer {
     dataUri() {
     	return 'data:audio/midi;base64,' + this.base64();
     }
+
+
+    /*
+    output() {
+    	return new Buffer(this.buildFile()).toString();
+    }
+    */
 }
 
 exports.Writer = Writer;
