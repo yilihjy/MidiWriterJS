@@ -56,11 +56,10 @@ class Writer {
     }
 
 
-    /*
-    output() {
-    	return new Buffer(this.buildFile()).toString();
+ 
+    stdout() {
+    	return process.stdout.write(new Buffer(this.buildFile()));
     }
-    */
 }
 
 exports.Writer = Writer;
