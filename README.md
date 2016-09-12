@@ -111,10 +111,11 @@ The `NoteEvent` supports these options:
 
 
 ### `MidiWriter.Writer([tracks])`
-The `Writer` object provides a few ways to output the file:
+The `Writer` class provides a few ways to output the file:
 - `buildFile()` *Uint8Array*
 - `base64()` *string*
 - `dataUri()` *string*
+- `stdout()` *file stream (cli)*
 
 ### Hot Cross Buns
 Here's an example of how everyone's favorite song "Hot Cross Buns" could be written.  Note use of the mapping function passed as the second argument of `addEvent()`.  This can be used to apply specific properties to all events.  With some 
