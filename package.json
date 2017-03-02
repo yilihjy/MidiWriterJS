@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "build": "babel src --out-file build/index.js && uglifyjs build/index.js -m > build/index.min.js && ls -l build/",
+    "build": "babel src --out-file build/index.js && uglifyjs build/index.js -m > build/index.min.js && npm run browser && ls -l build/",
     "browser": "browserify -r ./build/index.js:MidiWriter > ./build/browser/index.js && uglifyjs ./build/browser/index.js -m > ./build/browser/index.min.js"
   },
   "repository": {
