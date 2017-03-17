@@ -15,10 +15,10 @@
     "test": "test"
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "mocha",
     "build": "mkdir -p build/browser && babel src --out-file build/index.js && uglifyjs build/index.js -m > build/index.min.js && npm run browser && ls -l build/",
-    "browser": "browserify -r ./build/index.js:MidiWriter > ./build/browser/index.js && uglifyjs ./build/browser/index.js -m > ./build/browser/index.min.js",
-    "prepublish": "npm run build"
+    "browser": "browserify -r ./build/index.js:MidiWriter > ./build/browser/index.js && uglifyjs ./build/browser/index.js -m > ./build/browser/index.min.js"  
   },
   "repository": {
     "type": "git",
