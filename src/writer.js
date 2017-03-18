@@ -67,12 +67,12 @@ class Writer {
 		 * Save to MIDI file
 		 *
 		 */
-		 saveMIDI(filename) {
-		   var buffer = new Buffer(this.buildFile());
-		   fs.writeFile(filename + '.mid', buffer, function (err) {
-		     if(err) return console.log(err);
-		   });
-		 }
+		saveMIDI(filename) {
+			var buffer = new Buffer(this.buildFile());
+			fs.writeFile(filename + '.mid', buffer, function (err) {
+				if(err) return console.log(err);
+			});
+		}
 }
 
 exports.Writer = Writer;
