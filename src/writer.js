@@ -42,7 +42,7 @@ class Writer {
 	 *
 	 */
 	base64() {
-		if (typeof btoa === 'function') return btoa(String.fromCharCode.apply(null, this.buildFile()));		
+		if (typeof btoa === 'function') return btoa(String.fromCharCode.apply(null, this.buildFile()));
 		return new Buffer(this.buildFile()).toString('base64');
 	}
 
@@ -55,11 +55,24 @@ class Writer {
     	return 'data:audio/midi;base64,' + this.base64();
     }
 
-
- 
+		/**
+		 * Output to stdout
+		 *
+		 */
     stdout() {
     	return process.stdout.write(new Buffer(this.buildFile()));
     }
+
+		/**
+		 * Save to MIDI file
+		 *
+		 */
+		saveMIDI(filename) {
+			var buffer = new Buffer(this.buildFile());
+			fs.writeFile(filename + '.mid', buffer, function (err) {
+				if(err) return console.log(err);
+			});
+		}
 }
 
 exports.Writer = Writer;
