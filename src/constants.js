@@ -27,7 +27,7 @@ var Constants = {
 
 (function() {
 	// Builds notes object for reference against binary values.
-	var allNotes = [['C'], ['C#','Db'], ['D'], ['D#','Eb'], ['E'],['F'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B']];
+	var allNotes = [['C','B#'], ['C#','Db'], ['D'], ['D#','Eb'], ['E','Fb'],['F','E#'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B','Cb']];
 	var counter = 0;
 
 	// All available octaves.
