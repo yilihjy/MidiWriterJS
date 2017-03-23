@@ -90,7 +90,7 @@ The `NoteEvent` supports these options:
 		<tr>
 			<td><b>sequential</b></td>
 			<td>boolean</td>
-			<td>If true then array of notes will be played sequentially as opposed to simulatanously.  Default: <code>false</code></td>
+			<td>If true then array of pitches will be played sequentially as opposed to simulatanously.  Default: <code>false</code></td>
 		</tr>
 		<tr>
 			<td><b>velocity</b></td>
