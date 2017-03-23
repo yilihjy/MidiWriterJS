@@ -1,16 +1,4 @@
 class NoteEvent {
-	/*
-	type: string;
-	pitch: any;
-	wait: string | number;
-	duration: string;
-	sequential: boolean;
-	velocity: number;
-	channel: number;
-	repeat: number;
-	data: number[];
-	*/
-
 	/**
 	 * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
 	 * duration values: 4:quarter, 3:triplet quarter, 2: half, 1: whole
@@ -33,11 +21,8 @@ class NoteEvent {
 	buildData() {
 		this.data = [];
 
-		// Need to apply duration here.  Quarter note == Constants.HEADER_CHUNK_DIVISION
-		// Rounding only applies to triplets, which the remainder is handled below
-		var quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
-		var tickDuration = Math.round(quarterTicks * this.getDurationMultiplier(this.duration, 'note'));
-		var restDuration = Math.round(quarterTicks * this.getDurationMultiplier(this.wait, 'rest'));
+		var tickDuration = this.getTickDuration(this.duration, 'note');
+		var restDuration = this.getTickDuration(this.wait, 'rest');
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
@@ -87,6 +72,7 @@ class NoteEvent {
 						// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
 						// So, the last one will need to be the remainder
 						if (this.duration === '8t' && i == this.pitch.length - 1) {
+							let quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
 							tickDuration = quarterTicks - (tickDuration * 2);
 						}
 
@@ -111,6 +97,24 @@ class NoteEvent {
 		return Math.round(velocity / 100 * 127);
 	};
 
+
+	/**
+	 * Gets the total number of ticks based on passed duration.
+	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
+	 * @param {string} duration
+	 * @param {string} type ['note','rest']
+	 */
+	getTickDuration(duration, type) {
+		if (duration.toString().toLowerCase().charAt(0) === 't') {
+			// If duration starts with 't' then the number that follows is an explicit tick count
+			return parseInt(duration.substring(1));
+		}
+
+		// Need to apply duration here.  Quarter note == Constants.HEADER_CHUNK_DIVISION
+		// Rounding only applies to triplets, which the remainder is handled below
+		var quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
+		return Math.round(quarterTicks * this.getDurationMultiplier(duration, type));
+	}
 
 	/**
 	 * Gets what to multiple ticks/quarter note by to get the specified duration.
