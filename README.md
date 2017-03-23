@@ -69,15 +69,16 @@ The `NoteEvent` supports these options:
 			<td>
 				How long the note should sound.
 				<ul>
-					<li>1  : whole</li>
-					<li>2  : half</li>
-					<li>d2 : dotted half</li>
-					<li>4  : quarter</li>
-					<li>d4 : dotted quarter</li>
-					<li>8  : eighth</li>
-					<li>8t : eighth triplet</li>
-					<li>d8 : dotted eighth</li>
-					<li>16 : sixteenth</li>
+					<li>`1`  : whole</li>
+					<li>`2`  : half</li>
+					<li>`d2` : dotted half</li>
+					<li>`4`  : quarter</li>
+					<li>`d4` : dotted quarter</li>
+					<li>`8`  : eighth</li>
+					<li>`8t` : eighth triplet</li>
+					<li>`d8` : dotted eighth</li>
+					<li>`16` : sixteenth</li>
+					<li>`Tn` : where n is an explicit number of ticks</li>
 				</ul>
 			</td>
 		</tr>
