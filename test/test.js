@@ -12,6 +12,31 @@ describe('MidiWriterJS', function() {
 		});
 	});
 
+	describe('#Track()', function() {
+		describe('#Time Signature', function() {
+			it('should return specific base64 string when time signature is 4/4', function() {
+				var track = new MidiWriter.Track();
+				track.setTimeSignature(4, 4);
+				var write = new MidiWriter.Writer([track]);
+				assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAADAD/WAQEAhgIAP8vAA==', write.base64());
+			});
+
+			it('should return specific base64 string when time signature is 2/2', function() {
+				var track = new MidiWriter.Track();
+				track.setTimeSignature(2, 2);
+				var write = new MidiWriter.Writer([track]);
+				assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAADAD/WAQCARgIAP8vAA==', write.base64());
+			});
+
+			it('should return specific base64 string when time signature is 2/8', function() {
+				var track = new MidiWriter.Track();
+				track.setTimeSignature(2, 8);
+				var write = new MidiWriter.Writer([track]);
+				assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAADAD/WAQCAxgIAP8vAA==', write.base64());
+			});
+		});
+	});
+
 	describe('#Writer()', function() {
 		describe('#base64()', function() {
 			it('should return specific base64 string when a single C4 quarter note is created.', function () {

@@ -63,14 +63,16 @@ class Track {
 
 
 	setTimeSignature(numerator, denominator, midiclockspertick, notespermidiclock) {
+		midiclockspertick = midiclockspertick || 24;
+		notespermidiclock = notespermidiclock || 8;
+		
 		var event = new MetaEvent({data: [Constants.META_TIME_SIGNATURE_ID]});
 		event.data.push(0x04); // Size
 		event.data = event.data.concat(Utils.numberToBytes(numerator, 1)); // Numerator, 1 bytes
-		var _denominator = (denominator < 4) ? (denominator - 1) : Math.sqrt(denominator);	// Denominator is expressed as pow of 2
+		
+		var _denominator = Math.log2(denominator);	// Denominator is expressed as pow of 2
 		event.data = event.data.concat(Utils.numberToBytes(_denominator, 1)); // Denominator, 1 bytes
-		midiclockspertick = midiclockspertick || 24;
 		event.data = event.data.concat(Utils.numberToBytes(midiclockspertick, 1)); // MIDI Clocks per tick, 1 bytes
-		notespermidiclock = notespermidiclock || 8;
 		event.data = event.data.concat(Utils.numberToBytes(notespermidiclock, 1)); // Number of 1/32 notes per MIDI clocks, 1 bytes
 		return this.addEvent(event);
 	}
