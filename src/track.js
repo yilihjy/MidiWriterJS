@@ -1,9 +1,4 @@
 class Track {
-	//type: number[];
-	//data: number[];
-	//size: number[];
-	//events: any;
-
 	constructor() {
 		this.type = Constants.TRACK_CHUNK_TYPE;
 		this.data = [];

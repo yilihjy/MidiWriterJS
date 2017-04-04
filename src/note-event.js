@@ -84,9 +84,10 @@ class NoteEvent {
 				}
 			}
 
-		} else {
-			console.error('pitch must be an array.');
+			return this;
 		}
+
+		throw 'pitch must be an array.';
 	};
 
 
@@ -105,7 +106,9 @@ class NoteEvent {
 	 * @param {string} type ['note','rest']
 	 */
 	getTickDuration(duration, type) {
-		if (duration.toString().toLowerCase().charAt(0) === 't') {
+		duration = duration.toString();
+
+		if (duration.toLowerCase().charAt(0) === 't') {
 			// If duration starts with 't' then the number that follows is an explicit tick count
 			return parseInt(duration.substring(1));
 		}
@@ -148,8 +151,10 @@ class NoteEvent {
 				return 0.25;
 			default:
 				// Notes default to a quarter, rests default to 0
-				return type === 'note' ? 1 : 0;
+				//return type === 'note' ? 1 : 0;
 		}
+
+		throw duration + ' is not a valid duration.';
 	};
 
 

@@ -1,6 +1,4 @@
 class Writer {
-	//data: Chunk[] & Track[];
-
 	/**
 	 * Object that puts together tracks and provides methods for file output.
 	 * @param {object} MidiWriter.Track
