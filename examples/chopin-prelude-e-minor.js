@@ -1,7 +1,7 @@
-//var MidiWriter = require('../build/index');
+//var MidiWriter = require('..');
 
 // From browser
-var MidiWriter = require('..');
+var MidiWriter = require('MidiWriter');
 
 
 var tracks = [];

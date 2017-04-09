@@ -1,4 +1,4 @@
-var MidiWriter = require('..');
+var MidiWriter = require('MidiWriter');
 var tracks = [];
 
 // Lead Instrument

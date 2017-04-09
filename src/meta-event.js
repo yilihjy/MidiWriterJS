@@ -1,3 +1,8 @@
+/**
+ * Object representation of a meta event.
+ * @param {object} fields - type, data
+ * @return {MetaEvent}
+ */
 class MetaEvent {
 	constructor(fields) {
 		this.type = 'meta';

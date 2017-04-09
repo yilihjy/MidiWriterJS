@@ -1,10 +1,9 @@
 /**
  * Holds all data for a "note off" MIDI event
  * @param {object} fields {data: []}
+ * @return {NoteOffEvent}
  */
 class NoteOffEvent {
-	//data: number[];
-
 	constructor(fields) {
 		this.data = fields.data;
 	}

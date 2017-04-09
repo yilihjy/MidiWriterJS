@@ -1,3 +1,8 @@
+/**
+ * Holds all data for a "program change" MIDI event
+ * @param {object} fields {type: string, data: []}
+ * @return {NoteOffEvent}
+ */
 class ProgramChangeEvent {
 	constructor(fields) {
 		this.type = 'program';

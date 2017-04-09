@@ -1,3 +1,7 @@
+/**
+ * MIDI file format constants, including note -> MIDI number translation.
+ * @return {Constants}
+ */
 var Constants = {
 	VERSION					: '1.4.4',
 	HEADER_CHUNK_TYPE  		: [0x4d, 0x54, 0x68, 0x64], // Mthd

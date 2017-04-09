@@ -9,7 +9,8 @@
     "babel-preset-es2015": "^6.14.0",
     "browserify": "^14.1.0",
     "mocha": "~2.4.5",
-    "uglify-js": "^2.7.3"
+    "uglify-js": "^2.7.3",
+    "jsdoc": "^3.4.3"
   },
   "directories": {
     "test": "test"
@@ -18,7 +19,9 @@
     "pretest": "npm run build",
     "test": "mocha",
     "build": "mkdir -p build/browser && babel src --out-file build/index.js && uglifyjs build/index.js -m > build/index.min.js && npm run browser && ls -l build/",
-    "browser": "browserify -r ./build/index.js:MidiWriter > ./build/browser/index.js && uglifyjs ./build/browser/index.js -m > ./build/browser/index.min.js"  
+    "browser": "browserify -r ./build/index.js:MidiWriter > ./build/browser/index.js && uglifyjs ./build/browser/index.js -m > ./build/browser/index.min.js",
+    "docs": "./node_modules/.bin/jsdoc -d ./docs src "
+
   },
   "repository": {
     "type": "git",

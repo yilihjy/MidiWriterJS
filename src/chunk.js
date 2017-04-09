@@ -1,3 +1,8 @@
+/**
+ * Object representation of the chunk section of a MIDI file.
+ * @param {object} fields - {type: number, data: array, size: array}
+ * @return {Chunk}
+ */
 class Chunk {
 	constructor(fields) {
 		this.type = fields.type;
