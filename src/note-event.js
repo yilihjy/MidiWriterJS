@@ -19,7 +19,6 @@ class NoteEvent {
 
 	/**
 	 * Builds int array for this event.
-	 * @param {object} fields {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}
 	 * @return {NoteEvent}
 	 */
 	buildData() {
@@ -94,7 +93,6 @@ class NoteEvent {
 		throw 'pitch must be an array.';
 	};
 
-
 	/**
 	 * Converts velocity to value 0-127
 	 * @param {number} velocity - Velocity value 1-100
@@ -105,7 +103,6 @@ class NoteEvent {
 		velocity = velocity > 100 ? 100 : velocity;
 		return Math.round(velocity / 100 * 127);
 	};
-
 
 	/**
 	 * Gets the total number of ticks based on passed duration.
@@ -167,7 +164,6 @@ class NoteEvent {
 		throw duration + ' is not a valid duration.';
 	};
 
-
 	/**
 	 * Gets the note on status code based on the selected channel. 0x9{0-F}
 	 * Note on at channel 0 is 0x90 (144)
@@ -175,7 +171,6 @@ class NoteEvent {
 	 * @return {number}
 	 */
 	getNoteOnStatus() {return 144 + this.channel - 1}
-
 
 	/**
 	 * Gets the note off status code based on the selected channel. 0x8{0-F}

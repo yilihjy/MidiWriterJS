@@ -35,7 +35,6 @@ class Writer {
 		return new Uint8Array(build);
 	}
 
-
 	/**
 	 * Convert file buffer to a base64 string.  Different methods depending on if browser or node.
 	 * @return {string}
@@ -44,7 +43,6 @@ class Writer {
 		if (typeof btoa === 'function') return btoa(String.fromCharCode.apply(null, this.buildFile()));
 		return new Buffer(this.buildFile()).toString('base64');
 	}
-
 
     /**
      * Get the data URI.

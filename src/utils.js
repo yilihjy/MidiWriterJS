@@ -45,7 +45,6 @@ class Utils {
  		return Constants.NOTES[pitch];
      }
 
-
 	/**
 	 * Translates number of ticks to MIDI timestamp format, returning an array of
 	 * hex strings with the time values. Midi has a very particular time to express time,
@@ -103,7 +102,6 @@ class Utils {
 
 		return parseInt(hex, 16);
 	}
-
 
 	/**
 	 * Takes a number and splits it up into an array of bytes.  Can be padded by passing a number to bytesNeeded
