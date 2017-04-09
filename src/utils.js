@@ -22,7 +22,7 @@ class Utils {
 
 	/**
 	 * Checks if argument is a valid number.
-	 * @param {mixed} n - Value to check
+	 * @param {*} n - Value to check
 	 * @return {boolean}
 	 */
 	static isNumeric(n) {
@@ -31,7 +31,7 @@ class Utils {
 
 	/**
      * Returns the correct MIDI number for the specified pitch.
-     * @param {string/number} pitch - 'C#4' or midi note code
+     * @param {(string|number)} pitch - 'C#4' or midi note code
      * @return {number}
      */
      static getPitch(pitch) {
