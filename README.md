@@ -67,7 +67,7 @@ The `NoteEvent` supports these options:
 		</tr>
 		<tr>
 			<td><b>duration</b></td>
-			<td>string</td>
+			<td>string or array</td>
 			<td>
 				How long the note should sound.
 				<ul>
@@ -82,6 +82,7 @@ The `NoteEvent` supports these options:
 					<li><code>16</code> : sixteenth</li>
 					<li><code>Tn</code> : where n is an explicit number of ticks</li>
 				</ul>
+				If an array of durations is passed then the sum of the durations will be used.
 			</td>
 		</tr>
 		<tr>
