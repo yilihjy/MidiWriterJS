@@ -3,9 +3,18 @@ var MidiWriter = require('..');
 
 describe('MidiWriterJS', function() {
 	describe('#NoteEvent()', function () {
+		describe('#getTickDuration()', function () {
+			it('should create a dotted half note if passed three quarter notes.', function () {
+				var track = new MidiWriter.Track(); // Need to instantiate to build note object
+				var note = new MidiWriter.NoteEvent({pitch: ['C4'], duration: ['4', '4', '4']});
+				track.addEvent(note);
+				var write = new MidiWriter.Writer([track]);
+				assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAADQCQPECDAIA8QAD/LwA=', write.base64());
+			});
+		});
+
 		describe('#getDurationMultiplier()', function () {
 			it('should return 1 for a quarter note.', function () {
-				var track = new MidiWriter.Track(); // Need to instantiate to build note object
 				var note = new MidiWriter.NoteEvent({pitch: ['C4'], duration: '4'});
 				assert.equal(note.getDurationMultiplier(note.duration), 1);
 			});

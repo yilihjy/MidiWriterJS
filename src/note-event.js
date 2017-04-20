@@ -107,11 +107,20 @@ class NoteEvent {
 	/**
 	 * Gets the total number of ticks based on passed duration.
 	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
-	 * @param {string} duration
+	 * @param {(string|array)} duration
 	 * @param {string} type ['note', 'rest']
 	 * @return {number}
 	 */
 	getTickDuration(duration, type) {
+		if (Array.isArray(duration)) {
+			// Recursively execute this method for each item in the array and return the sum of tick durations.
+			return duration.map(function(value) {
+				return this.getTickDuration(value, type);
+			}, this).reduce(function(a, b) {
+				return a + b;
+			}, 0);
+		}
+
 		duration = duration.toString();
 
 		if (duration.toLowerCase().charAt(0) === 't') {
