@@ -11,4 +11,4 @@ class ProgramChangeEvent {
 	}
 }
 
-exports.ProgramChangeEvent = ProgramChangeEvent;
+export {ProgramChangeEvent};

@@ -9,4 +9,4 @@ class NoteOffEvent {
 	}
 }
 
-exports.NoteOffEvent = NoteOffEvent;
+export {NoteOffEvent};

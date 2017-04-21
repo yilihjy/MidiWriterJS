@@ -190,4 +190,4 @@ class NoteEvent {
 	getNoteOffStatus() {return 128 + this.channel - 1}
 }
 
-exports.NoteEvent = NoteEvent;
+export {NoteEvent};

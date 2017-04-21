@@ -11,4 +11,4 @@ class Chunk {
 	}
 }
 
-exports.Chunk = Chunk;
+export {Chunk};

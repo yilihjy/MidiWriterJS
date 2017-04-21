@@ -43,4 +43,4 @@ var Constants = {
 	}
 })();
 
-exports.Constants = Constants;
+export {Constants};

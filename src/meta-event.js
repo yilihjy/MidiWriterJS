@@ -11,4 +11,4 @@ class MetaEvent {
 	}
 }
 
-exports.MetaEvent = MetaEvent;
+export {MetaEvent};

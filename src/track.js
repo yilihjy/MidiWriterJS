@@ -241,4 +241,4 @@ class Track {
 
 }
 
-exports.Track = Track;
+export {Track};

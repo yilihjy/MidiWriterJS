@@ -67,4 +67,4 @@ class VexFlow {
 	};
 }
 
-exports.VexFlow = VexFlow;
+export {VexFlow};

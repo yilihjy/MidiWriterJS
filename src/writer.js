@@ -72,4 +72,4 @@ class Writer {
 	}
 }
 
-exports.Writer = Writer;
+export {Writer};
