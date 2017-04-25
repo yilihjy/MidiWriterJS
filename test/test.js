@@ -84,6 +84,12 @@ describe('MidiWriterJS', function() {
 			});
 		});
 
+		describe('#getPitch()', function () {
+			it('should return 72 (C5) when "B#4" is passed.', function () {
+				assert.equal(72, MidiWriter.Utils.getPitch('B#4'));
+			});
+		});
+
 		describe('#stringByteCount()', function () {
 			it('should return 7 when "Garrett" is passed.', function () {
 				assert.equal(7, MidiWriter.Utils.stringByteCount('Garrett'));

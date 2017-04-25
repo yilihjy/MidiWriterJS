@@ -2,8 +2,9 @@
  * MIDI file format constants, including note -> MIDI number translation.
  * @return {Constants}
  */
+
 var Constants = {
-	VERSION					: '1.4.5',
+	VERSION					: '1.4.6',
 	HEADER_CHUNK_TYPE  		: [0x4d, 0x54, 0x68, 0x64], // Mthd
 	HEADER_CHUNK_LENGTH  	: [0x00, 0x00, 0x00, 0x06], // Header size for SMF
 	HEADER_CHUNK_FORMAT0    : [0x00, 0x00], // Midi Type 0 id
@@ -23,24 +24,7 @@ var Constants = {
 	META_TIME_SIGNATURE_ID	: 0x58,
 	META_KEY_SIGNATURE_ID	: 0x59,
 	META_END_OF_TRACK_ID	: [0x2F, 0x00],
-	/*NOTE_ON_STATUS			: 0x90, // includes channel number (0)*/
-	/*NOTE_OFF_STATUS			: 0x80, // includes channel number (0)*/
 	PROGRAM_CHANGE_STATUS	: 0xC0, // includes channel number (0)
-	NOTES					: {}
 };
-
-(function() {
-	// Builds notes object for reference against binary values.
-	var allNotes = [['C','B#'], ['C#','Db'], ['D'], ['D#','Eb'], ['E','Fb'],['F','E#'], ['F#','Gb'], ['G'], ['G#','Ab'], ['A'], ['A#','Bb'], ['B','Cb']];
-	var counter = 0;
-
-	// All available octaves.
-	for (var i = -1; i <= 9; i++) {
-		allNotes.forEach(function(noteGroup) {
-			noteGroup.forEach(function(note) {Constants.NOTES[note + i] = counter});
-			counter ++;
-		});
-	}
-})();
 
 export {Constants};

@@ -1,3 +1,5 @@
+import {toMidi} from 'tonal-midi';
+
 /**
  * Static utility functions used throughout the library.
  */
@@ -31,18 +33,12 @@ class Utils {
 
 	/**
      * Returns the correct MIDI number for the specified pitch.
+     * Uses Tonal Midi - https://github.com/danigb/tonal/tree/master/packages/midi
      * @param {(string|number)} pitch - 'C#4' or midi note code
      * @return {number}
      */
      static getPitch(pitch) {
-     	if (this.isNumeric(pitch)) {
-     		if (pitch >= 0 && pitch <= 127) console.error(pitch + ' is not within MIDI note range (0-127).');
-     		return pitch;
-     	}
-
- 		// Change letter to uppercase
- 		pitch = pitch.charAt(0).toUpperCase() + pitch.substring(1);
- 		return Constants.NOTES[pitch];
+     	return toMidi(pitch);
      }
 
 	/**
