@@ -6,11 +6,14 @@
     "Garrett Grimm"
   ],
   "description": "A library providing an API for generating MIDI files.",
-  "main": "build/index.js",
+  "main": "build/browser/index.js",
   "moduleType": [
     "globals",
     "node"
   ],
+  "dependencies": {
+    "tonal-midi": "^0.69.5"
+  },
   "keywords": [
     "midi",
     "generator",
@@ -22,6 +25,8 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "docs",
+    "src"
   ]
 }
