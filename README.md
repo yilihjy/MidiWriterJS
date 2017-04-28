@@ -41,6 +41,7 @@ Documentation
 - `setTempo(tempo)`
 - `addText(text)`
 - `addCopyright(text)`
+- `addTrackName(text)`
 - `addInstrumentName(text)`
 - `addMarker(text)`
 - `addCuePoint(text)`

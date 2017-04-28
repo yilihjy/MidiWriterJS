@@ -179,6 +179,19 @@ class Track {
 	}
 
 	/**
+	 * Adds Sequence/Track Name.
+	 * @param {string} text - Text of track name.
+	 * @return {Track}
+	 */
+	addTrackName(text) {
+		var event = new MetaEvent({data: [Constants.META_TRACK_NAME_ID]});
+		var stringBytes = Utils.stringToBytes(text);
+		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
+		event.data = event.data.concat(stringBytes); // Text
+		return this.addEvent(event);
+	}
+
+	/**
 	 * Sets instrument name of track.
 	 * @param {string} text - Name of instrument.
 	 * @return {Track}
