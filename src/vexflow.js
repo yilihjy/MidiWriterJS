@@ -13,11 +13,11 @@ class VexFlow {
 		var wait;
 		var pitches = [];
 
-		voice.tickables.forEach(function(tickable, i) {
+		voice.tickables.forEach(function(tickable) {
 			pitches = [];
 
 			if (tickable.noteType === 'n') {
-				notes[i].keys.forEach(function(key) {
+				tickable.keys.forEach(function(key) {
 					// build array of pitches
 					pitches.push(this.convertPitch(key));
 				});
@@ -28,7 +28,7 @@ class VexFlow {
 				return;
 			}
 
-			track.addEvent(new NoteEvent({pitch: pitches, duration: this.convertDuration(voice.tickables[i]), wait: wait}));
+			track.addEvent(new NoteEvent({pitch: pitches, duration: this.convertDuration(tickable), wait: wait}));
 			
 			// reset wait
 			wait = 0;
