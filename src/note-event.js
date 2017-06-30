@@ -165,6 +165,10 @@ class NoteEvent {
 				return 0.75;
 			case '16':
 				return 0.25;
+			case '32':
+				return 0.125;
+			case '64':
+				return 0.0625;
 			default:
 				// Notes default to a quarter, rests default to 0
 				//return type === 'note' ? 1 : 0;

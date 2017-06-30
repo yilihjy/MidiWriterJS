@@ -81,6 +81,8 @@ The `NoteEvent` supports these options:
 					<li><code>8t</code> : eighth triplet</li>
 					<li><code>d8</code> : dotted eighth</li>
 					<li><code>16</code> : sixteenth</li>
+					<li><code>32</code> : thirty-second</li>
+					<li><code>64</code> : sixty-fourth second</li>
 					<li><code>Tn</code> : where n is an explicit number of ticks</li>
 				</ul>
 				If an array of durations is passed then the sum of the durations will be used.
@@ -88,7 +90,7 @@ The `NoteEvent` supports these options:
 		</tr>
 		<tr>
 			<td><b>wait</b></td>
-			<td>string</td>
+			<td>string or array</td>
 			<td>How long to wait before sounding note (rest).  Takes same values as <b>duration</b>.</td>
 		</tr>
 		<tr>
