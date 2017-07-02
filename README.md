@@ -76,11 +76,13 @@ The `NoteEvent` supports these options:
 					<li><code>2</code>  : half</li>
 					<li><code>d2</code> : dotted half</li>
 					<li><code>4</code>  : quarter</li>
+					<li><code>4t</code>  : quarter triplet</li>
 					<li><code>d4</code> : dotted quarter</li>
 					<li><code>8</code>  : eighth</li>
 					<li><code>8t</code> : eighth triplet</li>
 					<li><code>d8</code> : dotted eighth</li>
 					<li><code>16</code> : sixteenth</li>
+					<li><code>16t</code> : sixteenth triplet</li>
 					<li><code>32</code> : thirty-second</li>
 					<li><code>64</code> : sixty-fourth</li>
 					<li><code>Tn</code> : where n is an explicit number of ticks</li>

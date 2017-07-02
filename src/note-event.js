@@ -154,6 +154,8 @@ class NoteEvent {
 				return 3;
 			case '4':
 				return 1;
+			case '4t':
+				return 0.666;
 			case 'd4':
 				return 1.5;
 			case '8':
@@ -165,6 +167,8 @@ class NoteEvent {
 				return 0.75;
 			case '16':
 				return 0.25;
+			case '16t':
+				return 0.166;
 			case '32':
 				return 0.125;
 			case '64':
