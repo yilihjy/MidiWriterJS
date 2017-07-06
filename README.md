@@ -115,6 +115,11 @@ The `NoteEvent` supports these options:
 			<td>number</td>
 			<td>MIDI channel to use. Default: <code>1</code></td>
 		</tr>
+		<tr>
+			<td><b>grace</b></td>
+			<td>string or array</td>
+			<td>Grace note to be applied to note event.  Takes same value format as <code>pitch</code></td>
+		</tr>
 	</tbody>
 </table>
 
