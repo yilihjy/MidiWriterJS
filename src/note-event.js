@@ -6,7 +6,7 @@
 class NoteEvent {
 	constructor(fields) {
 		this.type 		= 'note';
-		this.pitch 		= fields.pitch;
+		this.pitch 		= Utils.toArray(fields.pitch);
 		this.wait 		= fields.wait || 0;
 		this.duration 	= fields.duration;
 		this.sequential = fields.sequential || false;
@@ -14,6 +14,7 @@ class NoteEvent {
 		this.channel 	= fields.channel || 1;
 		this.repeat 	= fields.repeat || 1;
 		this.velocity 	= this.convertVelocity(this.velocity);
+		this.grace		= fields.grace;
 		this.buildData();
 	}
 
@@ -26,6 +27,17 @@ class NoteEvent {
 
 		var tickDuration = this.getTickDuration(this.duration, 'note');
 		var restDuration = this.getTickDuration(this.wait, 'rest');
+
+		// Apply grace note(s) and subtract ticks (currently 10 per grace note) from tickDuration so net value is the same
+		if (this.grace) {
+			this.grace = Utils.toArray(this.grace);
+			this.grace.forEach(function(pitch) {
+				let noteEvent = new NoteEvent({pitch:this.grace, duration:'T10'});
+				this.data = this.data.concat(noteEvent.data)
+
+				tickDuration -= 10;
+			}, this);
+		}
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.

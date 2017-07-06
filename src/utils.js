@@ -129,6 +129,16 @@ class Utils {
 
 		return hexArray;
 	}
+
+	/**	
+	 * Converts value to array if needed.
+	 * @param {string} value
+	 * @return {array}
+	 */
+	static toArray(value) {
+		if (Array.isArray(value)) return value;
+		return [value];
+	}
 }
 
 export {Utils};
