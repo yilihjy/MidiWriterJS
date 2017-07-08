@@ -30,12 +30,13 @@ class NoteEvent {
 
 		// Apply grace note(s) and subtract ticks (currently 10 per grace note) from tickDuration so net value is the same
 		if (this.grace) {
+			let graceDuration = 1;
 			this.grace = Utils.toArray(this.grace);
 			this.grace.forEach(function(pitch) {
-				let noteEvent = new NoteEvent({pitch:this.grace, duration:'T10'});
+				let noteEvent = new NoteEvent({pitch:this.grace, duration:'T' + graceDuration});
 				this.data = this.data.concat(noteEvent.data)
 
-				tickDuration -= 10;
+				tickDuration -= graceDuration;
 			}, this);
 		}
 
