@@ -28,7 +28,7 @@ class NoteEvent {
 		var tickDuration = this.getTickDuration(this.duration, 'note');
 		var restDuration = this.getTickDuration(this.wait, 'rest');
 
-		// Apply grace note(s) and subtract ticks (currently 10 per grace note) from tickDuration so net value is the same
+		// Apply grace note(s) and subtract ticks (currently 1 tick per grace note) from tickDuration so net value is the same
 		if (this.grace) {
 			let graceDuration = 1;
 			this.grace = Utils.toArray(this.grace);
