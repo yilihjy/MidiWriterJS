@@ -1,6 +1,6 @@
 {
   "name": "midi-writer-js",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A library providing an API for generating MIDI files.",
   "main": "build/index.js",
   "dependencies": {
@@ -21,7 +21,7 @@
   "scripts": {
     "pretest": "npm run build",
     "test": "mocha",
-    "build": "mkdir -p build/browser && babel src --out-file build/index.js && uglifyjs build/index.js -m > build/index.min.js && npm run browser && ls -l build/",
+    "build": "mkdir -p build/browser && cat src/*.js > build/index.js && babel build/index.js -o build/index.js && uglifyjs build/index.js -m > build/index.min.js && npm run browser && ls -l build/",
     "browser": "browserify -r ./build/index.js:MidiWriter > ./build/browser/index.js && uglifyjs ./build/browser/index.js -m > ./build/browser/index.min.js",
     "docs": "./node_modules/.bin/jsdoc -d ./docs src -t ./node_modules/minami"
   },
