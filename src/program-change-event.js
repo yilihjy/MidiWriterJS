@@ -1,7 +1,7 @@
 /**
  * Holds all data for a "program change" MIDI event
- * @param {object} fields {type: string, data: []}
- * @return {NoteOffEvent}
+ * @param {object} fields {instrument: integer}
+ * @return {ProgramChangeEvent}
  */
 class ProgramChangeEvent {
 	constructor(fields) {
