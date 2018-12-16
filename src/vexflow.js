@@ -13,11 +13,11 @@ class VexFlow {
 		var wait;
 		var pitches = [];
 
-		voice.tickables.forEach(function(tickable) {
+		voice.tickables.forEach(tickable => {
 			pitches = [];
 
 			if (tickable.noteType === 'n') {
-				tickable.keys.forEach(function(key) {
+				tickable.keys.forEach(key => {
 					// build array of pitches
 					pitches.push(this.convertPitch(key));
 				});
