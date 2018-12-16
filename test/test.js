@@ -110,4 +110,54 @@ describe('MidiWriterJS', function() {
 
 	});
 
+	describe('#VexFlow()', function () {
+		it('should instantiate', function() {
+			var v = new MidiWriter.VexFlow();
+			assert.notEqual(typeof v, 'undefined');
+			assert.equal(v instanceof MidiWriter.VexFlow, true);
+		});
+
+		it('should trackFromVoice', function() {
+			var v = new MidiWriter.VexFlow();
+			var mockVoice = {
+				tickables: []
+			}
+			var track = v.trackFromVoice(mockVoice);
+			assert.notEqual(typeof track, 'undefined');
+			assert.equal(track instanceof MidiWriter.Track, true);
+		});
+
+		it('should convertPitch', function() {
+			var v = new MidiWriter.VexFlow();
+			var p = 'pit/ch';
+			p = v.convertPitch(p);
+			assert.equal(p, 'pitch');
+		});
+
+		it('should convertDuration', function () {
+			var v = new MidiWriter.VexFlow();
+			var mockNote = {
+				duration: 'w',
+				isDotted: () => true,
+			}
+			assert.equal(v.convertDuration(mockNote), '1');
+			mockNote.duration = 'h';
+			assert.equal(v.convertDuration(mockNote), 'd2');
+			mockNote.duration = 'q';
+			assert.equal(v.convertDuration(mockNote), 'd4');
+			mockNote.duration = '8';
+			assert.equal(v.convertDuration(mockNote), 'd8');
+			mockNote.isDotted = () => false;
+			mockNote.duration = 'h';
+			assert.equal(v.convertDuration(mockNote), '2');
+			mockNote.duration = 'q';
+			assert.equal(v.convertDuration(mockNote), '4');
+			mockNote.duration = '8';
+			assert.equal(v.convertDuration(mockNote), '8');
+
+			mockNote.duration = 'some stuff'
+			assert.equal(v.convertDuration(mockNote), 'some stuff');
+		})
+	})
+
 });
