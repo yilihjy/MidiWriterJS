@@ -163,7 +163,8 @@ MidiWriterJS can export MIDI from VexFlow voices, though this feature is still e
 // ...VexFlow code defining notes
 var voice = create_4_4_voice().addTickables(notes);
 
-var track = MidiWriter.VexFlow.trackFromVoice(voice);
+var vexWriter = new MidiWriter.VexFlow();
+var track = vexWriter.trackFromVoice(voice);
 var writer = new MidiWriter.Writer([track]);
 console.log(writer.dataUri());
 ```
