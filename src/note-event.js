@@ -1,3 +1,8 @@
+import {Constants} from './constants';
+import {NoteOnEvent} from './note-on-event';
+import {NoteOffEvent} from './note-off-event';
+import {Utils} from './utils';
+
 /**
  * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.
  * @param {object} fields - {pitch: '[C4]', duration: '4', wait: '4', velocity: 1-100}

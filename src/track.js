@@ -1,3 +1,8 @@
+import {Constants} from './constants';
+import {MetaEvent} from './meta-event';
+import {NoteOnEvent} from './note-on-event';
+import {Utils} from './utils';
+
 /**
  * Holds all data for a track.
  * @param {object} fields {type: number, data: array, size: array, events: array}

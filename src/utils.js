@@ -1,3 +1,4 @@
+import {Constants} from './constants';
 import {toMidi} from 'tonal-midi';
 
 /**

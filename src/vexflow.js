@@ -1,3 +1,6 @@
+import {NoteEvent} from './note-event';
+import {Track} from './track';
+
 class VexFlow {
 	
 	constructor() {
