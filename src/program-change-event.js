@@ -1,3 +1,6 @@
+import {Constants} from './constants';
+import {Utils} from './utils';
+
 /**
  * Holds all data for a "program change" MIDI event
  * @param {object} fields {instrument: integer}

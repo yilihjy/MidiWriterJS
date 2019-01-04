@@ -1,3 +1,5 @@
+import {Constants} from './constants';
+
 /**
  * Holds all data for a "controller change" MIDI event
  * @param {object} fields {controllerNumber: integer, controllerValue: integer}

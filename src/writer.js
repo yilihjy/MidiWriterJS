@@ -1,3 +1,8 @@
+import {Chunk} from './chunk';
+import {Constants} from './constants';
+import {MetaEvent} from './meta-event';
+import {Utils} from './utils';
+
 /**
  * Object that puts together tracks and provides methods for file output.
  * @param {array} tracks - An array of {Track} objects.
