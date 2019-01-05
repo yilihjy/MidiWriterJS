@@ -14,6 +14,7 @@ class Track {
 		this.data = [];
 		this.size = [];
 		this.events = [];
+		this.tickDuration = 0; // Each time an event is added this will increase
 	}
 
 	/**
@@ -44,23 +45,38 @@ class Track {
 							}
 						}		
 
-						// Gotta build that data
+						// Gotta rebuild that data
 						e.buildData();
 					}
 				}
 
-				this.data = this.data.concat(e.data);
-				this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 				this.events.push(e);
+
+				// Add to total tick duration
+				if (e.type === 'note') this.tickDuration += e.restDuration + e.tickDuration;
+				
 			}, this);
 
 		} else {
-			this.data = this.data.concat(event.data);
-			this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 			this.events.push(event);
+
+			// Add to total tick duration
+			if (event.type === 'note') this.tickDuration += event.restDuration + event.tickDuration;
 		}
 
 		return this;
+	}
+
+	/**
+	 * Builds int array of all events.
+	 * @return {Track}
+	 */
+	buildData() {
+		this.events.forEach(function(event, i) {
+			this.data = this.data.concat(event.data);
+		}.bind(this));
+
+		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 	}
 
 	/**

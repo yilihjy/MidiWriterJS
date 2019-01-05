@@ -20,6 +20,9 @@ class NoteEvent {
 		this.repeat 	= fields.repeat || 1;
 		this.velocity 	= this.convertVelocity(this.velocity);
 		this.grace		= fields.grace;
+		this.startTick	= fields.startTick;
+		this.tickDuration = this.getTickDuration(this.duration, 'note');
+		this.restDuration = this.getTickDuration(this.wait, 'rest');
 		this.buildData();
 	}
 
@@ -30,8 +33,8 @@ class NoteEvent {
 	buildData() {
 		this.data = [];
 
-		var tickDuration = this.getTickDuration(this.duration, 'note');
-		var restDuration = this.getTickDuration(this.wait, 'rest');
+		var tickDuration = this.tickDuration;
+		var restDuration = this.restDuration;
 
 		// Apply grace note(s) and subtract ticks (currently 1 tick per grace note) from tickDuration so net value is the same
 		if (this.grace) {

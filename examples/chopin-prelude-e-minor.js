@@ -1,8 +1,4 @@
-//var MidiWriter = require('..');
-
-// From browser
-var MidiWriter = require('MidiWriter');
-
+var MidiWriter = require('..');
 
 var tracks = [];
 tracks[0] = new MidiWriter.Track();
