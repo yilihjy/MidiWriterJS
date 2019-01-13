@@ -10,6 +10,7 @@ import {Utils} from './utils';
  */
 class NoteEvent {
 	constructor(fields) {
+		this.data 		= [];
 		this.type 		= 'note';
 		this.pitch 		= Utils.toArray(fields.pitch);
 		this.wait 		= fields.wait || 0;
@@ -18,12 +19,13 @@ class NoteEvent {
 		this.velocity 	= fields.velocity || 50;
 		this.channel 	= fields.channel || 1;
 		this.repeat 	= fields.repeat || 1;
-		this.velocity 	= this.convertVelocity(this.velocity);
 		this.grace		= fields.grace;
 		this.startTick	= fields.startTick;
-		this.tickDuration = this.getTickDuration(this.duration, 'note');
-		this.restDuration = this.getTickDuration(this.wait, 'rest');
-		this.buildData();
+		this.tickDuration = Utils.getTickDuration(this.duration);
+		this.restDuration = Utils.getTickDuration(this.wait);
+
+		this.events 	= []; // Hold actual NoteOn/NoteOff events
+		//this.buildData();
 	}
 
 	/**
@@ -31,6 +33,7 @@ class NoteEvent {
 	 * @return {NoteEvent}
 	 */
 	buildData() {
+		// Reset data array
 		this.data = [];
 
 		var tickDuration = this.tickDuration;
@@ -59,27 +62,49 @@ class NoteEvent {
 				// Note on
 				this.pitch.forEach((p, i) => {
 					if (i == 0) {
-						noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), Utils.getPitch(p), this.velocity)});
+						//noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity))});
+						var noteOnNew = new NoteOnEvent({
+													wait: this.wait,
+													velocity: this.velocity,
+													pitch: p
+						});
 
 					} else {
 						// Running status (can ommit the note on status)
-						noteOn = new NoteOnEvent({data: [0, Utils.getPitch(p), this.velocity]});
+						//noteOn = new NoteOnEvent({data: [0, Utils.getPitch(p), Utils.convertVelocity(this.velocity)]});
+						var noteOnNew = new NoteOnEvent({
+													wait: 0,
+													velocity: this.velocity,
+													pitch: p
+						});
 					}
 
-					this.data = this.data.concat(noteOn.data);
+					this.events.push(noteOnNew);
+					//this.data = this.data.concat(noteOn.data);
 				});
 
 				// Note off
 				this.pitch.forEach((p, i) => {
 					if (i == 0) {
-						noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), this.velocity)});
+						//noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity))});
+						var noteOffNew = new NoteOffEvent({
+													duration: this.duration,
+													velocity: this.velocity,
+													pitch: p
+						});
 
 					} else {
 						// Running status (can ommit the note off status)
-						noteOff = new NoteOffEvent({data: [0, Utils.getPitch(p), this.velocity]});
+						//noteOff = new NoteOffEvent({data: [0, Utils.getPitch(p), Utils.convertVelocity(this.velocity)]});
+						var noteOffNew = new NoteOffEvent({
+													duration: 0,
+													velocity: this.velocity,
+													pitch: p
+						});
 					}
 
-					this.data = this.data.concat(noteOff.data);
+					this.events.push(noteOffNew);
+					//this.data = this.data.concat(noteOff.data);
 				});
 			}
 
@@ -99,103 +124,28 @@ class NoteEvent {
 						tickDuration = quarterTicks - (tickDuration * 2);
 					}
 
-					noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), Utils.getPitch(p), this.velocity])});
-					noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), Utils.getPitch(p), this.velocity])});
+					//noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity)])});
+					//noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity)])});
 
-					this.data = this.data.concat(noteOn.data, noteOff.data);
+					var noteOnNew = new NoteOnEvent({
+													wait: (i > 0 ? 0 : this.wait), // wait only applies to first note in repetition
+													velocity: this.velocity,
+													pitch: p
+					});
+
+					var noteOffNew = new NoteOffEvent({
+													duration: this.duration,
+													velocity: this.velocity,
+													pitch: p
+					});
+
+					this.events.push(noteOnNew, noteOffNew);
+					//this.data = this.data.concat(noteOn.data, noteOff.data);
 				});
 			}
 		}
 
 		return this;
-	};
-
-	/**
-	 * Converts velocity to value 0-127
-	 * @param {number} velocity - Velocity value 1-100
-	 * @return {number}
-	 */
-	convertVelocity(velocity) {
-		// Max passed value limited to 100
-		velocity = velocity > 100 ? 100 : velocity;
-		return Math.round(velocity / 100 * 127);
-	};
-
-	/**
-	 * Gets the total number of ticks based on passed duration.
-	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
-	 * @param {(string|array)} duration
-	 * @param {string} type ['note', 'rest']
-	 * @return {number}
-	 */
-	getTickDuration(duration, type) {
-		if (Array.isArray(duration)) {
-			// Recursively execute this method for each item in the array and return the sum of tick durations.
-			return duration.map(function(value) {
-				return this.getTickDuration(value, type);
-			}, this).reduce(function(a, b) {
-				return a + b;
-			}, 0);
-		}
-
-		duration = duration.toString();
-
-		if (duration.toLowerCase().charAt(0) === 't') {
-			// If duration starts with 't' then the number that follows is an explicit tick count
-			return parseInt(duration.substring(1));
-		}
-
-		// Need to apply duration here.  Quarter note == Constants.HEADER_CHUNK_DIVISION
-		// Rounding only applies to triplets, which the remainder is handled below
-		var quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
-		return Math.round(quarterTicks * this.getDurationMultiplier(duration, type));
-	}
-
-	/**
-	 * Gets what to multiple ticks/quarter note by to get the specified duration.
-	 * Note: type=='note' defaults to quarter note, type==='rest' defaults to 0
-	 * @param {string} duration
-	 * @param {string} type ['note','rest']
-	 * @return {number}
-	 */
-	getDurationMultiplier(duration, type) {
-		// Need to apply duration here.  Quarter note == Constants.HEADER_CHUNK_DIVISION
-		switch (duration) {
-			case '0':
-				return 0;
-			case '1':
-				return 4;
-			case '2':
-				return 2;
-			case 'd2':
-				return 3;
-			case '4':
-				return 1;
-			case '4t':
-				return 0.666;
-			case 'd4':
-				return 1.5;
-			case '8':
-				return 0.5;
-			case '8t':
-				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
-				return 0.33;
-			case 'd8':
-				return 0.75;
-			case '16':
-				return 0.25;
-			case '16t':
-				return 0.166;
-			case '32':
-				return 0.125;
-			case '64':
-				return 0.0625;
-			default:
-				// Notes default to a quarter, rests default to 0
-				//return type === 'note' ? 1 : 0;
-		}
-
-		throw duration + ' is not a valid duration.';
 	};
 
 	/**

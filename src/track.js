@@ -40,18 +40,18 @@ class Track {
 									e.sequential = properties[j];
 									break;
 								case 'velocity':
-									e.velocity = e.convertVelocity(properties[j]);
+									e.velocity = Utils.convertVelocity(properties[j]);
 									break;
 							}
 						}		
 
 						// Gotta rebuild that data
-						e.buildData();
+						//e.buildData();
 					}
 				}
 
 				this.events.push(e);
-			}, this);
+			});
 
 		} else {
 			this.events.push(event);
@@ -65,20 +65,30 @@ class Track {
 	 * @return {Track}
 	 */
 	buildData() {
-		// First determine and assign startTick for each note event
-
-		// Then build the track data based on events in order of startTick
-
-
 		this.events.forEach((event, i) => {
-			console.log(event);
-			this.data = this.data.concat(event.data);
-			// Add to total tick duration
-			if (event.type === 'note') this.tickDuration += event.restDuration + event.tickDuration;
-		});
+			//console.log(event);
+			// Build event & add to total tick duration
+			if (event.type === 'note') {
+				// Pass previous event to buildData
+				event.buildData();
 
+				event.events.forEach((e) => {
+					//console.log(e.buildData().data)
+					this.data = this.data.concat(e.buildData().data);
+				});
+
+				this.tickDuration += event.restDuration + event.tickDuration;
+				//this.data = this.data.concat(event.data);
+
+			} else {
+				this.data = this.data.concat(event.data);
+			}
+
+			
+		});
+		//console.log(this.data);
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
-		console.log(this.tickDuration);
+		//console.log('tick duration:' + this.tickDuration);
 	}
 
 	/**
