@@ -81,78 +81,74 @@ class NoteEvent {
 		if (this.grace) {
 			let graceDuration = 1;
 			this.grace = Utils.toArray(this.grace);
-			this.grace.forEach(function(pitch) {
+			this.grace.forEach((pitch) => {
 				let noteEvent = new NoteEvent({pitch:this.grace, duration:'T' + graceDuration});
 				this.data = this.data.concat(noteEvent.data)
 
 				tickDuration -= graceDuration;
-			}, this);
+			});
 		}
 
 		// fields.pitch could be an array of pitches.
 		// If so create note events for each and apply the same duration.
 		var noteOn, noteOff;
-		if (Array.isArray(this.pitch)) {
-			// By default this is a chord if it's an array of notes that requires one NoteOnEvent.
-			// If this.sequential === true then it's a sequential string of notes that requires separate NoteOnEvents.
-			if ( ! this.sequential) {
-				// Handle repeat
-				for (var j = 0; j &lt; this.repeat; j++) {
-					// Note on
-					this.pitch.forEach(function(p, i) {
-						if (i == 0) {
-							noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), Utils.getPitch(p), this.velocity)});
+		// By default this is a chord if it's an array of notes that requires one NoteOnEvent.
+		// If this.sequential === true then it's a sequential string of notes that requires separate NoteOnEvents.
+		if ( ! this.sequential) {
+			// Handle repeat
+			for (var j = 0; j &lt; this.repeat; j++) {
+				// Note on
+				this.pitch.forEach((p, i) => {
+					if (i == 0) {
+						noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), Utils.getPitch(p), this.velocity)});
 
-						} else {
-							// Running status (can ommit the note on status)
-							noteOn = new NoteOnEvent({data: [0, Utils.getPitch(p), this.velocity]});
-						}
+					} else {
+						// Running status (can ommit the note on status)
+						noteOn = new NoteOnEvent({data: [0, Utils.getPitch(p), this.velocity]});
+					}
 
-						this.data = this.data.concat(noteOn.data);
-					}, this);
+					this.data = this.data.concat(noteOn.data);
+				});
 
-					// Note off
-					this.pitch.forEach(function(p, i) {
-						if (i == 0) {
-							noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), this.velocity)});
+				// Note off
+				this.pitch.forEach((p, i) => {
+					if (i == 0) {
+						noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), this.velocity)});
 
-						} else {
-							// Running status (can ommit the note off status)
-							noteOff = new NoteOffEvent({data: [0, Utils.getPitch(p), this.velocity]});
-						}
+					} else {
+						// Running status (can ommit the note off status)
+						noteOff = new NoteOffEvent({data: [0, Utils.getPitch(p), this.velocity]});
+					}
 
-						this.data = this.data.concat(noteOff.data);
-					}, this);
-				}
-
-			} else {
-				// Handle repeat
-				for (var j = 0; j &lt; this.repeat; j++) {
-					this.pitch.forEach(function(p, i) {
-						// restDuration only applies to first note
-						if (i > 0) {
-							restDuration = 0;
-						}
-
-						// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
-						// So, the last one will need to be the remainder
-						if (this.duration === '8t' &amp;&amp; i == this.pitch.length - 1) {
-							let quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
-							tickDuration = quarterTicks - (tickDuration * 2);
-						}
-
-						noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), Utils.getPitch(p), this.velocity])});
-						noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), Utils.getPitch(p), this.velocity])});
-
-						this.data = this.data.concat(noteOn.data, noteOff.data);
-					}, this);
-				}
+					this.data = this.data.concat(noteOff.data);
+				});
 			}
 
-			return this;
+		} else {
+			// Handle repeat
+			for (var j = 0; j &lt; this.repeat; j++) {
+				this.pitch.forEach((p, i) => {
+					// restDuration only applies to first note
+					if (i > 0) {
+						restDuration = 0;
+					}
+
+					// If duration is 8th triplets we need to make sure that the total ticks == quarter note.
+					// So, the last one will need to be the remainder
+					if (this.duration === '8t' &amp;&amp; i == this.pitch.length - 1) {
+						let quarterTicks = Utils.numberFromBytes(Constants.HEADER_CHUNK_DIVISION);
+						tickDuration = quarterTicks - (tickDuration * 2);
+					}
+
+					noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), Utils.getPitch(p), this.velocity])});
+					noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), Utils.getPitch(p), this.velocity])});
+
+					this.data = this.data.concat(noteOn.data, noteOff.data);
+				});
+			}
 		}
 
-		throw 'pitch must be an array.';
+		return this;
 	};
 
 	/**
@@ -273,7 +269,7 @@ export {NoteEvent};
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 04 2019 21:48:53 GMT-0800 (PST) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Jan 12 2019 17:44:40 GMT-0800 (PST) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>

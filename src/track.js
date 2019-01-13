@@ -25,7 +25,7 @@ class Track {
 	 */
 	addEvent(event, mapFunction) {
 		if (Array.isArray(event)) {
-			event.forEach(function(e, i) {
+			event.forEach((e, i) => {
 				// Handle map function if provided
 				if (typeof mapFunction === 'function' && e.type === 'note') {
 					var properties = mapFunction(i, e);
@@ -51,17 +51,10 @@ class Track {
 				}
 
 				this.events.push(e);
-
-				// Add to total tick duration
-				if (e.type === 'note') this.tickDuration += e.restDuration + e.tickDuration;
-				
 			}, this);
 
 		} else {
 			this.events.push(event);
-
-			// Add to total tick duration
-			if (event.type === 'note') this.tickDuration += event.restDuration + event.tickDuration;
 		}
 
 		return this;
@@ -72,11 +65,20 @@ class Track {
 	 * @return {Track}
 	 */
 	buildData() {
-		this.events.forEach(function(event, i) {
+		// First determine and assign startTick for each note event
+
+		// Then build the track data based on events in order of startTick
+
+
+		this.events.forEach((event, i) => {
+			console.log(event);
 			this.data = this.data.concat(event.data);
-		}.bind(this));
+			// Add to total tick duration
+			if (event.type === 'note') this.tickDuration += event.restDuration + event.tickDuration;
+		});
 
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
+		console.log(this.tickDuration);
 	}
 
 	/**

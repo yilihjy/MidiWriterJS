@@ -21,7 +21,7 @@ class Writer {
 								data: trackType.concat(numberOfTracks, Constants.HEADER_CHUNK_DIVISION)}));
 
 		// For each track add final end of track event and build data
-		tracks.forEach(function(track, i) {
+		tracks.forEach((track, i) => {
 			track.addEvent(new MetaEvent({data: Constants.META_END_OF_TRACK_ID})).buildData();
 			this.data.push(track);
 		}, this);

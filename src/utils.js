@@ -88,7 +88,7 @@ class Utils {
 		var hex = '';
 		var stringResult;
 
-		bytes.forEach(function(byte) {
+		bytes.forEach((byte) => {
 			stringResult = byte.toString(16);
 
 			// ensure string is 2 chars
