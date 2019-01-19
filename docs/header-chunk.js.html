@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ProgramChangeEvent - Documentation</title>
+    <title>header-chunk.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,206 +29,43 @@
 
 <div id="main">
     
-    <h1 class="page-title">ProgramChangeEvent</h1>
+    <h1 class="page-title">header-chunk.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        ProgramChangeEvent
-        </h2>
-        
-            <div class="class-description">Holds all data for a "program change" MIDI event</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="ProgramChangeEvent"><span class="type-signature"></span>new ProgramChangeEvent<span class="signature">(fields)</span><span class="type-signature"> &rarr; {<a href="ProgramChangeEvent.html">ProgramChangeEvent</a>}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="program-change-event.js.html">program-change-event.js</a>, <a href="program-change-event.js.html#line9">line 9</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>fields</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>object</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                {instrument: integer}
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="ProgramChangeEvent.html">ProgramChangeEvent</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Constants} from './constants';
+import {Utils} from './utils';
+
+/**
+ * Object representation of a header chunk section of a MIDI file.
+ * @param {number} numberOfTracks - Number of tracks
+ * @return {HeaderChunk}
+ */
+class HeaderChunk {
+	constructor(numberOfTracks) {
+		this.type = Constants.HEADER_CHUNK_TYPE;
+
+		const trackType = numberOfTracks > 1 ? Constants.HEADER_CHUNK_FORMAT1 : Constants.HEADER_CHUNK_FORMAT0;
+
+		this.data = trackType.concat(
+					Utils.numberToBytes(numberOfTracks, 2), // two bytes long,
+					Constants.HEADER_CHUNK_DIVISION
+		);
+
+		this.size = [0, 0, 0, this.data.length];
+	}
+}
+
+export {HeaderChunk};
+</code></pre>
+        </article>
+    </section>
 
 
 

@@ -9,7 +9,8 @@ export default {
   external: ['tonal-midi'],
   plugins: [
     babel({
-      exclude: 'node_modules/**' // only transpile our source code
+      exclude: 'node_modules/**', // only transpile our source code
+      plugins: ['@babel/plugin-transform-destructuring']
     })
   ]
 };

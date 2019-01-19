@@ -7,25 +7,43 @@ import {Utils} from './utils';
  */
 class NoteOnEvent {
 	constructor(fields) {
+		this.type 		= 'note-on';
 		this.channel 	= fields.channel || 1;
 		this.pitch 		= fields.pitch;
 		this.wait 		= fields.wait || 0;
 		this.velocity 	= fields.velocity || 50;
+		this.startTick 	= fields.startTick || null;
+
+		this.midiNumber = Utils.getPitch(this.pitch);
+		this.tick 		= null;
+		this.delta 		= null;
 		this.data 		= fields.data;
-		if (this.pitch) {
-			this.buildData();
-		}
 	}
 
 	/**
 	 * Builds int array for this event.
 	 * @return {NoteOnEvent}
 	 */
-	buildData() {
-		this.data = Utils.numberToVariableLength(Utils.getTickDuration(this.wait))
+	buildData(previousEvent) {
+		this.data = [];
+		//console.log("\nprevious:", previousEvent);
+		this.delta = Utils.getTickDuration(this.wait);
+
+		if (this.startTick) {
+			this.tick = this.startTick;
+
+		} else if (previousEvent) {
+			// Get startTick based on wait and startTick of previous event.
+			this.tick = previousEvent.tick + this.delta;
+
+		} else {
+			this.tick = this.delta;
+		}
+
+		this.data = Utils.numberToVariableLength(this.delta)
 					.concat(
 							this.getStatusByte(),
-							Utils.getPitch(this.pitch),
+							this.midiNumber,
 							Utils.convertVelocity(this.velocity)
 					);
 

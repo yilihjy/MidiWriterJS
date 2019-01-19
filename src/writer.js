@@ -1,4 +1,4 @@
-import {Chunk} from './chunk';
+import {HeaderChunk} from './header-chunk';
 import {Constants} from './constants';
 import {MetaEvent} from './meta-event';
 import {Utils} from './utils';
@@ -10,21 +10,13 @@ import {Utils} from './utils';
  */
 class Writer {
 	constructor(tracks) {
-		this.data = [];
-
-		var trackType = tracks.length > 1 ? Constants.HEADER_CHUNK_FORMAT1 : Constants.HEADER_CHUNK_FORMAT0;
-		var numberOfTracks = Utils.numberToBytes(tracks.length, 2); // two bytes long
-
-		// Header chunk
-		this.data.push(new Chunk({
-								type: Constants.HEADER_CHUNK_TYPE,
-								data: trackType.concat(numberOfTracks, Constants.HEADER_CHUNK_DIVISION)}));
+		this.data = [];		
+		this.data.push(new HeaderChunk(tracks.length))
 
 		// For each track add final end of track event and build data
 		tracks.forEach((track, i) => {
-			track.addEvent(new MetaEvent({data: Constants.META_END_OF_TRACK_ID})).buildData();
-			this.data.push(track);
-		}, this);
+			this.data.push(track.buildData());
+		});
 	}
 
 	/**

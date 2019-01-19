@@ -1,5 +1,6 @@
 import {Constants} from './constants';
 import {MetaEvent} from './meta-event';
+import {EndTrackEvent} from './end-track-event';
 import {NoteOnEvent} from './note-on-event';
 import {Utils} from './utils';
 
@@ -14,48 +15,55 @@ class Track {
 		this.data = [];
 		this.size = [];
 		this.events = [];
+		this.explicitTickEvents = [];
 		this.tickDuration = 0; // Each time an event is added this will increase
 	}
 
 	/**
 	 * Adds any event type to the track.
-	 * @param {(NoteEvent|MetaEvent|ProgramChangeEvent)} event - Event object.
+	 * Events without a specific startTick property are assumed to be added in order of how they should output.
+	 * Events with a specific startTick property are set aside for now will be merged in during build process.
+	 * @param {(NoteEvent|MetaEvent|ProgramChangeEvent)} events - Event object or array of Event objects.
 	 * @param {function} mapFunction - Callback which can be used to apply specific properties to all events. 
 	 * @return {Track}
 	 */
-	addEvent(event, mapFunction) {
-		if (Array.isArray(event)) {
-			event.forEach((e, i) => {
+	addEvent(events, mapFunction) {
+		Utils.toArray(events).forEach((event, i) => {
+			if (event.type === 'note') {
 				// Handle map function if provided
-				if (typeof mapFunction === 'function' && e.type === 'note') {
-					var properties = mapFunction(i, e);
+				if (typeof mapFunction === 'function') {
+					const properties = mapFunction(i, event);
 
 					if (typeof properties === 'object') {
 						for (var j in properties) {
 							switch(j) {
 								case 'duration':
-									e.duration = properties[j];
+									event.duration = properties[j];
 									break;
 								case 'sequential':
-									e.sequential = properties[j];
+									event.sequential = properties[j];
 									break;
 								case 'velocity':
-									e.velocity = Utils.convertVelocity(properties[j]);
+									event.velocity = Utils.convertVelocity(properties[j]);
 									break;
 							}
 						}		
-
-						// Gotta rebuild that data
-						//e.buildData();
 					}
 				}
 
-				this.events.push(e);
-			});
+				// If this note event has an explicit startTick then we need to set aside for now
+				if (event.startTick) {
+					this.explicitTickEvents.push(event);
 
-		} else {
-			this.events.push(event);
-		}
+				} else {
+					// Push each on/off event to track stack
+					event.buildData().events.forEach((e) => this.events.push(e));
+				}
+
+			} else {
+				this.events.push(event);
+			}
+		});
 
 		return this;
 	}
@@ -65,30 +73,74 @@ class Track {
 	 * @return {Track}
 	 */
 	buildData() {
+		this.addEvent(new EndTrackEvent());
+
+		this.data = [];
+		this.size = [];
+
+		var previousNoteEvent;
+
 		this.events.forEach((event, i) => {
 			//console.log(event);
 			// Build event & add to total tick duration
-			if (event.type === 'note') {
-				// Pass previous event to buildData
-				event.buildData();
-
-				event.events.forEach((e) => {
-					//console.log(e.buildData().data)
-					this.data = this.data.concat(e.buildData().data);
-				});
-
+			if (event.type === 'note-on' || event.type === 'note-off') {
+				this.data = this.data.concat(event.buildData(previousNoteEvent).data);
+				previousNoteEvent = event;
 				this.tickDuration += event.restDuration + event.tickDuration;
-				//this.data = this.data.concat(event.data);
 
 			} else {
 				this.data = this.data.concat(event.data);
 			}
-
-			
 		});
+
+		//this.mergeExplicitTickEvents();
 		//console.log(this.data);
+		//console.log(this.events);
+		//console.log(this.events, '****', this.explicitTickEvents);
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
-		//console.log('tick duration:' + this.tickDuration);
+		return this;
+	}
+
+	mergeExplicitTickEvents() {
+		if (!this.explicitTickEvents.length) return;
+
+		// First sort asc list of events by startTick
+		this.explicitTickEvents.sort((a, b) => a.startTick - b.startTick);
+
+		// Now this.explicitTickEvents is in correct order, and so is this.events naturally.
+		// For each explicit tick event, splice it into the main list of events and 
+		// adjust the delta on the following events so they still play normally.
+		this.explicitTickEvents.forEach((noteEvent) => {
+			// Convert NoteEvent to it's respective NoteOn/NoteOff events
+			// Note that as we splice in events the delta for the NoteOff ones will
+			// Need to change based on what comes before them after the splice.
+			noteEvent.buildData().events.forEach((e) => e.buildData());
+
+			//console.log(noteEvent.events);
+			noteEvent.events.forEach((event) => {
+				// Find index of existing event we need to follow with 
+				var lastEventIndex = 0;
+
+				for (var i = 0; i < this.events.length; i++) {
+					if (this.events[i].tick > event.tick) break;
+					lastEventIndex = i;
+				}
+
+				let splicedEventIndex = lastEventIndex + 1;
+
+				// Splice this event at lastEventIndex + 1
+				this.events.splice(splicedEventIndex, 0, event);
+
+				// Now adjust delta of all following events
+				for (var i = splicedEventIndex + 1; i < this.events.length; i++) {
+					console.log('adjust', i);
+				}
+			});
+		});
+
+		// Hacky way to rebuild track with newly spliced events.  Need better solution.
+		this.explicitTickEvents = [];
+		this.buildData();
 	}
 
 	/**

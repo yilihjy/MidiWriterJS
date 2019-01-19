@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-destructuring": "^7.2.0",
     "@babel/preset-env": "^7.2.3",
     "jsdoc": "^3.5.5",
     "minami": "^1.1.1",

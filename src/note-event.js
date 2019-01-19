@@ -20,12 +20,11 @@ class NoteEvent {
 		this.channel 	= fields.channel || 1;
 		this.repeat 	= fields.repeat || 1;
 		this.grace		= fields.grace;
-		this.startTick	= fields.startTick;
+		this.startTick	= fields.startTick || null;
 		this.tickDuration = Utils.getTickDuration(this.duration);
 		this.restDuration = Utils.getTickDuration(this.wait);
 
 		this.events 	= []; // Hold actual NoteOn/NoteOff events
-		//this.buildData();
 	}
 
 	/**
@@ -62,11 +61,11 @@ class NoteEvent {
 				// Note on
 				this.pitch.forEach((p, i) => {
 					if (i == 0) {
-						//noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat(this.getNoteOnStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity))});
 						var noteOnNew = new NoteOnEvent({
 													wait: this.wait,
 													velocity: this.velocity,
-													pitch: p
+													pitch: p,
+													startTick: this.startTick
 						});
 
 					} else {
@@ -75,12 +74,12 @@ class NoteEvent {
 						var noteOnNew = new NoteOnEvent({
 													wait: 0,
 													velocity: this.velocity,
-													pitch: p
+													pitch: p,
+													startTick: this.startTick
 						});
 					}
 
 					this.events.push(noteOnNew);
-					//this.data = this.data.concat(noteOn.data);
 				});
 
 				// Note off
@@ -90,7 +89,8 @@ class NoteEvent {
 						var noteOffNew = new NoteOffEvent({
 													duration: this.duration,
 													velocity: this.velocity,
-													pitch: p
+													pitch: p,
+													noteOnTick: this.startTick,
 						});
 
 					} else {
@@ -99,12 +99,12 @@ class NoteEvent {
 						var noteOffNew = new NoteOffEvent({
 													duration: 0,
 													velocity: this.velocity,
-													pitch: p
+													pitch: p,
+													noteOnTick: this.startTick,
 						});
 					}
 
 					this.events.push(noteOffNew);
-					//this.data = this.data.concat(noteOff.data);
 				});
 			}
 
@@ -124,45 +124,27 @@ class NoteEvent {
 						tickDuration = quarterTicks - (tickDuration * 2);
 					}
 
-					//noteOn = new NoteOnEvent({data: Utils.numberToVariableLength(restDuration).concat([this.getNoteOnStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity)])});
-					//noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat([this.getNoteOffStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity)])});
-
 					var noteOnNew = new NoteOnEvent({
 													wait: (i > 0 ? 0 : this.wait), // wait only applies to first note in repetition
 													velocity: this.velocity,
-													pitch: p
+													pitch: p,
+													startTick: this.startTick,
 					});
 
 					var noteOffNew = new NoteOffEvent({
 													duration: this.duration,
 													velocity: this.velocity,
-													pitch: p
+													pitch: p,
+													noteOnTick: this.startTick,
 					});
 
 					this.events.push(noteOnNew, noteOffNew);
-					//this.data = this.data.concat(noteOn.data, noteOff.data);
 				});
 			}
 		}
 
 		return this;
 	};
-
-	/**
-	 * Gets the note on status code based on the selected channel. 0x9{0-F}
-	 * Note on at channel 0 is 0x90 (144)
-	 * 0 = Ch 1
-	 * @return {number}
-	 */
-	getNoteOnStatus() {return 144 + this.channel - 1}
-
-	/**
-	 * Gets the note off status code based on the selected channel. 0x8{0-F}
-	 * Note off at channel 0 is 0x80 (128)
-	 * 0 = Ch 1
-	 * @return {number}
-	 */
-	getNoteOffStatus() {return 128 + this.channel - 1}
 }
 
 export {NoteEvent};

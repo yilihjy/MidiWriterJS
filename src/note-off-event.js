@@ -7,25 +7,37 @@ import {Utils} from './utils';
  */
 class NoteOffEvent {
 	constructor(fields) {
+		this.type 		= 'note-off';
 		this.channel 	= fields.channel || 1;
 		this.pitch 		= fields.pitch;
 		this.duration 	= fields.duration;
 		this.velocity 	= fields.velocity || 50;
-		this.data 		= fields.data;
-		if (this.pitch) {
-			this.buildData();
-		}		
+		this.noteOnTick = fields.noteOnTick || null;
+
+		this.midiNumber = Utils.getPitch(this.pitch);
+		this.tick 		= null;
+		this.delta 		= null;
+		this.data 		= fields.data;	
 	}
 
 	/**
 	 * Builds int array for this event.
 	 * @return {NoteOffEvent}
 	 */
-	buildData() {
-		this.data = Utils.numberToVariableLength(Utils.getTickDuration(this.duration))
+	buildData(previousEvent) {
+		//console.log("\nprevious:", previousEvent);
+		this.delta = Utils.getTickDuration(this.duration);
+		this.tick = this.noteOnTick + this.delta;
+
+		if (previousEvent) {
+			// Get startTick based on duration and startTick of previous event.
+			this.tick = previousEvent.tick + this.delta;
+		}
+
+		this.data = Utils.numberToVariableLength(this.delta)
 					.concat(
 							this.getStatusByte(),
-							Utils.getPitch(this.pitch),
+							this.midiNumber,
 							Utils.convertVelocity(this.velocity)
 					);
 
