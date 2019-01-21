@@ -15,6 +15,7 @@ track.addEvent([
   }
 );
 
+
 var write = new MidiWriter.Writer([track]);
 //console.log(track);
 //console.log(write.base64())
