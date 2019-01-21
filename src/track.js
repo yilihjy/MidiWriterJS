@@ -1,7 +1,12 @@
 import {Constants} from './constants';
+import {CopyrightEvent} from './copyright-event';
 import {MetaEvent} from './meta-event';
 import {EndTrackEvent} from './end-track-event';
 import {NoteOnEvent} from './note-on-event';
+import {TempoEvent} from './tempo-event';
+import {TextEvent} from './text-event';
+import {TimeSignatureEvent} from './time-signature-event';
+import {TrackNameEvent} from './track-name-event';
 import {Utils} from './utils';
 
 /**
@@ -16,7 +21,7 @@ class Track {
 		this.size = [];
 		this.events = [];
 		this.explicitTickEvents = [];
-		this.tickDuration = 0; // Each time an event is added this will increase
+		this.tickPointer = 0; // Each time an event is added this will increase
 	}
 
 	/**
@@ -56,7 +61,7 @@ class Track {
 					this.explicitTickEvents.push(event);
 
 				} else {
-					// Push each on/off event to track stack
+					// Push each on/off event to track's event stack
 					event.buildData().events.forEach((e) => this.events.push(e));
 				}
 
@@ -73,29 +78,30 @@ class Track {
 	 * @return {Track}
 	 */
 	buildData() {
-		this.addEvent(new EndTrackEvent());
+		// Remove existing end track event and add one.
+		// This makes sure it's at the very end of the event list.
+		this.removeEventsByType('end-track').addEvent(new EndTrackEvent());
 
 		this.data = [];
 		this.size = [];
 
-		var previousNoteEvent;
-
-		this.events.forEach((event, i) => {
+		this.events.forEach((event, eventIndex) => {
 			//console.log(event);
 			// Build event & add to total tick duration
 			if (event.type === 'note-on' || event.type === 'note-off') {
-				this.data = this.data.concat(event.buildData(previousNoteEvent).data);
-				previousNoteEvent = event;
-				this.tickDuration += event.restDuration + event.tickDuration;
+				this.data = this.data.concat(event.buildData(this, eventIndex).data);
+				this.tickPointer = event.tick;
+				//console.log(this.tickPointer);
 
 			} else {
 				this.data = this.data.concat(event.data);
 			}
 		});
 
-		//this.mergeExplicitTickEvents();
-		//console.log(this.data);
 		//console.log(this.events);
+		this.mergeExplicitTickEvents();
+		//console.log(this.data);
+		
 		//console.log(this.events, '****', this.explicitTickEvents);
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 		return this;
@@ -114,7 +120,7 @@ class Track {
 			// Convert NoteEvent to it's respective NoteOn/NoteOff events
 			// Note that as we splice in events the delta for the NoteOff ones will
 			// Need to change based on what comes before them after the splice.
-			noteEvent.buildData().events.forEach((e) => e.buildData());
+			noteEvent.buildData().events.forEach((e) => e.buildData(this));
 
 			//console.log(noteEvent.events);
 			noteEvent.events.forEach((event) => {
@@ -140,7 +146,23 @@ class Track {
 
 		// Hacky way to rebuild track with newly spliced events.  Need better solution.
 		this.explicitTickEvents = [];
+		//console.log(this.events)
 		this.buildData();
+	}
+
+	/**
+	 * Removes all events matching specified type.
+	 * @param {string} eventType - Event type
+	 * @return {Track}
+	 */
+	removeEventsByType(eventType) {
+		this.events.forEach((event, index) =>{
+			if (event.type === eventType) {
+				this.events.splice(index, 1);
+			}
+		});
+
+		return this;
 	}
 
 	/**
@@ -149,11 +171,7 @@ class Track {
 	 * @return {Track}
 	 */
 	setTempo(bpm) {
-		var event = new MetaEvent({data: [Constants.META_TEMPO_ID]});
-		event.data.push(0x03); // Size
-		var tempo = Math.round(60000000 / bpm);
-		event.data = event.data.concat(Utils.numberToBytes(tempo, 3)); // Tempo, 3 bytes
-		return this.addEvent(event);
+		return this.addEvent(new TempoEvent(bpm));
 	}
 
 	/**
@@ -165,18 +183,7 @@ class Track {
 	 * @return {Track}
 	 */
 	setTimeSignature(numerator, denominator, midiclockspertick, notespermidiclock) {
-		midiclockspertick = midiclockspertick || 24;
-		notespermidiclock = notespermidiclock || 8;
-		
-		var event = new MetaEvent({data: [Constants.META_TIME_SIGNATURE_ID]});
-		event.data.push(0x04); // Size
-		event.data = event.data.concat(Utils.numberToBytes(numerator, 1)); // Numerator, 1 bytes
-		
-		var _denominator = Math.log2(denominator);	// Denominator is expressed as pow of 2
-		event.data = event.data.concat(Utils.numberToBytes(_denominator, 1)); // Denominator, 1 bytes
-		event.data = event.data.concat(Utils.numberToBytes(midiclockspertick, 1)); // MIDI Clocks per tick, 1 bytes
-		event.data = event.data.concat(Utils.numberToBytes(notespermidiclock, 1)); // Number of 1/32 notes per MIDI clocks, 1 bytes
-		return this.addEvent(event);
+		return this.addEvent(new TimeSignatureEvent(numerator, denominator, midiclockspertick, notespermidiclock));
 	}
 
 	/**
@@ -243,11 +250,7 @@ class Track {
 	 * @return {Track}
 	 */
 	addText(text) {
-		var event = new MetaEvent({data: [Constants.META_TEXT_ID]});
-		var stringBytes = Utils.stringToBytes(text);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Text
-		return this.addEvent(event);
+		return this.addEvent(new TextEvent(text));
 	}
 
 	/**
@@ -256,11 +259,7 @@ class Track {
 	 * @return {Track}
 	 */
 	addCopyright(text) {
-		var event = new MetaEvent({data: [Constants.META_COPYRIGHT_ID]});
-		var stringBytes = Utils.stringToBytes(text);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Text
-		return this.addEvent(event);
+		return this.addEvent(new CopyrightEvent(text));
 	}
 
 	/**
@@ -269,11 +268,7 @@ class Track {
 	 * @return {Track}
 	 */
 	addTrackName(text) {
-		var event = new MetaEvent({data: [Constants.META_TRACK_NAME_ID]});
-		var stringBytes = Utils.stringToBytes(text);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Text
-		return this.addEvent(event);
+		return this.addEvent(new TrackNameEvent(text));
 	}
 
 	/**

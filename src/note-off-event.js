@@ -16,7 +16,7 @@ class NoteOffEvent {
 
 		this.midiNumber = Utils.getPitch(this.pitch);
 		this.tick 		= null;
-		this.delta 		= null;
+		this.delta 		= Utils.getTickDuration(this.duration);
 		this.data 		= fields.data;	
 	}
 
@@ -24,14 +24,12 @@ class NoteOffEvent {
 	 * Builds int array for this event.
 	 * @return {NoteOffEvent}
 	 */
-	buildData(previousEvent) {
-		//console.log("\nprevious:", previousEvent);
-		this.delta = Utils.getTickDuration(this.duration);
-		this.tick = this.noteOnTick + this.delta;
+	buildData(track, eventIndex) {
+		if (this.noteOnTick) {
+			this.tick = this.noteOnTick + Utils.getTickDuration(this.duration);
 
-		if (previousEvent) {
-			// Get startTick based on duration and startTick of previous event.
-			this.tick = previousEvent.tick + this.delta;
+		} else {
+			this.tick = track.tickPointer;
 		}
 
 		this.data = Utils.numberToVariableLength(this.delta)

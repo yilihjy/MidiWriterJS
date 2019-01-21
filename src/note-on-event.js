@@ -24,20 +24,21 @@ class NoteOnEvent {
 	 * Builds int array for this event.
 	 * @return {NoteOnEvent}
 	 */
-	buildData(previousEvent) {
+	buildData(track, eventIndex) {
 		this.data = [];
-		//console.log("\nprevious:", previousEvent);
-		this.delta = Utils.getTickDuration(this.wait);
 
+		// Explicitly defined startTick event
 		if (this.startTick) {
 			this.tick = this.startTick;
 
-		} else if (previousEvent) {
-			// Get startTick based on wait and startTick of previous event.
-			this.tick = previousEvent.tick + this.delta;
+			// If this is the first event in the track then use event's starting tick as delta.
+			if (track.tickPointer == 0) {
+				this.delta = this.tick;
+			}
 
 		} else {
-			this.tick = this.delta;
+			this.tick = track.tickPointer;
+			this.delta = Utils.getTickDuration(this.wait);
 		}
 
 		this.data = Utils.numberToVariableLength(this.delta)
