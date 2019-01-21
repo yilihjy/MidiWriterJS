@@ -1,4 +1,4 @@
-import {Utils} from './utils';
+import {Utils} from '../utils';
 
 /**
  * Holds all data for a "note on" MIDI event
@@ -37,8 +37,8 @@ class NoteOnEvent {
 			}
 
 		} else {
-			this.tick = track.tickPointer;
 			this.delta = Utils.getTickDuration(this.wait);
+			this.tick = track.tickPointer + this.delta;
 		}
 
 		this.data = Utils.numberToVariableLength(this.delta)

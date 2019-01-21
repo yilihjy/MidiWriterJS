@@ -38,6 +38,13 @@ describe('MidiWriterJS', function() {
 			});
 		});
 
+		it('should return specific base64 string when setting C major key signature', function() {
+			var track = new MidiWriter.Track();
+			track.setKeySignature('C');
+			var write = new MidiWriter.Writer([track]);
+			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAACgD/WQIAAAD/LwA=', write.base64());
+		});
+
 		it('should return specific base64 string when adding copyright', function() {
 			var track = new MidiWriter.Track();
 			track.addCopyright('2018 Garrett Grimm');
@@ -57,6 +64,34 @@ describe('MidiWriterJS', function() {
 			track.addTrackName('Name of a cool track');
 			var write = new MidiWriter.Writer([track]);
 			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAAHAD/AxROYW1lIG9mIGEgY29vbCB0cmFjawD/LwA=', write.base64());
+		});
+
+		it('should return specific base64 string when adding an instrument name', function() {
+			var track = new MidiWriter.Track();
+			track.addInstrumentName('Alto Saxophone');
+			var write = new MidiWriter.Writer([track]);
+			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAAFgD/BA5BbHRvIFNheG9waG9uZQD/LwA=', write.base64());
+		});
+
+		it('should return specific base64 string when adding a marker', function() {
+			var track = new MidiWriter.Track();
+			track.addMarker('This is my favorite part of the song.');
+			var write = new MidiWriter.Writer([track]);
+			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAALQD/BiVUaGlzIGlzIG15IGZhdm9yaXRlIHBhcnQgb2YgdGhlIHNvbmcuAP8vAA==', write.base64());
+		});
+
+		it('should return specific base64 string when adding a cue point', function() {
+			var track = new MidiWriter.Track();
+			track.addCuePoint('Here is a cue point.');
+			var write = new MidiWriter.Writer([track]);
+			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAAHAD/BxRIZXJlIGlzIGEgY3VlIHBvaW50LgD/LwA=', write.base64());
+		});
+
+		it('should return specific base64 string when adding a lyric', function() {
+			var track = new MidiWriter.Track();
+			track.addLyric('Oh say can you see.');
+			var write = new MidiWriter.Writer([track]);
+			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAAGwD/BRNPaCBzYXkgY2FuIHlvdSBzZWUuAP8vAA==', write.base64());
 		});
 	});
 

@@ -1,7 +1,7 @@
-import {Constants} from './constants';
+import {Constants} from '../constants';
 import {NoteOnEvent} from './note-on-event';
 import {NoteOffEvent} from './note-off-event';
-import {Utils} from './utils';
+import {Utils} from '../utils';
 
 /**
  * Wrapper for noteOnEvent/noteOffEvent objects that builds both events.

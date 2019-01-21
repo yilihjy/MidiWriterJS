@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>time-signature-event.js - Documentation</title>
+    <title>instrument-name-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">time-signature-event.js</h1>
+    <h1 class="page-title">instrument-name-event.js</h1>
     
 
     
@@ -43,27 +43,27 @@
 import {Utils} from './utils';
 
 /**
- * Object representation of a time signature meta event.
- * @return {TimeSignatureEvent}
+ * Object representation of an instrument name meta event.
+ * @param {number} bpm - Beats per minute
+ * @return {InstrumentNameEvent}
  */
-class TimeSignatureEvent {
-	constructor(numerator, denominator, midiclockspertick, notespermidiclock) {
-		this.type = 'time-signature';
+class InstrumentNameEvent {
+	constructor(text) {
+		this.type = 'instrument-name';
+
+		const textBytes = Utils.stringToBytes(text);
 
 		// Start with zero time delta
 		this.data = Utils.numberToVariableLength(0x00).concat(
 			Constants.META_EVENT_ID,
-			Constants.META_TIME_SIGNATURE_ID,
-			[0x04], // Size
-			Utils.numberToBytes(numerator, 1), // Numerator, 1 bytes
-			Utils.numberToBytes(Math.log2(denominator), 1), // Denominator is expressed as pow of 2, 1 bytes
-			Utils.numberToBytes(midiclockspertick || 24, 1), // MIDI Clocks per tick, 1 bytes
-			Utils.numberToBytes(notespermidiclock || 8, 1), // Number of 1/32 notes per MIDI clocks, 1 bytes
+			Constants.META_INSTRUMENT_NAME_ID,
+			Utils.numberToVariableLength(textBytes.length), // Size
+			textBytes, // Instrument name
 		);
 	}
 }
 
-export {TimeSignatureEvent};
+export {InstrumentNameEvent};
 </code></pre>
         </article>
     </section>

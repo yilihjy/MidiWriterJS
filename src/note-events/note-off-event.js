@@ -1,4 +1,4 @@
-import {Utils} from './utils';
+import {Utils} from '../utils';
 
 /**
  * Holds all data for a "note off" MIDI event
@@ -29,7 +29,7 @@ class NoteOffEvent {
 			this.tick = this.noteOnTick + Utils.getTickDuration(this.duration);
 
 		} else {
-			this.tick = track.tickPointer;
+			this.tick = this.delta + track.tickPointer;
 		}
 
 		this.data = Utils.numberToVariableLength(this.delta)

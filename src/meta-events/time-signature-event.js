@@ -1,5 +1,5 @@
-import {Constants} from './constants';
-import {Utils} from './utils';
+import {Constants} from '../constants';
+import {Utils} from '../utils';
 
 /**
  * Object representation of a time signature meta event.

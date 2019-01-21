@@ -1,5 +1,5 @@
-import {Constants} from './constants';
-import {Utils} from './utils';
+import {Constants} from '../constants';
+import {Utils} from '../utils';
 
 /**
  * Holds all data for a "program change" MIDI event

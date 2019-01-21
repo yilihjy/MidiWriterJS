@@ -1,12 +1,17 @@
 import {Constants} from './constants';
-import {CopyrightEvent} from './copyright-event';
-import {MetaEvent} from './meta-event';
-import {EndTrackEvent} from './end-track-event';
-import {NoteOnEvent} from './note-on-event';
-import {TempoEvent} from './tempo-event';
-import {TextEvent} from './text-event';
-import {TimeSignatureEvent} from './time-signature-event';
-import {TrackNameEvent} from './track-name-event';
+import {CopyrightEvent} from './meta-events/copyright-event';
+import {CuePointEvent} from './meta-events/cue-point-event';
+import {MetaEvent} from './meta-events/meta-event';
+import {EndTrackEvent} from './meta-events/end-track-event';
+import {InstrumentNameEvent} from './meta-events/instrument-name-event';
+import {KeySignatureEvent} from './meta-events/key-signature-event';
+import {LyricEvent} from './meta-events/lyric-event';
+import {MarkerEvent} from './meta-events/marker-event';
+import {NoteOnEvent} from './note-events/note-on-event';
+import {TempoEvent} from './meta-events/tempo-event';
+import {TextEvent} from './meta-events/text-event';
+import {TimeSignatureEvent} from './meta-events/time-signature-event';
+import {TrackNameEvent} from './meta-events/track-name-event';
 import {Utils} from './utils';
 
 /**
@@ -91,7 +96,6 @@ class Track {
 			if (event.type === 'note-on' || event.type === 'note-off') {
 				this.data = this.data.concat(event.buildData(this, eventIndex).data);
 				this.tickPointer = event.tick;
-				//console.log(this.tickPointer);
 
 			} else {
 				this.data = this.data.concat(event.data);
@@ -100,9 +104,7 @@ class Track {
 
 		//console.log(this.events);
 		this.mergeExplicitTickEvents();
-		//console.log(this.data);
 		
-		//console.log(this.events, '****', this.explicitTickEvents);
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 		return this;
 	}
@@ -139,6 +141,7 @@ class Track {
 
 				// Now adjust delta of all following events
 				for (var i = splicedEventIndex + 1; i < this.events.length; i++) {
+					// Explicit tick events need delta adjusted to ensure they are played at correct tick.
 					console.log('adjust', i);
 				}
 			});
@@ -193,55 +196,7 @@ class Track {
 	 * @return {Track}
 	 */
 	setKeySignature(sf, mi) {
-		var event = new MetaEvent({data: [Constants.META_KEY_SIGNATURE_ID]});
-		event.data.push(0x02); // Size
-
-		var mode = mi || 0;
-		sf = sf || 0;
-
-		//	Function called with string notation
-		if (typeof mi === 'undefined') {
-			var fifths = [
-				['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'],
-				['ab', 'eb', 'bb', 'f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'd#', 'a#']
-			];
-			var _sflen = sf.length;
-			var note = sf || 'C';
-
-			if (sf[0] === sf[0].toLowerCase()) mode = 1
-
-			if (_sflen > 1) {
-				switch (sf.charAt(_sflen - 1)) {
-					case 'm':
-						mode = 1;
-						note = sf.charAt(0).toLowerCase();
-						note = note.concat(sf.substring(1, _sflen - 1));
-						break;
-					case '-':
-						mode = 1;
-						note = sf.charAt(0).toLowerCase();
-						note = note.concat(sf.substring(1, _sflen - 1));
-						break;
-					case 'M':
-						mode = 0;
-						note = sf.charAt(0).toUpperCase();
-						note = note.concat(sf.substring(1, _sflen - 1));
-						break;
-					case '+':
-						mode = 0;
-						note = sf.charAt(0).toUpperCase();
-						note = note.concat(sf.substring(1, _sflen - 1));
-						break;
-				}
-			}
-
-			var fifthindex = fifths[mode].indexOf(note);
-			sf = fifthindex === -1 ? 0 : fifthindex - 7;
-		}
-
-		event.data = event.data.concat(Utils.numberToBytes(sf, 1)); // Number of sharp or flats ( < 0 flat; > 0 sharp)
-		event.data = event.data.concat(Utils.numberToBytes(mode, 1)); // Mode: 0 major, 1 minor
-		return this.addEvent(event);
+		return this.addEvent(new KeySignatureEvent(sf, mi));
 	}
 
 	/**
@@ -277,11 +232,7 @@ class Track {
 	 * @return {Track}
 	 */
 	addInstrumentName(text) {
-		var event = new MetaEvent({data: [Constants.META_INSTRUMENT_NAME_ID]});
-		var stringBytes = Utils.stringToBytes(text);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Text
-		return this.addEvent(event);
+		return this.addEvent(new InstrumentNameEvent(text));
 	}
 
 	/**
@@ -290,11 +241,7 @@ class Track {
 	 * @return {Track}
 	 */
 	addMarker(text) {
-		var event = new MetaEvent({data: [Constants.META_MARKER_ID]});
-		var stringBytes = Utils.stringToBytes(text);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Text
-		return this.addEvent(event);
+		return this.addEvent(new MarkerEvent(text));
 	}
 
 	/**
@@ -303,24 +250,16 @@ class Track {
 	 * @return {Track}
 	 */
 	addCuePoint(text) {
-		var event = new MetaEvent({data: [Constants.META_CUE_POINT]});
-		var stringBytes = Utils.stringToBytes(text);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Text
-		return this.addEvent(event);
+		return this.addEvent(new CuePointEvent(text));
 	}
 
 	/**
 	 * Adds lyric to MIDI file.
-	 * @param {string} lyric - Lyric text to add.
+	 * @param {string} text - Lyric text to add.
 	 * @return {Track}
 	 */
-	addLyric(lyric) {
-		var event = new MetaEvent({data: [Constants.META_LYRIC_ID]});
-		var stringBytes = Utils.stringToBytes(lyric);
-		event.data = event.data.concat(Utils.numberToVariableLength(stringBytes.length)); // Size
-		event.data = event.data.concat(stringBytes); // Lyric
-		return this.addEvent(event);
+	addLyric(text) {
+		return this.addEvent(new LyricEvent(text));
 	}
 
 	/**

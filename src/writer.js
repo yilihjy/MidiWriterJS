@@ -1,6 +1,6 @@
 import {HeaderChunk} from './header-chunk';
 import {Constants} from './constants';
-import {MetaEvent} from './meta-event';
+import {MetaEvent} from './meta-events/meta-event';
 import {Utils} from './utils';
 
 /**
@@ -62,9 +62,10 @@ class Writer {
 	 * @param {string} filename
 	 */
 	saveMIDI(filename) {
-		var buffer = new Buffer(this.buildFile());
+		const fs = require('fs');
+		const buffer = new Buffer(this.buildFile());
 		fs.writeFile(filename + '.mid', buffer, function (err) {
-			if(err) return console.log(err);
+			if(err) throw err;
 		});
 	}
 }
