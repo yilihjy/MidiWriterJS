@@ -1,6 +1,5 @@
 import {HeaderChunk} from './header-chunk';
 import {Constants} from './constants';
-import {MetaEvent} from './meta-events/meta-event';
 import {Utils} from './utils';
 
 /**

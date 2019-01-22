@@ -6,7 +6,7 @@ track.addEvent([
 			new MidiWriter.NoteEvent({
 				pitch: 'E4',
 				duration: '1',
-				startTick: 30
+				//startTick: 30
 			}),
 			new MidiWriter.NoteEvent({
 				pitch: 'C4',

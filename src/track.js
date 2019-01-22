@@ -1,7 +1,6 @@
 import {Constants} from './constants';
 import {CopyrightEvent} from './meta-events/copyright-event';
 import {CuePointEvent} from './meta-events/cue-point-event';
-import {MetaEvent} from './meta-events/meta-event';
 import {EndTrackEvent} from './meta-events/end-track-event';
 import {InstrumentNameEvent} from './meta-events/instrument-name-event';
 import {KeySignatureEvent} from './meta-events/key-signature-event';
@@ -33,7 +32,7 @@ class Track {
 	 * Adds any event type to the track.
 	 * Events without a specific startTick property are assumed to be added in order of how they should output.
 	 * Events with a specific startTick property are set aside for now will be merged in during build process.
-	 * @param {(NoteEvent|MetaEvent|ProgramChangeEvent)} events - Event object or array of Event objects.
+	 * @param {(NoteEvent|ProgramChangeEvent)} events - Event object or array of Event objects.
 	 * @param {function} mapFunction - Callback which can be used to apply specific properties to all events. 
 	 * @return {Track}
 	 */
@@ -89,9 +88,9 @@ class Track {
 
 		this.data = [];
 		this.size = [];
+		this.tickPointer = 0;
 
 		this.events.forEach((event, eventIndex) => {
-			//console.log(event);
 			// Build event & add to total tick duration
 			if (event.type === 'note-on' || event.type === 'note-off') {
 				this.data = this.data.concat(event.buildData(this, eventIndex).data);
@@ -136,12 +135,18 @@ class Track {
 
 				let splicedEventIndex = lastEventIndex + 1;
 
+				// Need to adjust the delta of this event to ensure it falls on the correct tick.
+				event.delta = event.tick - this.events[lastEventIndex].tick;
+
 				// Splice this event at lastEventIndex + 1
 				this.events.splice(splicedEventIndex, 0, event);
 
 				// Now adjust delta of all following events
 				for (var i = splicedEventIndex + 1; i < this.events.length; i++) {
-					// Explicit tick events need delta adjusted to ensure they are played at correct tick.
+					// Since each existing event should have a tick value at this point we just need to
+					// adjust delta to that the event still falls on the correct tick.
+					this.events[i].delta = this.events[i].tick - this.events[i - 1].tick;
+
 					console.log('adjust', i);
 				}
 			});
