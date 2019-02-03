@@ -61,7 +61,7 @@ class Track {
 				}
 
 				// If this note event has an explicit startTick then we need to set aside for now
-				if (event.startTick) {
+				if (typeof event.startTick !== 'undefined') {
 					this.explicitTickEvents.push(event);
 
 				} else {
