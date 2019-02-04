@@ -1,4 +1,4 @@
-import {NoteEvent} from './note-event';
+import {NoteEvent} from './note-events/note-event';
 import {Track} from './track';
 
 class VexFlow {
