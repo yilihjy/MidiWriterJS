@@ -25,6 +25,10 @@ class Track {
 		this.size = [];
 		this.events = [];
 		this.explicitTickEvents = [];
+
+		// If there are any events with an explicit tick defined then we will create a "sub" track for those
+		// and merge them in and the end.
+		//this.explicitTickTrack = new Track;
 		this.tickPointer = 0; // Each time an event is added this will increase
 	}
 
@@ -86,6 +90,7 @@ class Track {
 		// This makes sure it's at the very end of the event list.
 		this.removeEventsByType('end-track').addEvent(new EndTrackEvent());
 
+		// Reset
 		this.data = [];
 		this.size = [];
 		this.tickPointer = 0;
@@ -101,7 +106,6 @@ class Track {
 			}
 		});
 
-		//console.log(this.events);
 		this.mergeExplicitTickEvents();
 		
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
@@ -146,8 +150,6 @@ class Track {
 					// Since each existing event should have a tick value at this point we just need to
 					// adjust delta to that the event still falls on the correct tick.
 					this.events[i].delta = this.events[i].tick - this.events[i - 1].tick;
-
-					console.log('adjust', i);
 				}
 			});
 		});
@@ -156,6 +158,15 @@ class Track {
 		this.explicitTickEvents = [];
 		//console.log(this.events)
 		this.buildData();
+	}
+
+	/**
+	 * Merges another track's events with this track.
+	 * @param {Track} track
+	 * @return {Track}
+	 */
+	mergeTrack(track) {
+		// To be implemented...
 	}
 
 	/**
@@ -272,7 +283,7 @@ class Track {
 	 * @return {Track}
 	 */
 	polyModeOn() {
-		var event = new NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
+		const event = new NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
 		return this.addEvent(event);
 	}
 
