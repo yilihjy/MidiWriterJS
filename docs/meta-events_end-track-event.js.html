@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>TimeSignatureEvent - Documentation</title>
+    <title>meta-events/end-track-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,154 +29,39 @@
 
 <div id="main">
     
-    <h1 class="page-title">TimeSignatureEvent</h1>
+    <h1 class="page-title">meta-events/end-track-event.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        TimeSignatureEvent
-        </h2>
-        
-            <div class="class-description">Object representation of a time signature meta event.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="TimeSignatureEvent"><span class="type-signature"></span>new TimeSignatureEvent<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="TimeSignatureEvent.html">TimeSignatureEvent</a>}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="meta-events_time-signature-event.js.html">meta-events/time-signature-event.js</a>, <a href="meta-events_time-signature-event.js.html#line8">line 8</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="TimeSignatureEvent.html">TimeSignatureEvent</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Constants} from '../constants';
+import {Utils} from '../utils';
+
+/**
+ * Object representation of a end track meta event.
+ * @return {EndTrackEvent}
+ */
+class EndTrackEvent {
+	constructor() {
+		this.type = 'end-track';
+
+		// Start with zero time delta
+		this.data = Utils.numberToVariableLength(0x00).concat(
+			Constants.META_EVENT_ID,
+			Constants.META_END_OF_TRACK_ID
+		);
+	}
+}
+
+export {EndTrackEvent};
+</code></pre>
+        </article>
+    </section>
 
 
 

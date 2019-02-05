@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>TimeSignatureEvent - Documentation</title>
+    <title>note-events/note-off-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,154 +29,74 @@
 
 <div id="main">
     
-    <h1 class="page-title">TimeSignatureEvent</h1>
+    <h1 class="page-title">note-events/note-off-event.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        TimeSignatureEvent
-        </h2>
-        
-            <div class="class-description">Object representation of a time signature meta event.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="TimeSignatureEvent"><span class="type-signature"></span>new TimeSignatureEvent<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="TimeSignatureEvent.html">TimeSignatureEvent</a>}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="meta-events_time-signature-event.js.html">meta-events/time-signature-event.js</a>, <a href="meta-events_time-signature-event.js.html#line8">line 8</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="TimeSignatureEvent.html">TimeSignatureEvent</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Utils} from '../utils';
+
+/**
+ * Holds all data for a "note off" MIDI event
+ * @param {object} fields {data: []}
+ * @return {NoteOffEvent}
+ */
+class NoteOffEvent {
+	constructor(fields) {
+		this.type 		= 'note-off';
+		this.channel 	= fields.channel || 1;
+		this.pitch 		= fields.pitch;
+		this.duration 	= fields.duration;
+		this.velocity 	= fields.velocity || 50;
+		this.noteOnTick = fields.noteOnTick || null;
+
+		this.midiNumber = Utils.getPitch(this.pitch);
+		this.tick 		= null;
+		this.delta 		= Utils.getTickDuration(this.duration);
+		this.data 		= fields.data;	
+	}
+
+	/**
+	 * Builds int array for this event.
+	 * @param {Track} track - parent track
+	 * @return {NoteOffEvent}
+	 */
+	buildData(track) {
+		if (this.noteOnTick) {
+			this.tick = this.noteOnTick + Utils.getTickDuration(this.duration);
+
+		} else {
+			this.tick = this.delta + track.tickPointer;
+		}
+
+		this.data = Utils.numberToVariableLength(this.delta)
+					.concat(
+							this.getStatusByte(),
+							this.midiNumber,
+							Utils.convertVelocity(this.velocity)
+					);
+
+		return this;
+	}
+
+	/**
+	 * Gets the note off status code based on the selected channel. 0x8{0-F}
+	 * Note off at channel 0 is 0x80 (128)
+	 * 0 = Ch 1
+	 * @return {number}
+	 */
+	getStatusByte() {return 128 + this.channel - 1}
+}
+
+export {NoteOffEvent};
+</code></pre>
+        </article>
+    </section>
 
 
 
