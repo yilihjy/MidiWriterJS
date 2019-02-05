@@ -30,7 +30,7 @@ var note = new MidiWriter.NoteEvent({pitch:['C4', 'D4', 'E4'], duration: '4'});
 track.addEvent(note);
 
 // Generate a data URI
-var write = new MidiWriter.Writer([track]);
+var write = new MidiWriter.Writer(track);
 console.log(write.dataUri());
 ```
 Documentation
@@ -124,7 +124,7 @@ The `NoteEvent` supports these options:
 </table>
 
 
-### `MidiWriter.Writer([tracks])`
+### `MidiWriter.Writer(tracks)`
 The `Writer` class provides a few ways to output the file:
 - `buildFile()` *Uint8Array*
 - `base64()` *string*
@@ -152,7 +152,7 @@ track.addEvent([
   }
 );
 
-var write = new MidiWriter.Writer([track]);
+var write = new MidiWriter.Writer(track);
 console.log(write.dataUri());
 ```
 
