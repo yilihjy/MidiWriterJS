@@ -1,30 +1,24 @@
-import {Chunk} from './chunk';
+import {HeaderChunk} from './header-chunk';
 import {Constants} from './constants';
-import {MetaEvent} from './meta-event';
 import {Utils} from './utils';
 
 /**
  * Object that puts together tracks and provides methods for file output.
- * @param {array} tracks - An array of {Track} objects.
+ * @param {array|Track} tracks - A single {Track} object or an array of {Track} objects.
  * @return {Writer}
  */
 class Writer {
 	constructor(tracks) {
-		this.data = [];
+		// Ensure track is an array
+		tracks = Utils.toArray(tracks);
 
-		var trackType = tracks.length > 1 ? Constants.HEADER_CHUNK_FORMAT1 : Constants.HEADER_CHUNK_FORMAT0;
-		var numberOfTracks = Utils.numberToBytes(tracks.length, 2); // two bytes long
+		this.data = [];		
+		this.data.push(new HeaderChunk(tracks.length))
 
-		// Header chunk
-		this.data.push(new Chunk({
-								type: Constants.HEADER_CHUNK_TYPE,
-								data: trackType.concat(numberOfTracks, Constants.HEADER_CHUNK_DIVISION)}));
-
-		// Track chunks
-		tracks.forEach(function(track, i) {
-			track.addEvent(new MetaEvent({data: Constants.META_END_OF_TRACK_ID}));
-			this.data.push(track);
-		}, this);
+		// For each track add final end of track event and build data
+		tracks.forEach((track, i) => {
+			this.data.push(track.buildData());
+		});
 	}
 
 	/**
@@ -46,7 +40,7 @@ class Writer {
 	 */
 	base64() {
 		if (typeof btoa === 'function') return btoa(String.fromCharCode.apply(null, this.buildFile()));
-		return new Buffer(this.buildFile()).toString('base64');
+		return Buffer.from(this.buildFile()).toString('base64');
 	}
 
     /**
@@ -70,9 +64,10 @@ class Writer {
 	 * @param {string} filename
 	 */
 	saveMIDI(filename) {
-		var buffer = new Buffer(this.buildFile());
+		const fs = require('fs');
+		const buffer = new Buffer(this.buildFile());
 		fs.writeFile(filename + '.mid', buffer, function (err) {
-			if(err) return console.log(err);
+			if(err) throw err;
 		});
 	}
 }

@@ -1,4 +1,4 @@
-var MidiWriter = require('MidiWriter');
+var MidiWriter = require('..');
 var tracks = [];
 
 // Lead Instrument
@@ -432,3 +432,4 @@ tracks[1].addEvent(new MidiWriter.NoteEvent({pitch: ['F2'], duration: '8', veloc
 var write = new MidiWriter.Writer(tracks);
 
 console.log(write.dataUri());
+module.exports = write.dataUri();
