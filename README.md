@@ -123,7 +123,7 @@ The `NoteEvent` supports these options:
 		<tr>
 			<td><b>startTick</b></td>
 			<td>number</td>
-			<td>Specific tick where this event should be played.  If this parameter is supplied then `wait` is disregarded if also supplied.</td>
+			<td>Specific tick where this event should be played.  If this parameter is supplied then <code>wait</code> is disregarded if also supplied.</td>
 		</tr>
 	</tbody>
 </table>
