@@ -30,7 +30,7 @@ var note = new MidiWriter.NoteEvent({pitch:['C4', 'D4', 'E4'], duration: '4'});
 track.addEvent(note);
 
 // Generate a data URI
-var write = new MidiWriter.Writer([track]);
+var write = new MidiWriter.Writer(track);
 console.log(write.dataUri());
 ```
 Documentation
@@ -63,8 +63,8 @@ The `NoteEvent` supports these options:
 	<tbody>
 		<tr>
 			<td><b>pitch</b></td>
-			<td>array</td>
-			<td>An array of notes to be triggered.  Can be a string or valid MIDI note code.  Format for string is <code>C#4</code>.  Pro tip: You can use the output from <a href="https://github.com/danigb/tonal" target="_blank">tonal</a> functions to build scales, chords, intervals, etc. in this parameter.</td>
+			<td>string or array</td>
+			<td>Each pitch can be a string or valid MIDI note code.  Format for string is <code>C#4</code>.  Pro tip: You can use the output from <a href="https://github.com/danigb/tonal" target="_blank">tonal</a> functions to build scales, chords, intervals, etc. in this parameter.</td>
 		</tr>
 		<tr>
 			<td><b>duration</b></td>
@@ -120,11 +120,16 @@ The `NoteEvent` supports these options:
 			<td>string or array</td>
 			<td>Grace note to be applied to note event.  Takes same value format as <code>pitch</code></td>
 		</tr>
+		<tr>
+			<td><b>startTick</b></td>
+			<td>number</td>
+			<td>Specific tick where this event should be played.  If this parameter is supplied then <code>wait</code> is disregarded if also supplied.</td>
+		</tr>
 	</tbody>
 </table>
 
 
-### `MidiWriter.Writer([tracks])`
+### `MidiWriter.Writer(tracks)`
 The `Writer` class provides a few ways to output the file:
 - `buildFile()` *Uint8Array*
 - `base64()` *string*
@@ -152,7 +157,7 @@ track.addEvent([
   }
 );
 
-var write = new MidiWriter.Writer([track]);
+var write = new MidiWriter.Writer(track);
 console.log(write.dataUri());
 ```
 
