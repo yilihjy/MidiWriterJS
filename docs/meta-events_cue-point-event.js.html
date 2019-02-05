@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>TrackNameEvent - Documentation</title>
+    <title>meta-events/cue-point-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,206 +29,44 @@
 
 <div id="main">
     
-    <h1 class="page-title">TrackNameEvent</h1>
+    <h1 class="page-title">meta-events/cue-point-event.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        TrackNameEvent
-        </h2>
-        
-            <div class="class-description">Object representation of a tempo meta event.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="TrackNameEvent"><span class="type-signature"></span>new TrackNameEvent<span class="signature">(bpm)</span><span class="type-signature"> &rarr; {<a href="TrackNameEvent.html">TrackNameEvent</a>}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="meta-events_track-name-event.js.html">meta-events/track-name-event.js</a>, <a href="meta-events_track-name-event.js.html#line9">line 9</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>bpm</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>number</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                Beats per minute
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="TrackNameEvent.html">TrackNameEvent</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Constants} from '../constants';
+import {Utils} from '../utils';
+
+/**
+ * Object representation of a cue point meta event.
+ * @param {string} text - Cue point text
+ * @return {CuePointEvent}
+ */
+class CuePointEvent {
+	constructor(text) {
+		this.type = 'marker';
+
+		const textBytes = Utils.stringToBytes(text);
+
+		// Start with zero time delta
+		this.data = Utils.numberToVariableLength(0x00).concat(
+			Constants.META_EVENT_ID,
+			Constants.META_CUE_POINT,
+			Utils.numberToVariableLength(textBytes.length), // Size
+			textBytes, // Text
+		);
+	}
+}
+
+export {CuePointEvent};
+</code></pre>
+        </article>
+    </section>
 
 
 
