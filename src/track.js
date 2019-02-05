@@ -28,7 +28,6 @@ class Track {
 
 		// If there are any events with an explicit tick defined then we will create a "sub" track for those
 		// and merge them in and the end.
-		//this.explicitTickTrack = new Track;
 		this.tickPointer = 0; // Each time an event is added this will increase
 	}
 
@@ -128,14 +127,11 @@ class Track {
 			noteEvent.buildData().events.forEach((e) => e.buildData(this));
 
 			// Merge each event indivually into this track's event list.
-			noteEvent.events.forEach((event) => {
-				this.mergeSingleEvent(event);
-			});
+			noteEvent.events.forEach((event) => this.mergeSingleEvent(event));
 		});
 
 		// Hacky way to rebuild track with newly spliced events.  Need better solution.
 		this.explicitTickEvents = [];
-		//console.log(this.events)
 		this.buildData();
 	}
 
@@ -149,9 +145,7 @@ class Track {
 		this.buildData();
 
 		// Then build track to be merged so that tick property is populated on all events & merge each event.
-		track.buildData().events.forEach((event) => {
-			this.mergeSingleEvent(event);
-		});
+		track.buildData().events.forEach((event) => this.mergeSingleEvent(event));
 	}
 
 	/**
