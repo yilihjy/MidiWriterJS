@@ -4,11 +4,14 @@ import {Utils} from './utils';
 
 /**
  * Object that puts together tracks and provides methods for file output.
- * @param {array} tracks - An array of {Track} objects.
+ * @param {array|Track} tracks - A single {Track} object or an array of {Track} objects.
  * @return {Writer}
  */
 class Writer {
 	constructor(tracks) {
+		// Ensure track is an array
+		tracks = Utils.toArray(tracks);
+
 		this.data = [];		
 		this.data.push(new HeaderChunk(tracks.length))
 

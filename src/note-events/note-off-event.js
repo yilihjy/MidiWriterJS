@@ -22,9 +22,10 @@ class NoteOffEvent {
 
 	/**
 	 * Builds int array for this event.
+	 * @param {Track} track - parent track
 	 * @return {NoteOffEvent}
 	 */
-	buildData(track, eventIndex) {
+	buildData(track) {
 		if (this.noteOnTick) {
 			this.tick = this.noteOnTick + Utils.getTickDuration(this.duration);
 

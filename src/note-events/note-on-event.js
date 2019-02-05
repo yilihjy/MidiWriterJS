@@ -22,9 +22,10 @@ class NoteOnEvent {
 
 	/**
 	 * Builds int array for this event.
+	 * @param {Track} track - parent track
 	 * @return {NoteOnEvent}
 	 */
-	buildData(track, eventIndex) {
+	buildData(track) {
 		this.data = [];
 
 		// Explicitly defined startTick event

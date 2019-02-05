@@ -98,7 +98,7 @@ class Track {
 		this.events.forEach((event, eventIndex) => {
 			// Build event & add to total tick duration
 			if (event.type === 'note-on' || event.type === 'note-off') {
-				this.data = this.data.concat(event.buildData(this, eventIndex).data);
+				this.data = this.data.concat(event.buildData(this).data);
 				this.tickPointer = event.tick;
 
 			} else {
@@ -127,30 +127,9 @@ class Track {
 			// Need to change based on what comes before them after the splice.
 			noteEvent.buildData().events.forEach((e) => e.buildData(this));
 
-			//console.log(noteEvent.events);
+			// Merge each event indivually into this track's event list.
 			noteEvent.events.forEach((event) => {
-				// Find index of existing event we need to follow with 
-				var lastEventIndex = 0;
-
-				for (var i = 0; i < this.events.length; i++) {
-					if (this.events[i].tick > event.tick) break;
-					lastEventIndex = i;
-				}
-
-				let splicedEventIndex = lastEventIndex + 1;
-
-				// Need to adjust the delta of this event to ensure it falls on the correct tick.
-				event.delta = event.tick - this.events[lastEventIndex].tick;
-
-				// Splice this event at lastEventIndex + 1
-				this.events.splice(splicedEventIndex, 0, event);
-
-				// Now adjust delta of all following events
-				for (var i = splicedEventIndex + 1; i < this.events.length; i++) {
-					// Since each existing event should have a tick value at this point we just need to
-					// adjust delta to that the event still falls on the correct tick.
-					this.events[i].delta = this.events[i].tick - this.events[i - 1].tick;
-				}
+				this.mergeSingleEvent(event);
 			});
 		});
 
@@ -166,7 +145,43 @@ class Track {
 	 * @return {Track}
 	 */
 	mergeTrack(track) {
-		// To be implemented...
+		// First build this track to populate each event's tick property
+		this.buildData();
+
+		// Then build track to be merged so that tick property is populated on all events & merge each event.
+		track.buildData().events.forEach((event) => {
+			this.mergeSingleEvent(event);
+		});
+	}
+
+	/**
+	 * Merges a single event into this track's list of events based on event.tick property.
+	 * @param {NoteOnEvent|NoteOffEvent} - event
+	 * @return {Track}
+	 */
+	mergeSingleEvent(event) {
+		// Find index of existing event we need to follow with 
+		var lastEventIndex = 0;
+
+		for (var i = 0; i < this.events.length; i++) {
+			if (this.events[i].tick > event.tick) break;
+			lastEventIndex = i;
+		}
+
+		let splicedEventIndex = lastEventIndex + 1;
+
+		// Need to adjust the delta of this event to ensure it falls on the correct tick.
+		event.delta = event.tick - this.events[lastEventIndex].tick;
+
+		// Splice this event at lastEventIndex + 1
+		this.events.splice(splicedEventIndex, 0, event);
+
+		// Now adjust delta of all following events
+		for (var i = splicedEventIndex + 1; i < this.events.length; i++) {
+			// Since each existing event should have a tick value at this point we just need to
+			// adjust delta to that the event still falls on the correct tick.
+			this.events[i].delta = this.events[i].tick - this.events[i - 1].tick;
+		}
 	}
 
 	/**
@@ -175,7 +190,7 @@ class Track {
 	 * @return {Track}
 	 */
 	removeEventsByType(eventType) {
-		this.events.forEach((event, index) =>{
+		this.events.forEach((event, index) => {
 			if (event.type === eventType) {
 				this.events.splice(index, 1);
 			}
