@@ -10,17 +10,29 @@ import {Utils} from '../utils';
  */
 class NoteEvent {
 	constructor(fields) {
+		// Set default fields
+		fields = Object.assign({
+			channel: 1,
+		    repeat: 1,
+		    sequential: false,
+		    startTick: null,
+		    velocity: 50,
+		    wait: 0,
+		}, fields);
+
 		this.data 		= [];
 		this.type 		= 'note';
 		this.pitch 		= Utils.toArray(fields.pitch);
-		this.wait 		= fields.wait || 0;
+
+		this.channel 	= fields.channel;
 		this.duration 	= fields.duration;
-		this.sequential = fields.sequential || false;
-		this.velocity 	= fields.velocity || 50;
-		this.channel 	= fields.channel || 1;
-		this.repeat 	= fields.repeat || 1;
 		this.grace		= fields.grace;
-		this.startTick	= fields.startTick || null;
+		this.repeat 	= fields.repeat;
+		this.sequential = fields.sequential;
+		this.startTick	= fields.startTick;
+		this.velocity 	= fields.velocity;
+		this.wait 		= fields.wait;
+
 		this.tickDuration = Utils.getTickDuration(this.duration);
 		this.restDuration = Utils.getTickDuration(this.wait);
 
