@@ -6,7 +6,7 @@ export default {
     file: 'build/index.js',
     format: 'cjs'
   },
-  external: ['tonal-midi'],
+  external: ['tonal-midi', 'fs'],
   plugins: [
     babel({
       exclude: 'node_modules/**', // only transpile our source code
