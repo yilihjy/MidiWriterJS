@@ -74,22 +74,22 @@ class NoteEvent {
 				this.pitch.forEach((p, i) => {
 					if (i == 0) {
 						var noteOnNew = new NoteOnEvent({
-													channel: this.channel,
-													wait: this.wait,
-													velocity: this.velocity,
-													pitch: p,
-													startTick: this.startTick
+							channel: this.channel,
+							wait: this.wait,
+							velocity: this.velocity,
+							pitch: p,
+							startTick: this.startTick
 						});
 
 					} else {
 						// Running status (can ommit the note on status)
 						//noteOn = new NoteOnEvent({data: [0, Utils.getPitch(p), Utils.convertVelocity(this.velocity)]});
 						var noteOnNew = new NoteOnEvent({
-													channel: this.channel,
-													wait: 0,
-													velocity: this.velocity,
-													pitch: p,
-													startTick: this.startTick
+							channel: this.channel,
+							wait: 0,
+							velocity: this.velocity,
+							pitch: p,
+							startTick: this.startTick
 						});
 					}
 
@@ -101,22 +101,22 @@ class NoteEvent {
 					if (i == 0) {
 						//noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity))});
 						var noteOffNew = new NoteOffEvent({
-													channel: this.channel,
-													duration: this.duration,
-													velocity: this.velocity,
-													pitch: p,
-													noteOnTick: this.startTick,
+							channel: this.channel,
+							duration: this.duration,
+							velocity: this.velocity,
+							pitch: p,
+							noteOnTick: this.startTick,
 						});
 
 					} else {
 						// Running status (can ommit the note off status)
 						//noteOff = new NoteOffEvent({data: [0, Utils.getPitch(p), Utils.convertVelocity(this.velocity)]});
 						var noteOffNew = new NoteOffEvent({
-													channel: this.channel,
-													duration: 0,
-													velocity: this.velocity,
-													pitch: p,
-													noteOnTick: this.startTick,
+							channel: this.channel,
+							duration: 0,
+							velocity: this.velocity,
+							pitch: p,
+							noteOnTick: this.startTick,
 						});
 					}
 
@@ -141,19 +141,19 @@ class NoteEvent {
 					}
 
 					var noteOnNew = new NoteOnEvent({
-													channel: this.channel,
-													wait: (i > 0 ? 0 : this.wait), // wait only applies to first note in repetition
-													velocity: this.velocity,
-													pitch: p,
-													startTick: this.startTick,
+						channel: this.channel,
+						wait: (i > 0 ? 0 : this.wait), // wait only applies to first note in repetition
+						velocity: this.velocity,
+						pitch: p,
+						startTick: this.startTick,
 					});
 
 					var noteOffNew = new NoteOffEvent({
-													channel: this.channel,
-													duration: this.duration,
-													velocity: this.velocity,
-													pitch: p,
-													noteOnTick: this.startTick,
+						channel: this.channel,
+						duration: this.duration,
+						velocity: this.velocity,
+						pitch: p,
+						noteOnTick: this.startTick,
 					});
 
 					this.events.push(noteOnNew, noteOffNew);
