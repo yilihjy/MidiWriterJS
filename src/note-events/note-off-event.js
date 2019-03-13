@@ -7,12 +7,19 @@ import {Utils} from '../utils';
  */
 class NoteOffEvent {
 	constructor(fields) {
+		// Set default fields
+		fields = Object.assign({
+			channel: 1,
+			noteOnTick: null,
+		    velocity: 50,
+		}, fields);
+
 		this.type 		= 'note-off';
-		this.channel 	= fields.channel || 1;
+		this.channel 	= fields.channel;
 		this.pitch 		= fields.pitch;
 		this.duration 	= fields.duration;
-		this.velocity 	= fields.velocity || 50;
-		this.noteOnTick = fields.noteOnTick || null;
+		this.velocity 	= fields.velocity;
+		this.noteOnTick = fields.noteOnTick;
 
 		this.midiNumber = Utils.getPitch(this.pitch);
 		this.tick 		= null;

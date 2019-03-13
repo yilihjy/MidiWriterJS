@@ -7,12 +7,20 @@ import {Utils} from '../utils';
  */
 class NoteOnEvent {
 	constructor(fields) {
+		// Set default fields
+		fields = Object.assign({
+			channel: 1,
+			startTick: null,
+		    velocity: 50,
+		    wait: 0,
+		}, fields);
+
 		this.type 		= 'note-on';
-		this.channel 	= fields.channel || 1;
+		this.channel 	= fields.channel;
 		this.pitch 		= fields.pitch;
-		this.wait 		= fields.wait || 0;
-		this.velocity 	= fields.velocity || 50;
-		this.startTick 	= fields.startTick || null;
+		this.wait 		= fields.wait;
+		this.velocity 	= fields.velocity;
+		this.startTick 	= fields.startTick;
 
 		this.midiNumber = Utils.getPitch(this.pitch);
 		this.tick 		= null;
