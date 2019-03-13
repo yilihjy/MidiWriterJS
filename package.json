@@ -28,7 +28,8 @@
     "test": "mocha",
     "build": "mkdir -p build && rollup -c && npm run docs",
     "watch": "watch 'npm run build' src",
-    "docs": "./node_modules/.bin/jsdoc -r src README.md -d ./docs -t ./node_modules/minami"
+    "docs": "./node_modules/.bin/jsdoc -r src README.md -d ./docs -t ./node_modules/minami",
+    "prepublishOnly": "npm test"
   },
   "repository": {
     "type": "git",
