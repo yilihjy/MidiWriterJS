@@ -49,6 +49,9 @@ class Track {
 					if (typeof properties === 'object') {
 						for (var j in properties) {
 							switch(j) {
+								case 'channel':
+									event.channel = properties[j];
+									break;
 								case 'duration':
 									event.duration = properties[j];
 									break;
