@@ -196,21 +196,27 @@ class Utils {
 				return 4;
 			case '2':
 				return 2;
-			case 'd2':
+			case 'd2': // Dotted half
 				return 3;
+			case 'dd2': // Double dotted half
+				return 3.5;
 			case '4':
 				return 1;
 			case '4t':
 				return 0.666;
-			case 'd4':
+			case 'd4': // Dotted quarter
 				return 1.5;
+			case 'dd4': // Double dotted quarter
+				return 1.75;
 			case '8':
 				return 0.5;
 			case '8t':
 				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
 				return 0.33;
-			case 'd8':
+			case 'd8': // Dotted eighth
 				return 0.75;
+			case 'dd8': // Double dotted eighth
+				return 0.875;
 			case '16':
 				return 0.25;
 			case '16t':
