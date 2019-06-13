@@ -88,7 +88,7 @@ The `NoteEvent` supports these options:
 					<li><code>16t</code> : sixteenth triplet</li>
 					<li><code>32</code> : thirty-second</li>
 					<li><code>64</code> : sixty-fourth</li>
-					<li><code>Tn</code> : where n is an explicit number of ticks</li>
+					<li><code>Tn</code> : where n is an explicit number of ticks (T128 = 1 beat)</li>
 				</ul>
 				If an array of durations is passed then the sum of the durations will be used.
 			</td>
