@@ -2,7 +2,7 @@ import {NoteEvent} from './note-events/note-event';
 import {Track} from './track';
 
 class VexFlow {
-	
+
 	constructor() {
 		// code...
 	}
@@ -32,7 +32,7 @@ class VexFlow {
 			}
 
 			track.addEvent(new NoteEvent({pitch: pitches, duration: this.convertDuration(tickable), wait: wait}));
-			
+
 			// reset wait
 			wait = 0;
 		});
@@ -47,7 +47,7 @@ class VexFlow {
 	 */
 	convertPitch(pitch) {
 		return pitch.replace('/', '');
-	} 
+	}
 
 
 	/**
@@ -67,7 +67,7 @@ class VexFlow {
 		}
 
 		return note.duration;
-	};
+	}
 }
 
 export {VexFlow};
