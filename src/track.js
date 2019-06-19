@@ -36,7 +36,7 @@ class Track {
 	 * Events without a specific startTick property are assumed to be added in order of how they should output.
 	 * Events with a specific startTick property are set aside for now will be merged in during build process.
 	 * @param {(NoteEvent|ProgramChangeEvent)} events - Event object or array of Event objects.
-	 * @param {function} mapFunction - Callback which can be used to apply specific properties to all events. 
+	 * @param {function} mapFunction - Callback which can be used to apply specific properties to all events.
 	 * @return {Track}
 	 */
 	addEvent(events, mapFunction) {
@@ -62,7 +62,7 @@ class Track {
 									event.velocity = Utils.convertVelocity(properties[j]);
 									break;
 							}
-						}		
+						}
 					}
 				}
 
@@ -109,7 +109,7 @@ class Track {
 		});
 
 		this.mergeExplicitTickEvents();
-		
+
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 		return this;
 	}
@@ -121,7 +121,7 @@ class Track {
 		this.explicitTickEvents.sort((a, b) => a.startTick - b.startTick);
 
 		// Now this.explicitTickEvents is in correct order, and so is this.events naturally.
-		// For each explicit tick event, splice it into the main list of events and 
+		// For each explicit tick event, splice it into the main list of events and
 		// adjust the delta on the following events so they still play normally.
 		this.explicitTickEvents.forEach((noteEvent) => {
 			// Convert NoteEvent to it's respective NoteOn/NoteOff events
@@ -157,7 +157,7 @@ class Track {
 	 * @return {Track}
 	 */
 	mergeSingleEvent(event) {
-		// Find index of existing event we need to follow with 
+		// Find index of existing event we need to follow with
 		var lastEventIndex = 0;
 
 		for (var i = 0; i < this.events.length; i++) {
@@ -219,7 +219,7 @@ class Track {
 
 	/**
 	 * Sets key signature.
-	 * @param {*} sf - 
+	 * @param {*} sf -
 	 * @param {*} mi -
 	 * @return {Track}
 	 */

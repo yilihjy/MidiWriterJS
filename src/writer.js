@@ -1,5 +1,4 @@
 import {HeaderChunk} from './header-chunk';
-import {Constants} from './constants';
 import {Utils} from './utils';
 
 /**
@@ -12,7 +11,7 @@ class Writer {
 		// Ensure track is an array
 		tracks = Utils.toArray(tracks);
 
-		this.data = [];		
+		this.data = [];
 		this.data.push(new HeaderChunk(tracks.length))
 
 		// For each track add final end of track event and build data
@@ -48,7 +47,7 @@ class Writer {
      * @return {string}
      */
     dataUri() {
-    	return 'data:audio/midi;base64,' + this.base64();
+		return 'data:audio/midi;base64,' + this.base64();
     }
 
 	/**
@@ -56,7 +55,7 @@ class Writer {
 	 * @return {string}
 	 */
     stdout() {
-    	return process.stdout.write(new Buffer(this.buildFile()));
+		return process.stdout.write(new Buffer(this.buildFile()));
     }
 
 	/**

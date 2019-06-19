@@ -33,14 +33,14 @@ class Utils {
 	}
 
 	/**
-     * Returns the correct MIDI number for the specified pitch.
-     * Uses Tonal Midi - https://github.com/danigb/tonal/tree/master/packages/midi
-     * @param {(string|number)} pitch - 'C#4' or midi note code
-     * @return {number}
-     */
-     static getPitch(pitch) {
-     	return toMidi(pitch);
-     }
+	 * Returns the correct MIDI number for the specified pitch.
+	 * Uses Tonal Midi - https://github.com/danigb/tonal/tree/master/packages/midi
+	 * @param {(string|number)} pitch - 'C#4' or midi note code
+	 * @return {number}
+	 */
+	static getPitch(pitch) {
+		return toMidi(pitch);
+	}
 
 	/**
 	 * Translates number of ticks to MIDI timestamp format, returning an array of
@@ -52,22 +52,22 @@ class Utils {
 	 * @return {array} - Bytes that form the MIDI time value
 	 */
 	static numberToVariableLength(ticks) {
-	    var buffer = ticks & 0x7F;
+		var buffer = ticks & 0x7F;
 
-	    while (ticks = ticks >> 7) {
-	        buffer <<= 8;
-	        buffer |= ((ticks & 0x7F) | 0x80);
-	    }
+		while (ticks = ticks >> 7) {
+			buffer <<= 8;
+			buffer |= ((ticks & 0x7F) | 0x80);
+		}
 
-	    var bList = [];
-	    while (true) {
-	        bList.push(buffer & 0xff);
+		var bList = [];
+		while (true) {
+			bList.push(buffer & 0xff);
 
-	        if (buffer & 0x80) buffer >>= 8
-	        else { break; }
-	    }
+			if (buffer & 0x80) buffer >>= 8
+			else { break; }
+		}
 
-	    return bList;
+		return bList;
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Utils {
 		return hexArray;
 	}
 
-	/**	
+	/**
 	 * Converts value to array if needed.
 	 * @param {string} value
 	 * @return {array}
@@ -150,7 +150,7 @@ class Utils {
 		// Max passed value limited to 100
 		velocity = velocity > 100 ? 100 : velocity;
 		return Math.round(velocity / 100 * 127);
-	};
+	}
 
 	/**
 	 * Gets the total number of ticks of a specified duration.
@@ -231,7 +231,7 @@ class Utils {
 		}
 
 		throw duration + ' is not a valid duration.';
-	};
+	}
 }
 
 export {Utils};
