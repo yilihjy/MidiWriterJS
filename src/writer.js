@@ -64,7 +64,7 @@ class Writer {
 	 */
 	saveMIDI(filename) {
 		const fs = require('fs');
-		const buffer = new Buffer(this.buildFile());
+		const buffer = new Buffer.from(this.buildFile());
 		fs.writeFile(filename + '.mid', buffer, function (err) {
 			if(err) throw err;
 		});
