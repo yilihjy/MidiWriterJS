@@ -18,7 +18,8 @@
     "eslint-plugin-standard": "^4.0.0",
     "jsdoc": "^3.5.5",
     "minami": "^1.1.1",
-    "mocha": "^5.2.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
     "rollup": "^1.0.1",
     "rollup-plugin-babel": "^4.2.0",
     "uglify-js": "^2.7.3",
@@ -35,7 +36,7 @@
     "lint:js": "eslint 'src/**/**.js'",
     "prepublishOnly": "npm test",
     "pretest": "npm run build",
-    "test": "mocha",
+    "test": "nyc --reporter=text mocha --no-config --no-package",
     "watch": "watch 'npm run build' src"
   },
   "repository": {

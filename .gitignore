@@ -9,3 +9,5 @@ yarn.lock
 
 # test artifacts
 test.mid.mid
+.nyc_output/
+
