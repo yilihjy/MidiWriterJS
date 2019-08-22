@@ -7,6 +7,7 @@ import {KeySignatureEvent} from './meta-events/key-signature-event';
 import {LyricEvent} from './meta-events/lyric-event';
 import {MarkerEvent} from './meta-events/marker-event';
 import {NoteOnEvent} from './note-events/note-on-event';
+import {PitchBendEvent} from './meta-events/pitch-bend-event';
 import {TempoEvent} from './meta-events/tempo-event';
 import {TextEvent} from './meta-events/text-event';
 import {TimeSignatureEvent} from './meta-events/time-signature-event';
@@ -297,6 +298,16 @@ class Track {
 	polyModeOn() {
 		const event = new NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
 		return this.addEvent(event);
+	}
+
+
+	/**
+	 * Sets a pitch bend.
+	 * @param {float} bend - Bend value ranging [-1,1], zero meaning no bend.
+	 * @return {Track}
+	 */
+	setPitchBend(bend) {
+		return this.addEvent(new PitchBendEvent({bend}));
 	}
 
 }
