@@ -33,14 +33,14 @@ class Utils {
 	}
 
 	/**
-     * Returns the correct MIDI number for the specified pitch.
-     * Uses Tonal Midi - https://github.com/danigb/tonal/tree/master/packages/midi
-     * @param {(string|number)} pitch - 'C#4' or midi note code
-     * @return {number}
-     */
-     static getPitch(pitch) {
-     	return toMidi(pitch);
-     }
+	 * Returns the correct MIDI number for the specified pitch.
+	 * Uses Tonal Midi - https://github.com/danigb/tonal/tree/master/packages/midi
+	 * @param {(string|number)} pitch - 'C#4' or midi note code
+	 * @return {number}
+	 */
+	static getPitch(pitch) {
+		return toMidi(pitch);
+	}
 
 	/**
 	 * Translates number of ticks to MIDI timestamp format, returning an array of
@@ -52,22 +52,22 @@ class Utils {
 	 * @return {array} - Bytes that form the MIDI time value
 	 */
 	static numberToVariableLength(ticks) {
-	    var buffer = ticks & 0x7F;
+		var buffer = ticks & 0x7F;
 
-	    while (ticks = ticks >> 7) {
-	        buffer <<= 8;
-	        buffer |= ((ticks & 0x7F) | 0x80);
-	    }
+		while (ticks = ticks >> 7) {
+			buffer <<= 8;
+			buffer |= ((ticks & 0x7F) | 0x80);
+		}
 
-	    var bList = [];
-	    while (true) {
-	        bList.push(buffer & 0xff);
+		var bList = [];
+		while (true) {
+			bList.push(buffer & 0xff);
 
-	        if (buffer & 0x80) buffer >>= 8
-	        else { break; }
-	    }
+			if (buffer & 0x80) buffer >>= 8
+			else { break; }
+		}
 
-	    return bList;
+		return bList;
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Utils {
 		return hexArray;
 	}
 
-	/**	
+	/**
 	 * Converts value to array if needed.
 	 * @param {string} value
 	 * @return {array}
@@ -150,7 +150,7 @@ class Utils {
 		// Max passed value limited to 100
 		velocity = velocity > 100 ? 100 : velocity;
 		return Math.round(velocity / 100 * 127);
-	};
+	}
 
 	/**
 	 * Gets the total number of ticks of a specified duration.
@@ -196,21 +196,27 @@ class Utils {
 				return 4;
 			case '2':
 				return 2;
-			case 'd2':
+			case 'd2': // Dotted half
 				return 3;
+			case 'dd2': // Double dotted half
+				return 3.5;
 			case '4':
 				return 1;
 			case '4t':
 				return 0.666;
-			case 'd4':
+			case 'd4': // Dotted quarter
 				return 1.5;
+			case 'dd4': // Double dotted quarter
+				return 1.75;
 			case '8':
 				return 0.5;
 			case '8t':
 				// For 8th triplets, let's divide a quarter by 3, round to the nearest int, and substract the remainder to the last one.
 				return 0.33;
-			case 'd8':
+			case 'd8': // Dotted eighth
 				return 0.75;
+			case 'dd8': // Double dotted eighth
+				return 0.875;
 			case '16':
 				return 0.25;
 			case '16t':
@@ -225,7 +231,7 @@ class Utils {
 		}
 
 		throw duration + ' is not a valid duration.';
-	};
+	}
 }
 
 export {Utils};

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ControllerChangeEvent - Documentation</title>
+    <title>meta-events/pitch-bend-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,206 +29,50 @@
 
 <div id="main">
     
-    <h1 class="page-title">ControllerChangeEvent</h1>
+    <h1 class="page-title">meta-events/pitch-bend-event.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        ControllerChangeEvent
-        </h2>
-        
-            <div class="class-description">Holds all data for a "controller change" MIDI event</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="ControllerChangeEvent"><span class="type-signature"></span>new ControllerChangeEvent<span class="signature">(fields)</span><span class="type-signature"> &rarr; {<a href="ControllerChangeEvent.html">ControllerChangeEvent</a>}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controller-change-event.js.html">controller-change-event.js</a>, <a href="controller-change-event.js.html#line9">line 9</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>fields</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>object</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                {controllerNumber: integer, controllerValue: integer}
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="ControllerChangeEvent.html">ControllerChangeEvent</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Constants} from '../constants';
+import {Utils} from '../utils';
+
+/**
+ * Holds all data for a "Pitch Bend" MIDI event
+ * [ -1.0, 0, 1.0 ] ->  [ 0, 8192, 16383]
+ * @param {object} fields { bend : float, channel : int }
+ * @return {PitchBendEvent}
+ */
+const scale14bits = (zeroOne) => {
+    if ( zeroOne &lt;= 0 ) {
+        return Math.floor( 16384 * ( zeroOne + 1 ) / 2 );
+    }
+
+    return Math.floor( 16383 * ( zeroOne + 1 ) / 2 );
+}
+
+class PitchBendEvent {
+    constructor(fields) {
+		this.type = 'pitch-bend';
+ 
+		let bend14 = scale14bits(fields.bend);
+		let channel = fields.channel || 0;
+
+		let lsbValue = bend14 &amp; 0x7f;          
+		let msbValue = ( bend14 >> 7 ) &amp; 0x7f;
+		this.data = Utils.numberToVariableLength(0x00).concat(Constants.PITCH_BEND_STATUS | channel, lsbValue, msbValue);
+    }
+}
+
+export {PitchBendEvent};
+</code></pre>
+        </article>
+    </section>
 
 
 

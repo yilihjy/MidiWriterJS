@@ -11,8 +11,8 @@ class NoteOnEvent {
 		fields = Object.assign({
 			channel: 1,
 			startTick: null,
-		    velocity: 50,
-		    wait: 0,
+			velocity: 50,
+			wait: 0,
 		}, fields);
 
 		this.type 		= 'note-on';

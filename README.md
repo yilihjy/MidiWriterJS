@@ -23,10 +23,10 @@ var MidiWriter = require('midi-writer-js');
 var track = new MidiWriter.Track();
 
 // Define an instrument (optional):
-track.addEvent(new MidiWriter.ProgramChangeEvent({instrument : 1}));
+track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1}));
 
 // Add some notes:
-var note = new MidiWriter.NoteEvent({pitch:['C4', 'D4', 'E4'], duration: '4'});
+var note = new MidiWriter.NoteEvent({pitch: ['C4', 'D4', 'E4'], duration: '4'});
 track.addEvent(note);
 
 // Generate a data URI
@@ -75,17 +75,20 @@ The `NoteEvent` supports these options:
 					<li><code>1</code>  : whole</li>
 					<li><code>2</code>  : half</li>
 					<li><code>d2</code> : dotted half</li>
+					<li><code>dd2</code> : double dotted half</li>
 					<li><code>4</code>  : quarter</li>
 					<li><code>4t</code>  : quarter triplet</li>
 					<li><code>d4</code> : dotted quarter</li>
+					<li><code>dd4</code> : double dotted quarter</li>
 					<li><code>8</code>  : eighth</li>
 					<li><code>8t</code> : eighth triplet</li>
 					<li><code>d8</code> : dotted eighth</li>
+					<li><code>dd8</code> : double dotted eighth</li>
 					<li><code>16</code> : sixteenth</li>
 					<li><code>16t</code> : sixteenth triplet</li>
 					<li><code>32</code> : thirty-second</li>
 					<li><code>64</code> : sixty-fourth</li>
-					<li><code>Tn</code> : where n is an explicit number of ticks</li>
+					<li><code>Tn</code> : where n is an explicit number of ticks (T128 = 1 beat)</li>
 				</ul>
 				If an array of durations is passed then the sum of the durations will be used.
 			</td>
@@ -145,15 +148,15 @@ var MidiWriter = require('midi-writer-js');
 var track = new MidiWriter.Track();
 
 track.addEvent([
-			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-			new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}),
-			new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-			new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
+		new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
+		new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
+		new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
+		new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
+		new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}),
+		new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
+		new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
 	], function(event, index) {
-    return {sequential:true};
+    return {sequential: true};
   }
 );
 

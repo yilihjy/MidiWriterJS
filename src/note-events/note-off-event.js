@@ -11,7 +11,7 @@ class NoteOffEvent {
 		fields = Object.assign({
 			channel: 1,
 			noteOnTick: null,
-		    velocity: 50,
+			velocity: 50,
 		}, fields);
 
 		this.type 		= 'note-off';
@@ -24,7 +24,7 @@ class NoteOffEvent {
 		this.midiNumber = Utils.getPitch(this.pitch);
 		this.tick 		= null;
 		this.delta 		= Utils.getTickDuration(this.duration);
-		this.data 		= fields.data;	
+		this.data 		= fields.data;
 	}
 
 	/**

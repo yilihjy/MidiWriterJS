@@ -10,9 +10,16 @@
     "@babel/core": "^7.2.2",
     "@babel/plugin-transform-destructuring": "^7.2.0",
     "@babel/preset-env": "^7.2.3",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
     "jsdoc": "^3.5.5",
     "minami": "^1.1.1",
-    "mocha": "^5.2.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
     "rollup": "^1.0.1",
     "rollup-plugin-babel": "^4.2.0",
     "uglify-js": "^2.7.3",
@@ -24,11 +31,13 @@
     "test": "test"
   },
   "scripts": {
-    "pretest": "npm run build",
-    "test": "mocha",
     "build": "mkdir -p build && rollup -c && npm run docs",
-    "watch": "watch 'npm run build' src",
-    "docs": "./node_modules/.bin/jsdoc -r src README.md -d ./docs -t ./node_modules/minami"
+    "docs": "./node_modules/.bin/jsdoc -r src README.md -d ./docs -t ./node_modules/minami",
+    "lint:js": "eslint 'src/**/**.js'",
+    "prepublishOnly": "npm test",
+    "pretest": "npm run build",
+    "test": "nyc --reporter=text mocha --no-config --no-package",
+    "watch": "watch 'npm run build' src"
   },
   "repository": {
     "type": "git",

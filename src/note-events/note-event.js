@@ -13,11 +13,11 @@ class NoteEvent {
 		// Set default fields
 		fields = Object.assign({
 			channel: 1,
-		    repeat: 1,
-		    sequential: false,
-		    startTick: null,
-		    velocity: 50,
-		    wait: 0,
+			repeat: 1,
+			sequential: false,
+			startTick: null,
+			velocity: 50,
+			wait: 0,
 		}, fields);
 
 		this.data 		= [];
@@ -162,7 +162,7 @@ class NoteEvent {
 		}
 
 		return this;
-	};
+	}
 }
 
 export {NoteEvent};

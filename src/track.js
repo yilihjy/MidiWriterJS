@@ -7,6 +7,7 @@ import {KeySignatureEvent} from './meta-events/key-signature-event';
 import {LyricEvent} from './meta-events/lyric-event';
 import {MarkerEvent} from './meta-events/marker-event';
 import {NoteOnEvent} from './note-events/note-on-event';
+import {PitchBendEvent} from './meta-events/pitch-bend-event';
 import {TempoEvent} from './meta-events/tempo-event';
 import {TextEvent} from './meta-events/text-event';
 import {TimeSignatureEvent} from './meta-events/time-signature-event';
@@ -36,7 +37,7 @@ class Track {
 	 * Events without a specific startTick property are assumed to be added in order of how they should output.
 	 * Events with a specific startTick property are set aside for now will be merged in during build process.
 	 * @param {(NoteEvent|ProgramChangeEvent)} events - Event object or array of Event objects.
-	 * @param {function} mapFunction - Callback which can be used to apply specific properties to all events. 
+	 * @param {function} mapFunction - Callback which can be used to apply specific properties to all events.
 	 * @return {Track}
 	 */
 	addEvent(events, mapFunction) {
@@ -49,6 +50,9 @@ class Track {
 					if (typeof properties === 'object') {
 						for (var j in properties) {
 							switch(j) {
+								case 'channel':
+									event.channel = properties[j];
+									break;
 								case 'duration':
 									event.duration = properties[j];
 									break;
@@ -59,7 +63,7 @@ class Track {
 									event.velocity = Utils.convertVelocity(properties[j]);
 									break;
 							}
-						}		
+						}
 					}
 				}
 
@@ -106,7 +110,7 @@ class Track {
 		});
 
 		this.mergeExplicitTickEvents();
-		
+
 		this.size = Utils.numberToBytes(this.data.length, 4); // 4 bytes long
 		return this;
 	}
@@ -118,7 +122,7 @@ class Track {
 		this.explicitTickEvents.sort((a, b) => a.startTick - b.startTick);
 
 		// Now this.explicitTickEvents is in correct order, and so is this.events naturally.
-		// For each explicit tick event, splice it into the main list of events and 
+		// For each explicit tick event, splice it into the main list of events and
 		// adjust the delta on the following events so they still play normally.
 		this.explicitTickEvents.forEach((noteEvent) => {
 			// Convert NoteEvent to it's respective NoteOn/NoteOff events
@@ -154,7 +158,7 @@ class Track {
 	 * @return {Track}
 	 */
 	mergeSingleEvent(event) {
-		// Find index of existing event we need to follow with 
+		// Find index of existing event we need to follow with
 		var lastEventIndex = 0;
 
 		for (var i = 0; i < this.events.length; i++) {
@@ -216,7 +220,7 @@ class Track {
 
 	/**
 	 * Sets key signature.
-	 * @param {*} sf - 
+	 * @param {*} sf -
 	 * @param {*} mi -
 	 * @return {Track}
 	 */
@@ -294,6 +298,16 @@ class Track {
 	polyModeOn() {
 		const event = new NoteOnEvent({data: [0x00, 0xB0, 0x7E, 0x00]});
 		return this.addEvent(event);
+	}
+
+
+	/**
+	 * Sets a pitch bend.
+	 * @param {float} bend - Bend value ranging [-1,1], zero meaning no bend.
+	 * @return {Track}
+	 */
+	setPitchBend(bend) {
+		return this.addEvent(new PitchBendEvent({bend}));
 	}
 
 }

@@ -1,4 +1,5 @@
 import {Constants} from './constants';
+import {Utils} from './utils.js';
 
 /**
  * Holds all data for a "controller change" MIDI event
