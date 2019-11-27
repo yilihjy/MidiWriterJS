@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>note-events/note-off-event.js - Documentation</title>
+    <title>meta-events/controller-change-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">note-events/note-off-event.js</h1>
+    <h1 class="page-title">meta-events/controller-change-event.js</h1>
     
 
     
@@ -39,68 +39,23 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {Utils} from '../utils';
+            <pre class="prettyprint source linenums"><code>import {Constants} from '../constants';
+import {Utils} from '../utils.js';
 
 /**
- * Holds all data for a "note off" MIDI event
- * @param {object} fields {data: []}
- * @return {NoteOffEvent}
+ * Holds all data for a "controller change" MIDI event
+ * @param {object} fields {controllerNumber: integer, controllerValue: integer}
+ * @return {ControllerChangeEvent}
  */
-class NoteOffEvent {
+class ControllerChangeEvent {
 	constructor(fields) {
-		// Set default fields
-		fields = Object.assign({
-			channel: 1,
-			noteOnTick: null,
-			velocity: 50,
-		}, fields);
-
-		this.type 		= 'note-off';
-		this.channel 	= fields.channel;
-		this.pitch 		= fields.pitch;
-		this.duration 	= fields.duration;
-		this.velocity 	= fields.velocity;
-		this.noteOnTick = fields.noteOnTick;
-
-		this.midiNumber = Utils.getPitch(this.pitch);
-		this.tick 		= null;
-		this.delta 		= Utils.getTickDuration(this.duration);
-		this.data 		= fields.data;
+		this.type = 'controller';
+		// delta time defaults to 0.
+		this.data = Utils.numberToVariableLength(0x00).concat(Constants.CONTROLLER_CHANGE_STATUS, fields.controllerNumber, fields.controllerValue);
 	}
-
-	/**
-	 * Builds int array for this event.
-	 * @param {Track} track - parent track
-	 * @return {NoteOffEvent}
-	 */
-	buildData(track) {
-		if (this.noteOnTick) {
-			this.tick = this.noteOnTick + Utils.getTickDuration(this.duration);
-
-		} else {
-			this.tick = this.delta + track.tickPointer;
-		}
-
-		this.data = Utils.numberToVariableLength(this.delta)
-					.concat(
-							this.getStatusByte(),
-							this.midiNumber,
-							Utils.convertVelocity(this.velocity)
-					);
-
-		return this;
-	}
-
-	/**
-	 * Gets the note off status code based on the selected channel. 0x8{0-F}
-	 * Note off at channel 0 is 0x80 (128)
-	 * 0 = Ch 1
-	 * @return {number}
-	 */
-	getStatusByte() {return 128 + this.channel - 1}
 }
 
-export {NoteOffEvent};
+export {ControllerChangeEvent};
 </code></pre>
         </article>
     </section>
