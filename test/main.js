@@ -101,6 +101,13 @@ describe('MidiWriterJS', function() {
 			const write = new MidiWriter.Writer(track);
 			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAAGwD/BRNPaCBzYXkgY2FuIHlvdSBzZWUuAP8vAA==', write.base64());
 		});
+
+		it('should return specific base64 string when adding a controller change event', function() {
+			const track = new MidiWriter.Track();
+			track.controllerChange(1, 127);
+			const write = new MidiWriter.Writer(track);
+			assert.equal('TVRoZAAAAAYAAAABAIBNVHJrAAAACACwAX8A/y8A', write.base64());
+		});
 	});
 
 	describe('#Utils()', function() {

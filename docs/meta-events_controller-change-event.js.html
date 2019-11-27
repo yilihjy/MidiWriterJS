@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>meta-events/copyright-event.js - Documentation</title>
+    <title>meta-events/controller-change-event.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">meta-events/copyright-event.js</h1>
+    <h1 class="page-title">meta-events/controller-change-event.js</h1>
     
 
     
@@ -40,30 +40,22 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import {Constants} from '../constants';
-import {Utils} from '../utils';
+import {Utils} from '../utils.js';
 
 /**
- * Object representation of a tempo meta event.
- * @param {string} text - Copyright text
- * @return {CopyrightEvent}
+ * Holds all data for a "controller change" MIDI event
+ * @param {object} fields {controllerNumber: integer, controllerValue: integer}
+ * @return {ControllerChangeEvent}
  */
-class CopyrightEvent {
-	constructor(text) {
-		this.type = 'copyright';
-
-		const textBytes = Utils.stringToBytes(text);
-
-		// Start with zero time delta
-		this.data = Utils.numberToVariableLength(0x00).concat(
-			Constants.META_EVENT_ID,
-			Constants.META_COPYRIGHT_ID,
-			Utils.numberToVariableLength(textBytes.length), // Size
-			textBytes, // Text
-		);
+class ControllerChangeEvent {
+	constructor(fields) {
+		this.type = 'controller';
+		// delta time defaults to 0.
+		this.data = Utils.numberToVariableLength(0x00).concat(Constants.CONTROLLER_CHANGE_STATUS, fields.controllerNumber, fields.controllerValue);
 	}
 }
 
-export {CopyrightEvent};
+export {ControllerChangeEvent};
 </code></pre>
         </article>
     </section>

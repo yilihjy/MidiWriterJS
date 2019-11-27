@@ -1,4 +1,5 @@
 import {Constants} from './constants';
+import {ControllerChangeEvent} from './meta-events/controller-change-event';
 import {CopyrightEvent} from './meta-events/copyright-event';
 import {CuePointEvent} from './meta-events/cue-point-event';
 import {EndTrackEvent} from './meta-events/end-track-event';
@@ -308,6 +309,17 @@ class Track {
 	 */
 	setPitchBend(bend) {
 		return this.addEvent(new PitchBendEvent({bend}));
+	}
+
+
+	/**
+	 * Adds a controller change event
+	 * @param {number} number - Control number.
+	 * @param {number} value - Control value.
+	 * @return {Track}
+	 */
+	controllerChange(number, value) {
+		return this.addEvent(new ControllerChangeEvent({controllerNumber: number, controllerValue: value}));
 	}
 
 }
