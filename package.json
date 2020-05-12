@@ -38,7 +38,8 @@
     "prepublishOnly": "npm test",
     "pretest": "npm run build",
     "test": "nyc --reporter=text mocha --no-config --no-package",
-    "watch": "watch 'npm run build' src"
+    "watch": "watch 'npm run build' src",
+    "postinstall": "node postinstall.js"
   },
   "repository": {
     "type": "git",
