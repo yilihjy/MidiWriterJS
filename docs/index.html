@@ -48,12 +48,17 @@
 
 
     <section class="readme">
-        <article><h1>&#9836; MidiWriterJS</h1><p><a href="https://badge.fury.io/js/midi-writer-js"><img src="https://badge.fury.io/js/midi-writer-js.svg" alt="npm version"></a>
+        <article><h1>♬ MidiWriterJS</h1>
+<p><a href="https://badge.fury.io/js/midi-writer-js"><img src="https://badge.fury.io/js/midi-writer-js.svg" alt="npm version"></a>
 <a href="https://travis-ci.org/grimmdude/MidiWriterJS"><img src="https://travis-ci.org/grimmdude/MidiWriterJS.svg?branch=master" alt="Build Status"></a></p>
-<p>MidiWriterJS is a JavaScript library providing an API for generating expressive multi-track MIDI files.  </p>
+<p>MidiWriterJS is a JavaScript library providing an API for generating expressive multi-track MIDI files.</p>
 <p>Note that the <code>master</code> branch is in active development so if you're looking for a tried and true stable version please use the latest release.</p>
 <p><a href="http://grimmdude.com/MidiWriterJS/docs/">Source Documentation</a></p>
-<h2>Install</h2><pre class="prettyprint source lang-sh"><code>npm install midi-writer-js</code></pre><h2>Getting Started</h2><pre class="prettyprint source lang-javascript"><code>var MidiWriter = require('midi-writer-js');
+<h2>Install</h2>
+<pre class="prettyprint source lang-sh"><code>npm install midi-writer-js
+</code></pre>
+<h2>Getting Started</h2>
+<pre class="prettyprint source lang-javascript"><code>var MidiWriter = require('midi-writer-js');
 
 // Start with a new track
 var track = new MidiWriter.Track();
@@ -67,7 +72,11 @@ track.addEvent(note);
 
 // Generate a data URI
 var write = new MidiWriter.Writer(track);
-console.log(write.dataUri());</code></pre><h2>Documentation</h2><h3><code>MidiWriter.Track()</code></h3><ul>
+console.log(write.dataUri());
+</code></pre>
+<h2>Documentation</h2>
+<h3><code>MidiWriter.Track()</code></h3>
+<ul>
 <li><code>addEvent({event}, mapFunction)</code></li>
 <li><code>setTempo(tempo)</code></li>
 <li><code>addText(text)</code></li>
@@ -79,115 +88,119 @@ console.log(write.dataUri());</code></pre><h2>Documentation</h2><h3><code>MidiWr
 <li><code>addLyric(text)</code></li>
 <li><code>setTimeSignature(numerator, denominator)</code></li>
 </ul>
-<h3><code>MidiWriter.NoteEvent({options})</code></h3><p>The <code>NoteEvent</code> supports these options:</p>
+<h3><code>MidiWriter.NoteEvent({options})</code></h3>
+<p>The <code>NoteEvent</code> supports these options:</p>
 <table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><b>pitch</b></td>
-            <td>string or array</td>
-            <td>Each pitch can be a string or valid MIDI note code.  Format for string is <code>C#4</code>.  Pro tip: You can use the output from <a href="https://github.com/danigb/tonal" target="_blank">tonal</a> functions to build scales, chords, intervals, etc. in this parameter.</td>
-        </tr>
-        <tr>
-            <td><b>duration</b></td>
-            <td>string or array</td>
-            <td>
-                How long the note should sound.
-                <ul>
-                    <li><code>1</code>  : whole</li>
-                    <li><code>2</code>  : half</li>
-                    <li><code>d2</code> : dotted half</li>
-                    <li><code>dd2</code> : double dotted half</li>
-                    <li><code>4</code>  : quarter</li>
-                    <li><code>4t</code>  : quarter triplet</li>
-                    <li><code>d4</code> : dotted quarter</li>
-                    <li><code>dd4</code> : double dotted quarter</li>
-                    <li><code>8</code>  : eighth</li>
-                    <li><code>8t</code> : eighth triplet</li>
-                    <li><code>d8</code> : dotted eighth</li>
-                    <li><code>dd8</code> : double dotted eighth</li>
-                    <li><code>16</code> : sixteenth</li>
-                    <li><code>16t</code> : sixteenth triplet</li>
-                    <li><code>32</code> : thirty-second</li>
-                    <li><code>64</code> : sixty-fourth</li>
-                    <li><code>Tn</code> : where n is an explicit number of ticks (T128 = 1 beat)</li>
-                </ul>
-                If an array of durations is passed then the sum of the durations will be used.
-            </td>
-        </tr>
-        <tr>
-            <td><b>wait</b></td>
-            <td>string or array</td>
-            <td>How long to wait before sounding note (rest).  Takes same values as <b>duration</b>.</td>
-        </tr>
-        <tr>
-            <td><b>sequential</b></td>
-            <td>boolean</td>
-            <td>If true then array of pitches will be played sequentially as opposed to simulatanously.  Default: <code>false</code></td>
-        </tr>
-        <tr>
-            <td><b>velocity</b></td>
-            <td>number</td>
-            <td>How loud the note should sound, values 1-100.  Default: <code>50</code></td>
-        </tr>
-        <tr>
-            <td><b>repeat</b></td>
-            <td>number</td>
-            <td>How many times this event should be repeated. Default: <code>1</code></td>
-        </tr>
-        <tr>
-            <td><b>channel</b></td>
-            <td>number</td>
-            <td>MIDI channel to use. Default: <code>1</code></td>
-        </tr>
-        <tr>
-            <td><b>grace</b></td>
-            <td>string or array</td>
-            <td>Grace note to be applied to note event.  Takes same value format as <code>pitch</code></td>
-        </tr>
-        <tr>
-            <td><b>startTick</b></td>
-            <td>number</td>
-            <td>Specific tick where this event should be played.  If this parameter is supplied then <code>wait</code> is disregarded if also supplied.</td>
-        </tr>
-    </tbody>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Type</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><b>pitch</b></td>
+			<td>string or array</td>
+			<td>Each pitch can be a string or valid MIDI note code.  Format for string is <code>C#4</code>.  Pro tip: You can use the output from <a href="https://github.com/danigb/tonal" target="_blank">tonal</a> functions to build scales, chords, intervals, etc. in this parameter.</td>
+		</tr>
+		<tr>
+			<td><b>duration</b></td>
+			<td>string or array</td>
+			<td>
+				How long the note should sound.
+				<ul>
+					<li><code>1</code>  : whole</li>
+					<li><code>2</code>  : half</li>
+					<li><code>d2</code> : dotted half</li>
+					<li><code>dd2</code> : double dotted half</li>
+					<li><code>4</code>  : quarter</li>
+					<li><code>4t</code>  : quarter triplet</li>
+					<li><code>d4</code> : dotted quarter</li>
+					<li><code>dd4</code> : double dotted quarter</li>
+					<li><code>8</code>  : eighth</li>
+					<li><code>8t</code> : eighth triplet</li>
+					<li><code>d8</code> : dotted eighth</li>
+					<li><code>dd8</code> : double dotted eighth</li>
+					<li><code>16</code> : sixteenth</li>
+					<li><code>16t</code> : sixteenth triplet</li>
+					<li><code>32</code> : thirty-second</li>
+					<li><code>64</code> : sixty-fourth</li>
+					<li><code>Tn</code> : where n is an explicit number of ticks (T128 = 1 beat)</li>
+				</ul>
+				If an array of durations is passed then the sum of the durations will be used.
+			</td>
+		</tr>
+		<tr>
+			<td><b>wait</b></td>
+			<td>string or array</td>
+			<td>How long to wait before sounding note (rest).  Takes same values as <b>duration</b>.</td>
+		</tr>
+		<tr>
+			<td><b>sequential</b></td>
+			<td>boolean</td>
+			<td>If true then array of pitches will be played sequentially as opposed to simulatanously.  Default: <code>false</code></td>
+		</tr>
+		<tr>
+			<td><b>velocity</b></td>
+			<td>number</td>
+			<td>How loud the note should sound, values 1-100.  Default: <code>50</code></td>
+		</tr>
+		<tr>
+			<td><b>repeat</b></td>
+			<td>number</td>
+			<td>How many times this event should be repeated. Default: <code>1</code></td>
+		</tr>
+		<tr>
+			<td><b>channel</b></td>
+			<td>number</td>
+			<td>MIDI channel to use. Default: <code>1</code></td>
+		</tr>
+		<tr>
+			<td><b>grace</b></td>
+			<td>string or array</td>
+			<td>Grace note to be applied to note event.  Takes same value format as <code>pitch</code></td>
+		</tr>
+		<tr>
+			<td><b>startTick</b></td>
+			<td>number</td>
+			<td>Specific tick where this event should be played.  If this parameter is supplied then <code>wait</code> is disregarded if also supplied.</td>
+		</tr>
+	</tbody>
 </table>
-
-
-<h3><code>MidiWriter.Writer(tracks)</code></h3><p>The <code>Writer</code> class provides a few ways to output the file:</p>
+<h3><code>MidiWriter.Writer(tracks)</code></h3>
+<p>The <code>Writer</code> class provides a few ways to output the file:</p>
 <ul>
 <li><code>buildFile()</code> <em>Uint8Array</em></li>
 <li><code>base64()</code> <em>string</em></li>
 <li><code>dataUri()</code> <em>string</em></li>
 <li><code>stdout()</code> <em>file stream (cli)</em></li>
 </ul>
-<h3>Hot Cross Buns</h3><p>Here's an example of how everyone's favorite song &quot;Hot Cross Buns&quot; could be written.  Note use of the mapping function passed as the second argument of <code>addEvent()</code>.  This can be used to apply specific properties to all events.  With some 
+<h3>Hot Cross Buns</h3>
+<p>Here's an example of how everyone's favorite song &quot;Hot Cross Buns&quot; could be written.  Note use of the mapping function passed as the second argument of <code>addEvent()</code>.  This can be used to apply specific properties to all events.  With some
 street smarts you could also use it for programmatic crescendos and other property 'animation'.</p>
 <pre class="prettyprint source lang-javascript"><code>var MidiWriter = require('midi-writer-js');
 
 var track = new MidiWriter.Track();
 
 track.addEvent([
-        new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-        new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-        new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-        new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-        new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}),
-        new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-        new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
-    ], function(event, index) {
+		new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
+		new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
+		new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
+		new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
+		new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}),
+		new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
+		new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
+	], function(event, index) {
     return {sequential: true};
   }
 );
 
 var write = new MidiWriter.Writer(track);
-console.log(write.dataUri());</code></pre><h3>VexFlow Integration</h3><p>MidiWriterJS can export MIDI from VexFlow voices, though this feature is still experimental.  Current usage is to use <code>MidiWriter.VexFlow.trackFromVoice(voice)</code> to create a MidiWriterJS <code>Track</code> object:</p>
+console.log(write.dataUri());
+</code></pre>
+<h3>VexFlow Integration</h3>
+<p>MidiWriterJS can export MIDI from VexFlow voices, though this feature is still experimental.  Current usage is to use <code>MidiWriter.VexFlow.trackFromVoice(voice)</code> to create a MidiWriterJS <code>Track</code> object:</p>
 <pre class="prettyprint source lang-javascript"><code>
 // ...VexFlow code defining notes
 var voice = create_4_4_voice().addTickables(notes);
@@ -195,7 +208,8 @@ var voice = create_4_4_voice().addTickables(notes);
 var vexWriter = new MidiWriter.VexFlow();
 var track = vexWriter.trackFromVoice(voice);
 var writer = new MidiWriter.Writer([track]);
-console.log(writer.dataUri());</code></pre></article>
+console.log(writer.dataUri());
+</code></pre></article>
     </section>
 
 
@@ -208,7 +222,7 @@ console.log(writer.dataUri());</code></pre></article>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Nov 27 2019 14:30:48 GMT-0800 (PST) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Mon May 11 2020 19:55:55 GMT-0700 (Pacific Daylight Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
