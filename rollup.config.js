@@ -1,4 +1,5 @@
 import babel from '@rollup/plugin-babel';
+import replace from '@rollup/plugin-replace';
 
 export default {
   input: 'src/main.js',
@@ -11,6 +12,7 @@ export default {
     babel({
       exclude: 'node_modules/**', // only transpile our source code
       plugins: ['@babel/plugin-transform-destructuring']
-    })
+    }),
+    replace({ 'process.browser': !!process.env.BROWSER }) 
   ]
 };

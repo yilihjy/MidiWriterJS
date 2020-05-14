@@ -3,7 +3,9 @@
   "version": "1.7.3",
   "description": "A library providing an API for generating MIDI files.",
   "main": "build/index.js",
+  "browser": "build/browser.js",
   "dependencies": {
+    "file-saver": "^2.0.2",
     "tonal-midi": "^0.69.7"
   },
   "devDependencies": {
@@ -11,6 +13,7 @@
     "@babel/plugin-transform-destructuring": "^7.9.5",
     "@babel/preset-env": "^7.9.6",
     "@rollup/plugin-babel": "^5.0.0",
+    "@rollup/plugin-replace": "^2.3.2",
     "eslint": "^7.0.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.20.2",
@@ -30,7 +33,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "mkdir -p build && rollup -c && npm run docs",
+    "build": "mkdir -p build && rollup -c && BROWSER=true rollup -c -f esm -o ./build/browser.js && npm run docs",
     "docs": "./node_modules/.bin/jsdoc -r src README.md -d ./docs -t ./node_modules/minami",
     "lint:js": "eslint 'src/**/**.js'",
     "prepublishOnly": "npm test",

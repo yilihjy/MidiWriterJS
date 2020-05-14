@@ -63,11 +63,17 @@ class Writer {
 	 * @param {string} filename
 	 */
 	saveMIDI(filename) {
-		const fs = require('fs');
-		const buffer = new Buffer.from(this.buildFile());
-		fs.writeFile(filename + '.mid', buffer, function (err) {
-			if(err) throw err;
-		});
+		if (process.browser) {
+			const FileSaver = require('file-saver');
+			const blob = new Blob([this.buildFile()], {type: "audio/mid"});
+			FileSaver.saveAs(blob, filename + '.mid');
+		} else {
+			const fs = require('fs');
+			const buffer = new Buffer.from(this.buildFile());
+			fs.writeFile(filename + '.mid', buffer, function (err) {
+				if(err) throw err;
+			});
+		}
 	}
 }
 
