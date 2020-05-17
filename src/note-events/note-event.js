@@ -99,10 +99,6 @@ class NoteEvent {
 				// Note off
 				this.pitch.forEach((p, i) => {
 					if (i == 0) {
-						// If this.startTick is set then don't use else block below.
-						// Using a duration:0 for non startTick events let's the buildData()
-						// method figure out it's own s
-
 						//noteOff = new NoteOffEvent({data: Utils.numberToVariableLength(tickDuration).concat(this.getNoteOffStatus(), Utils.getPitch(p), Utils.convertVelocity(this.velocity))});
 						var noteOffNew = new NoteOffEvent({
 							channel: this.channel,
