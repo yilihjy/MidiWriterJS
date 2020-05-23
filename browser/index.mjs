@@ -1,5 +1,5 @@
 var name = "midi-writer-js";
-var version = "1.7.3";
+var version = "1.7.4";
 var description = "A library providing an API for generating MIDI files.";
 var main = "build/index.js";
 var browser = "browser/index.mjs";
@@ -655,17 +655,16 @@ var NoteOffEvent = /*#__PURE__*/function () {
     // Set default fields
     fields = Object.assign({
       channel: 1,
-      noteOnTick: null,
-      velocity: 50
+      velocity: 50,
+      tick: null
     }, fields);
     this.type = 'note-off';
     this.channel = fields.channel;
     this.pitch = fields.pitch;
     this.duration = fields.duration;
     this.velocity = fields.velocity;
-    this.noteOnTick = fields.noteOnTick;
     this.midiNumber = Utils.getPitch(this.pitch);
-    this.tick = null;
+    this.tick = fields.tick;
     this.delta = Utils.getTickDuration(this.duration);
     this.data = fields.data;
   }
@@ -679,9 +678,7 @@ var NoteOffEvent = /*#__PURE__*/function () {
   _createClass(NoteOffEvent, [{
     key: "buildData",
     value: function buildData(track) {
-      if (this.noteOnTick) {
-        this.tick = this.noteOnTick + Utils.getTickDuration(this.duration);
-      } else {
+      if (this.tick === null) {
         this.tick = this.delta + track.tickPointer;
       }
 
@@ -805,7 +802,7 @@ var NoteEvent = /*#__PURE__*/function () {
                 duration: _this.duration,
                 velocity: _this.velocity,
                 pitch: p,
-                noteOnTick: _this.startTick
+                tick: _this.startTick !== null ? Utils.getTickDuration(_this.duration) - _this.startTick : null
               });
             } else {
               // Running status (can ommit the note off status)
@@ -815,7 +812,7 @@ var NoteEvent = /*#__PURE__*/function () {
                 duration: 0,
                 velocity: _this.velocity,
                 pitch: p,
-                noteOnTick: _this.startTick
+                tick: _this.startTick !== null ? Utils.getTickDuration(_this.duration) - _this.startTick : null
               });
             }
 
@@ -850,8 +847,7 @@ var NoteEvent = /*#__PURE__*/function () {
               channel: _this.channel,
               duration: _this.duration,
               velocity: _this.velocity,
-              pitch: p,
-              noteOnTick: _this.startTick
+              pitch: p
             });
 
             _this.events.push(noteOnNew, noteOffNew);
@@ -1179,7 +1175,7 @@ var Track = /*#__PURE__*/function () {
       var _this = this;
 
       Utils.toArray(events).forEach(function (event, i) {
-        if (event.type === 'note') {
+        if (event instanceof NoteEvent) {
           // Handle map function if provided
           if (typeof mapFunction === 'function') {
             var properties = mapFunction(i, event);
@@ -1241,7 +1237,7 @@ var Track = /*#__PURE__*/function () {
       this.tickPointer = 0;
       this.events.forEach(function (event, eventIndex) {
         // Build event & add to total tick duration
-        if (event.type === 'note-on' || event.type === 'note-off') {
+        if (event instanceof NoteOnEvent || event instanceof NoteOffEvent) {
           _this2.data = _this2.data.concat(event.buildData(_this2).data);
           _this2.tickPointer = event.tick;
         } else {
